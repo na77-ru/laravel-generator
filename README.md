@@ -1,6 +1,6 @@
 Usage
 
-composer require AlexClaimer/Generator --dev
+composer require alex-claimer/generator --dev
 
 php artisan vendor:publish --tag=alex-claimer-generator-config
 
