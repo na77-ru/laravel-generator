@@ -1,0 +1,44 @@
+{
+    "name": "alex-claimer/generator",
+    "type": "library",
+    "description": "description: alex-claimer/generator library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Alex Claimer",
+            "email": "alex@na77.ru"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "AlexClaimer\\Generator\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "AlexClaimer\\Generator\\": "src/",
+            "AlexClaimer\\Generator\\App\\": "src/app/",
+            "AlexClaimer\\Generator\\Tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AlexClaimer\\Generator\\App\\Providers\\GeneratorServiceProvider"
+            ]
+        },
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    },
+    "require": {
+
+    },
+    "require-dev": {
+
+    }
+
+
+}
