@@ -12,27 +12,27 @@ return [
     'table_prefix' => 'test', // 'test\\',
 
     'namespace_postfix' => '', // 'Test',
-    'generate_model' => true,
+    'generate_models' => true,
     'model' => [
         'namespace' => '\app\Models',// '\app\Models',
     ],
-    'generate_controller' => true,
+    'generate_controllers' => true, //  generate empty yet
     'controller' => [
         'namespace' => '\app\Http\Controllers',
     ],
-    'generate_repository' => true,
+    'generate_repositories' => true,
     'repository' => [
         'namespace' => '\app\Repositories',
     ],
-    'generate_observer' => true,
+    'generate_observers' => true,
     'observer' => [
         'namespace' => '\app\Observers',
     ],
-    'generate_request' => true,
+    'generate_requests' => true,
     'request' => [
         'namespace' => '\app\Http\Requests',
     ],
-    'generate_view' => false, // not generate yet
+    'generate_views' => false, // not generate yet
     'view' => [
         'namespace' => 'resources\views\\',
     ],

@@ -9,7 +9,9 @@ composer dump-autoload
 set in config/alex-claimer-generator/config.php
 
 php artisan gen:classes
+
 or
+
 url: your_project/alex-claimer-generate
 
 Generated classes is in config/alex-claimer-generator/already_made.php
