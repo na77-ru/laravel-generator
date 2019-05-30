@@ -27,15 +27,34 @@ class Helper
      */
     public static function makeFileDirName($type, $ClassName)
     {
-        $dir_name = base_path() .
-            config('alex-claimer-generator.config.' . $type . '.namespace') .
-            config('alex-claimer-generator.config.namespace_postfix');
+        $postfix = config('alex-claimer-generator.config.namespace_postfix');
+        if (trim($postfix) !== '') $postfix .= '\\';
+        $dirName = base_path() .
+            config('alex-claimer-generator.config.' . $type . '.namespace') . '\\' . $postfix;
 
-        if (!is_dir($dir_name)) {
-            mkdir($dir_name);
+        $dirName = self::checkAndMakeDir($dirName);
+
+        dd(__METHOD__,$dirName, $ClassName, $dirName . $ClassName . '.php');//11
+        return $dirName . $ClassName . '.php';
+    }
+
+    /**
+     * @param $dirName
+     * @return string
+     */
+    public static function checkAndMakeDir($dirName)
+    {
+        $arDirName = explode('\\', $dirName);
+        $newDirName = '';
+        foreach ($arDirName as $key => $dirName) {
+
+            $newDirName = $arDirName[$key];
+            bbb(__METHOD__, $arDirName, $key, $dirName, $newDirName);//11
+            if (!is_dir($dirName)) {
+                mkdir($dirName);bbb('not exist');
+            }
         }
-        //dd(__METHOD__,$dir_name, $ClassName,$dir_name . $ClassName . '.php');//11
-        return $dir_name . $ClassName . '.php';
+        return $newDirName;
     }
 
     /**
@@ -46,6 +65,7 @@ class Helper
     {
         return substr($key, 0, strpos($key, '_id'));
     }
+
     /**
      * @param $tab_name
      * @return string
@@ -56,6 +76,7 @@ class Helper
 
         return $ClassName;
     }
+
     /**
      * @param $arrFirst
      * @param $arrSecond
