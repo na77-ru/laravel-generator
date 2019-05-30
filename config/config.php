@@ -9,7 +9,7 @@ return [
         //'users',
     ],
     'only_with_table_prefix' => false,
-    'table_prefix' => 'test', // 'test\\',
+    'table_prefix' => 'test', // 'test',
 
     'namespace_postfix' => '', // 'Test',
     'generate_models' => true,

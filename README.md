@@ -1,3 +1,6 @@
+Not stable yet.
+
+
 Usage
 
 composer require alex-claimer/generator --dev
