@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Arr;
+
 class MakeModel
 {
 
@@ -15,16 +16,20 @@ class MakeModel
     protected $belongsToKeys = [];
 
     protected $alreadyMade = [];
-
+    protected $realMade = [];
 
     /**
      * @return array
      */
-    public function getAlreadyMade(): array
+    public function getRealMade(): array
     {
-        return $this->alreadyMade;
+        return $this->realMade;
     }
 
+
+    /**
+     * MakeModel constructor.
+     */
     public function __construct()
     {
         $tables = new Table();
@@ -34,21 +39,30 @@ class MakeModel
         $this->writeBaseModel();
     }
 
+    /**
+     * @return array
+     */
+    public function getAlreadyMade(): array
+    {
+        return $this->alreadyMade;
+    }
+
+    /**
+     * @param $table
+     * @return string
+     */
     public function writeBelongsTo($table)
     {
         $str = "";
-        $strrr = "
+        $strComment = "
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      **/\r\n";
-      // if ($table == 'users') dd(__METHOD__, $this->belongsToKeys, $table, Arr::has($this->belongsToKeys, $table));//11
-       // else ccc(__METHOD__, $this->belongsToKeys, $table);//11
-        //if (($this->belongsToKeys[$table]) !== null) {
-            if (Arr::has($this->belongsToKeys, $table) ) {
+
+        if (Arr::has($this->belongsToKeys, $table)) {
             foreach ($this->belongsToKeys[$table]['belongsTo'] as $belongsTable) {
 
-                //dd(__METHOD__,$this->belongsToKeys[$table]['belongsTo'], $belongsTable, $table, Helper::className($belongsTable['to_table']));
-                $str .= $strrr;
+                $str .= $strComment;
                 $str .= "    public function " . Helper::makeFuncBelongsTo($belongsTable['key']) . "()\r\n";
                 $str .= "    {\r\n";
 
@@ -80,7 +94,7 @@ class MakeModel
             $ClassName = Helper::className($tName);
 
             if (!is_array($arrAlreadyMade) || !in_array($ClassName, $arrAlreadyMade)) {
-                $this->alreadyMade[] = $ClassName;
+                $this->realMade[] = $this->alreadyMade[] = $ClassName;
                 $str = "<?php\r\nnamespace " . Helper::makeNameSpace('model') .
                     ";\r\n\r\n";
 
@@ -144,7 +158,7 @@ class MakeModel
         $ClassName = "BaseModel";
 
         if (!is_array($arrAlreadyMade) || !in_array($ClassName, $arrAlreadyMade)) {
-            $this->alreadyMade[] = $ClassName;
+            $this->realMade[] = $this->alreadyMade[] = $ClassName;
             $str = "<?php\r\nnamespace " . Helper::makeNameSpace('model') . ";\r\n\r\n";
             $str .= "use Illuminate\Database\Eloquent\Model;\r\n";
             $str .= "use Illuminate\Database\Eloquent\SoftDeletes;\r\n\r\n";

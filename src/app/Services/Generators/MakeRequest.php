@@ -15,6 +15,15 @@ class MakeRequest
     protected $belongsToKeys = [];
 
     protected $alreadyMade = [];
+    protected $realMade = [];
+
+    /**
+     * @return array
+     */
+    public function getRealMade(): array
+    {
+        return $this->realMade;
+    }
 
 
     /**
@@ -69,7 +78,7 @@ class MakeRequest
             $ClassName = Helper::className($tName) . "Request";
 
             if (!is_array($arrAlreadyMade) || !in_array($ClassName, $arrAlreadyMade)) {
-                $this->alreadyMade[] = $ClassName;
+                $this->realMade[] = $this->alreadyMade[] = $ClassName;
                 $str = "<?php\r\nnamespace " . Helper::makeNameSpace('request') .
                     ";\r\n\r\n";
                 $str .= "use " . Helper::makeNameSpace('model') . '\\' . Helper::className($tName) . ";\r\n\r\n";
@@ -207,7 +216,7 @@ class MakeRequest
         $ClassName = "BaseRequest";
 
         if (!is_array($arrAlreadyMade) || !in_array($ClassName, $arrAlreadyMade)) {
-            $this->alreadyMade[] = $ClassName;
+            $this->realMade[] = $this->alreadyMade[] = $ClassName;
             $str = "<?php\r\nnamespace " . Helper::makeNameSpace('request') . ";\r\n\r\n";
 
             $str .= "use Illuminate\Foundation\Http\FormRequest;\r\n";

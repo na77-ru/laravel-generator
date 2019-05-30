@@ -13,6 +13,15 @@ class MakeController
 
     protected $tablesNames = [];
     protected $alreadyMade = [];
+    protected $realMade = [];
+
+    /**
+     * @return array
+     */
+    public function getRealMade(): array
+    {
+        return $this->realMade;
+    }
 
     /**
      * @return array
@@ -42,7 +51,7 @@ class MakeController
             $ClassName = Helper::className($tName) . "Controller";
 
             if (!is_array($arrAlreadyMade) || !in_array($ClassName, $arrAlreadyMade)) {
-                $this->alreadyMade[] = $ClassName;
+                $this->realMade[] = $this->alreadyMade[] = $ClassName;
                 $str = "<?php\r\nnamespace " . Helper::makeNameSpace('controller') .
                     ";\r\n\r\n";
 
@@ -73,7 +82,7 @@ class MakeController
         $ClassName = "Base" . "Controller";
 
         if (!is_array($arrAlreadyMade) || !in_array($ClassName, $arrAlreadyMade)) {
-            $this->alreadyMade[] = $ClassName;
+            $this->realMade[] = $this->alreadyMade[] = $ClassName;
             $str = "<?php\r\nnamespace " . Helper::makeNameSpace('controller') . ";\r\n\r\n";
             $str .= "";
             $str .= "use App\Http\Controllers\Controller;\r\n\r\n";

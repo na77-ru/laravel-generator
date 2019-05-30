@@ -9,25 +9,30 @@ return [
         //'users',
     ],
     'only_with_table_prefix' => false,
-    'table_prefix' => 'test',
+    'table_prefix' => 'test', // 'test\\',
 
-    'namespace_postfix' => '', // 'Test\\',
-
+    'namespace_postfix' => '', // 'Test',
+    'generate_model' => true,
     'model' => [
-        'namespace' => '\app\Models\\',// '\app\Models\\',
+        'namespace' => '\app\Models',// '\app\Models',
     ],
+    'generate_controller' => true,
     'controller' => [
-        'namespace' => '\app\Http\Controllers\\',
+        'namespace' => '\app\Http\Controllers',
     ],
+    'generate_repository' => true,
     'repository' => [
-        'namespace' => '\app\Repositories\\',
+        'namespace' => '\app\Repositories',
     ],
+    'generate_observer' => true,
     'observer' => [
-        'namespace' => '\app\Observers\\',
+        'namespace' => '\app\Observers',
     ],
+    'generate_request' => true,
     'request' => [
-        'namespace' => '\app\Http\Requests\\',
+        'namespace' => '\app\Http\Requests',
     ],
+    'generate_view' => false, // not generate yet
     'view' => [
         'namespace' => 'resources\views\\',
     ],

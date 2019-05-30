@@ -15,6 +15,15 @@ class MakeObserver
     protected $belongsToKeys = [];
 
     protected $alreadyMade = [];
+    protected $realMade = [];
+
+    /**
+     * @return array
+     */
+    public function getRealMade(): array
+    {
+        return $this->realMade;
+    }
 
 
     /**
@@ -69,7 +78,7 @@ class MakeObserver
             $ClassName = Helper::className($tName) . "Observer";
 
             if (!is_array($arrAlreadyMade) || !in_array($ClassName, $arrAlreadyMade)) {
-                $this->alreadyMade[] = $ClassName;
+                $this->realMade[] = $this->alreadyMade[] = $ClassName;
                 $str = "<?php\r\nnamespace " . Helper::makeNameSpace('observer') .
                     ";\r\n\r\n";
                 $str .= "use " . Helper::makeNameSpace('model') . '\\' . Helper::className($tName) . ";\r\n\r\n";
@@ -136,7 +145,7 @@ class MakeObserver
         $ClassName = "BaseObserver";
 
         if (!is_array($arrAlreadyMade) || !in_array($ClassName, $arrAlreadyMade)) {
-            $this->alreadyMade[] = $ClassName;
+            $this->realMade[] = $this->alreadyMade[] = $ClassName;
             $str = "<?php\r\nnamespace " . Helper::makeNameSpace('observer') . ";\r\n\r\n";
 
             $str .= "use Carbon\Carbon;\r\n";

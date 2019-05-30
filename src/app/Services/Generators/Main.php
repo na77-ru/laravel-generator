@@ -12,22 +12,36 @@ class Main
      */
     protected $alreadyMade = [];
 
+    protected $realMade = [];
+
     /**
      * Main constructor.
      */
     public function __construct()
     {
-        $this->setAlreadyMade(new MakeModel(), 'models');
-        $this->setAlreadyMade(new MakeController(), 'controllers');
-        $this->setAlreadyMade(new MakeRepository(), 'repositories');
-        $this->setAlreadyMade(new MakeObserver(), 'observers');
-        $this->setAlreadyMade(new MakeRequest(), 'requests');
-        //$this->setAlreadyMade(new MakeView(), 'views');
+        if (config('alex-claimer-generator.config.generate_models')) {
+            $this->setAlreadyMade(new MakeModel(), 'models');
+        }
+        if (config('alex-claimer-generator.config.generate_controllers')) {
+            $this->setAlreadyMade(new MakeController(), 'controllers');
+        }
+        if (config('alex-claimer-generator.config.generate_repositories')) {
+            $this->setAlreadyMade(new MakeRepository(), 'repositories');
+        }
+        if (config('alex-claimer-generator.config.generate_observers')) {
+            $this->setAlreadyMade(new MakeObserver(), 'observers');
+        }
+        if (config('alex-claimer-generator.config.generate_requests')) {
+            $this->setAlreadyMade(new MakeRequest(), 'requests');
+        }
+//        if (config('alex-claimer-generator.config.generate_views')) {
+//            $this->setAlreadyMade(new MakeRequest(), 'views');
+//        }
 
 
-        $this->writeAlreadyMade();
-        exit('All classes generated successfuly.');
-        dd(__METHOD__, $this->alreadyMade);
+        //$this->writeAlreadyMade();//11 uncomment
+        echo('All classes generated successfuly.');
+        dd($this->realMade);//111 //11??
 
     }
 
@@ -37,6 +51,10 @@ class Main
             config('alex-claimer-generator.already_made.' . $class_type),
             $class->getAlreadyMade()
         ));
+
+        $this->realMade[$class_type] = Arr::sort($class->getRealMade());
+        // bbb(__METHOD__, $class_type, $class);
+
     }
 
     /**

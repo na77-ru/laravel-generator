@@ -12,8 +12,10 @@ class Helper
      */
     public static function makeNameSpace($type)
     {
-        $str = config('alex-claimer-generator.config.' . $type . '.namespace') .
-            config('alex-claimer-generator.config.namespace_postfix');
+        $postfix = config('alex-claimer-generator.config.namespace_postfix');
+        if (trim($postfix) !== '') $postfix .= '\\';
+
+        $str = config('alex-claimer-generator.config.' . $type . '.namespace') . '\\' . $postfix;
 
         $str = mb_substr($str, 1, strlen($str) - 2);
         $str = ucfirst($str);
@@ -34,7 +36,7 @@ class Helper
 
         $dirName = self::checkAndMakeDir($dirName);
 
-        dd(__METHOD__,$dirName, $ClassName, $dirName . $ClassName . '.php');//11
+       // dd(__METHOD__, $dirName, $ClassName, $dirName . $ClassName . '.php');//11
         return $dirName . $ClassName . '.php';
     }
 
@@ -42,16 +44,17 @@ class Helper
      * @param $dirName
      * @return string
      */
-    public static function checkAndMakeDir($dirName)
+    public static function checkAndMakeDir($dirNameBegin)
     {
-        $arDirName = explode('\\', $dirName);
+        $arDirName = explode('\\', $dirNameBegin);
         $newDirName = '';
         foreach ($arDirName as $key => $dirName) {
+            if ($dirName != '') {
+                $newDirName .= $arDirName[$key] . '\\';
 
-            $newDirName = $arDirName[$key];
-            bbb(__METHOD__, $arDirName, $key, $dirName, $newDirName);//11
-            if (!is_dir($dirName)) {
-                mkdir($dirName);bbb('not exist');
+                if (!is_dir($newDirName)) {
+                    mkdir($newDirName);
+                }
             }
         }
         return $newDirName;

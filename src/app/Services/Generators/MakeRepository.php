@@ -13,6 +13,15 @@ class MakeRepository
 
     protected $tablesNames = [];
     protected $alreadyMade = [];
+    protected $realMade = [];
+
+    /**
+     * @return array
+     */
+    public function getRealMade(): array
+    {
+        return $this->realMade;
+    }
 
     /**
      * @return array
@@ -38,7 +47,7 @@ class MakeRepository
             $ClassName = Helper::className($tName) . 'Repository';
             if (!is_array($arrAlreadyMade) || !in_array($ClassName, $arrAlreadyMade)) {
                 // writeBaseRepository
-                $this->alreadyMade[] = $ClassName;
+                $this->realMade[] = $this->alreadyMade[] = $ClassName;
 
                 $str = $this->writeRepositoriesBegin($tName);
 
@@ -211,7 +220,7 @@ class " . $ClassName = Helper::className($tName) . "Repository extends BaseRepos
         $ClassName = "BaseRepository";
         if (!is_array($arrAlreadyMade) || !in_array($ClassName, $arrAlreadyMade)) {
             // writeBaseRepository
-            $this->alreadyMade[] = $ClassName;
+            $this->realMade[] = $this->alreadyMade[] = $ClassName;
 
             $str = $this->writeBaseRepositoryBegin();
 
