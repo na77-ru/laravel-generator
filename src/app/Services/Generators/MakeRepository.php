@@ -16,6 +16,17 @@ class MakeRepository
     protected $realMade = [];
 
     /**
+     * MakeRepository constructor.
+     * @param Table $tables
+     */
+    public function __construct(Table $tables)
+    {
+        $this->tablesNames = $tables->getTablesNames();
+        $this->writeRepositories();
+        $this->writeBaseRepository();
+    }
+
+    /**
      * @return array
      */
     public function getRealMade(): array
@@ -31,13 +42,6 @@ class MakeRepository
         return $this->alreadyMade;
     }
 
-    public function __construct()
-    {
-        $tables = new Table();
-        $this->tablesNames = $tables->getTablesNames();
-        $this->writeRepositories();
-        $this->writeBaseRepository();
-    }
 
     public function writeRepositories()
     {
@@ -177,22 +181,22 @@ class " . $ClassName = Helper::className($tName) . "Repository extends BaseRepos
     {
         \$columns = implode(',', [
             'id',
-            'CONCAT (id, ". ", title) AS id_title'
+            'CONCAT (id, " . ", title) AS id_title'
         ]);
         \$result = \$this
             ->makeModel()
             ->selectRaw(\$columns)
             //->toBase()";
 
-                    if (in_array('parent_id', $arr)) {
-                        $str .= "\r\n            ->where('can_be_parent', '=', '1')
+        if (in_array('parent_id', $arr)) {
+            $str .= "\r\n            ->where('can_be_parent', '=', '1')
 //            ->with('parent:id,title,') //11?? ошибка
             ->with(['parent' => function (\$query) {
                 \$query->select(['id', 'title']);
             }])";
-                    }
+        }
 
-                    $str .= "
+        $str .= "
             ->get();
 
         return \$result;

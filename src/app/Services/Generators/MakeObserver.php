@@ -18,6 +18,18 @@ class MakeObserver
     protected $realMade = [];
 
     /**
+     * MakeObserver constructor.
+     * @param Table $tables
+     */
+    public function __construct(Table $tables)
+    {
+        $this->tablesNames = $tables->getTablesNames();
+        $this->belongsToKeys = $tables->getBelongsToKeys();
+        $this->writeObservers();
+        $this->writeBaseObserver();
+    }
+
+    /**
      * @return array
      */
     public function getRealMade(): array
@@ -34,19 +46,11 @@ class MakeObserver
         return $this->alreadyMade;
     }
 
-    public function __construct()
-    {
-        $tables = new Table();
-        $this->tablesNames = $tables->getTablesNames();
-        $this->belongsToKeys = $tables->getBelongsToKeys();
-        $this->writeObservers();
-        $this->writeBaseObserver();
-    }
 
     public function writeBelongsTo($table)
     {
         $str = "";
-        $strrr = "
+        $strComments = "
     /**
      * 
      **/\r\n";
@@ -55,7 +59,7 @@ class MakeObserver
             foreach ($this->belongsToKeys[$table]['belongsTo'] as $belongsTable) {
 
                 //dd(__METHOD__,$this->belongsToKeys[$table]['belongsTo'], $belongsTable, $table, Helper::className($belongsTable['to_table']));
-                $str .= $strrr;
+                $str .= $strComments;
 
                 return $str;
             }

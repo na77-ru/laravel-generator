@@ -8,7 +8,10 @@ return [
         'telescope_monitoring',
         //'users',
     ],
-    'only_with_table_prefix' => false,
+    'only_this_table' => [
+
+    ],
+    'only_table_with_prefix' => false,
     'table_prefix' => 'test', // 'test',
 
     'namespace_postfix' => '', // 'Test',
@@ -34,7 +37,7 @@ return [
     ],
     'generate_views' => false, // not generate yet
     'view' => [
-        'namespace' => 'resources\views\\',
+        'namespace' => 'resources\views',
     ],
 
 ];

@@ -1,15 +1,19 @@
 <?php
 
-//Route::get('/contact', function(){
-//    return 'Hello from the contact form package';
-//});
-Route::get('/generator_contact', function(){
-    return view('generator-contact-form::contact');
-})->name('generator_contact');
 
-Route::get('/alex-claimer-generate',
-    '\AlexClaimer\Generator\App\Http\Controllers\GeneratorController@generate')
-    ->name('alex-claimer-generate');
+
+Route::get('/generator_menu',
+    '\AlexClaimer\Generator\App\Http\Controllers\GeneratorController@generator_menu')
+    ->name('generator_menu');
+
+Route::get('/show_alex_claimer_generator_config',
+    '\AlexClaimer\Generator\App\Http\Controllers\GeneratorController@show_alex_claimer_generator_config')
+->name('show_alex_claimer_generator_config');
+
+
+Route::patch('/alex-claimer-generate-patch',
+    '\AlexClaimer\Generator\App\Http\Controllers\GeneratorController@generate_patch')
+    ->name('alex-claimer-generate-patch');
 
 Route::get('/generator_create',
     '\AlexClaimer\Generator\App\Http\Controllers\GeneratorController@create')

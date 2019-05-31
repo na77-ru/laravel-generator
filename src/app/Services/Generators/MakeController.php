@@ -16,6 +16,16 @@ class MakeController
     protected $realMade = [];
 
     /**
+     * MakeController constructor.
+     * @param Table $tables
+     */
+    public function __construct(Table $tables)
+    {
+        $this->tablesNames = $tables->getTablesNames();
+        $this->writeControllers();
+        $this->writeBaseController();
+    }
+    /**
      * @return array
      */
     public function getRealMade(): array
@@ -31,14 +41,6 @@ class MakeController
         return $this->alreadyMade;
     }
 
-    public function __construct()
-    {
-        $tables = new Table();
-        $this->tablesNames = $tables->getTablesNames();
-        $this->writeControllers();
-        $this->writeBaseController();
-
-    }
 
 
     public function writeControllers()

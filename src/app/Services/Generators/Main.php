@@ -19,29 +19,32 @@ class Main
      */
     public function __construct()
     {
+        $tableObj = new Table();
+
         if (config('alex-claimer-generator.config.generate_models')) {
-            $this->setAlreadyMade(new MakeModel(), 'models');
+            $this->setAlreadyMade(new MakeModel($tableObj), 'models');
         }
         if (config('alex-claimer-generator.config.generate_controllers')) {
-            $this->setAlreadyMade(new MakeController(), 'controllers');
+            $this->setAlreadyMade(new MakeController($tableObj), 'controllers');
         }
         if (config('alex-claimer-generator.config.generate_repositories')) {
-            $this->setAlreadyMade(new MakeRepository(), 'repositories');
+            $this->setAlreadyMade(new MakeRepository($tableObj), 'repositories');
         }
         if (config('alex-claimer-generator.config.generate_observers')) {
-            $this->setAlreadyMade(new MakeObserver(), 'observers');
+            $this->setAlreadyMade(new MakeObserver($tableObj), 'observers');
         }
         if (config('alex-claimer-generator.config.generate_requests')) {
-            $this->setAlreadyMade(new MakeRequest(), 'requests');
+            $this->setAlreadyMade(new MakeRequest($tableObj), 'requests');
         }
 //        if (config('alex-claimer-generator.config.generate_views')) {
 //            $this->setAlreadyMade(new MakeRequest(), 'views');
 //        }
 
 
-        $this->writeAlreadyMade();//11 uncomment
-        echo('All classes generated successfully.');
-        dd($this->realMade);//111 //11??
+        //$this->writeAlreadyMade();//11 uncomment
+
+       // echo('All classes generated successfully.');
+        //dd($this->realMade);//111 //11??
 
         // cd packages/AlexClaimer/Generator
         // cd ../../../

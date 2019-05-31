@@ -10,6 +10,16 @@ use Illuminate\Support\Str;
 class Table
 {
     protected $tablesNames = [];
+    protected $allTablesNames = [];
+
+    /**
+     * @return array
+     */
+    public function getAllTablesNames(): array
+    {
+        return $this->allTablesNames;
+    }
+
     protected $belongsToKeys = [];
 
     /**
@@ -35,10 +45,11 @@ class Table
         $this->ignoredTables = config('alex-claimer-generator.config.ignored_tables');
 
         $tables = $this->findTableNames();
-
         $this->tablesNames = $this->findColumnNames($tables);
+        $allTables = $this->findAllTableNames();
+        $this->allTablesNames = $this->findColumnNames($allTables);
 
-        $this->belongsToKeys = $this->findBelongsToNames($tables);
+        $this->belongsToKeys = $this->findBelongsToNames($tables, $allTables);
 
 //        dd(__METHOD__,
 ////            $this->ignoredTables,
@@ -46,7 +57,7 @@ class Table
 ////            $this->belongsToKeys );//11
     }
 
-    protected function findBelongsToNames($tables)
+    protected function findBelongsToNames($tables, $allTables)
     {
         $foreignKeys = [];
 
@@ -62,7 +73,7 @@ class Table
 
                     $foreignKeys[$table]['belongsTo'][$count]['key'] = $column;
                     $foreignKeys[$table]['belongsTo'][$count]['to_table'] =
-                        $this->getTableNameFromKeyBelongsTo($tables, $table, $column);
+                        $this->getTableNameFromKeyBelongsTo($tables, $allTables, $table, $column);
                 }
             }
         }
@@ -76,7 +87,7 @@ class Table
      * @param $key
      * @return bool|string
      */
-    protected function getTableNameFromKeyBelongsTo($tables, $tab, $key)
+    protected function getTableNameFromKeyBelongsTo($tables, $allTables, $tab, $key)
     {
         $key = substr($key, 0, strpos($key, '_id'));
 
@@ -84,7 +95,7 @@ class Table
 
             return $tab;
         }
-        foreach ($tables as $table) {
+        foreach ($allTables as $table) {
 
             if (Str::plural($key) == $table) {
 
@@ -107,8 +118,7 @@ class Table
     /**
      * @return array
      */
-    protected
-    function findColumnNames($tables)
+    protected function findColumnNames($tables)
     {
         $names = [];
 
@@ -140,22 +150,26 @@ class Table
     /**
      * @return array
      */
-    protected
-    function findTableNames()
+    protected function findTableNames()
     {
         $arTablesNames = [];
 
         $tables = DB::select('SHOW TABLES');
         $db_name_key = 'Tables_in_' . config('database.connections.mysql.database');
 
-        $only_with_table_prefix = config('alex-claimer-generator.config.only_with_table_prefix');
+        $only_table_with_prefix = config('alex-claimer-generator.config.only_table_with_prefix');
 
         $table_prefix = config('alex-claimer-generator.config.table_prefix');
 
+        $only_this_table = config('alex-claimer-generator.config.only_this_table');
+        if ($only_this_table) {
+            $tables = $only_this_table;
+        }
+
         foreach ($tables as $table) {
 
-            if (!$only_with_table_prefix ||
-                ($only_with_table_prefix && strpos('_'. $table->$db_name_key, $table_prefix . '_'))) {
+            if (!$only_table_with_prefix ||
+                ($only_table_with_prefix && strpos('_' . $table->$db_name_key, $table_prefix . '_'))) {
 
                 if (!in_array($table->$db_name_key, $this->ignoredTables)) {
                     $arTablesNames[] = $table->$db_name_key;
@@ -166,4 +180,22 @@ class Table
         }
         return $arTablesNames;
     }
+
+    /**
+     * @return array
+     */
+    protected function findAllTableNames()
+    {
+        $arTablesNames = [];
+
+        $tables = DB::select('SHOW TABLES');
+        $db_name_key = 'Tables_in_' . config('database.connections.mysql.database');
+
+        foreach ($tables as $table) {
+                $arTablesNames[] = $table->$db_name_key;
+        }
+
+        return $arTablesNames;
+    }
+
 }

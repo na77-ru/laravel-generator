@@ -2,23 +2,73 @@
 
 namespace AlexClaimer\Generator\App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 
 use AlexClaimer\Generator\App\Services\Generator\Main;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller as BaseController;
 
-class GeneratorController extends Controller
+class GeneratorController extends BaseController
 {
+    public function __construct()
+    {
+        $this->middleware('web');
+    }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function generate()
+    public function generator_menu()
     {
-        $model = new Main();
+        return view('generator_views::menu');
+    }
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function show_alex_claimer_generator_config()
+    {
+        return view('generator_views::show_alex_claimer_generator_config');
+    }
 
-        dd(__METHOD__, $model);
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function generate_patch(Request $request)
+    {
+        $all = $request->all();
+        //dd(__METHOD__, $request, $all);
+        new Main();
+
+        return redirect()
+            ->route('generator_menu')
+            ->with([
+                '_token' => $all['_token'],
+                'messages' => 'All classes generated successfully.',
+                'alert-type' => 'success',
+            ]);
+        //dd(__METHOD__, $model);
+    }
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function generate_get()
+    {
+        new Main();
+
+        return redirect()
+            ->route('generator_menu')
+            ->with([
+                'messages' => 'All classes generated successfully.',
+                'alert-type' => 'success',
+            ]);
+        //dd(__METHOD__, $model);
     }
 
 
@@ -29,8 +79,7 @@ class GeneratorController extends Controller
      */
     public function create()
     {
-        $request = new Request();
-        dd(__METHOD__, $request);
+        dd(__METHOD__);
     }
 
     /**

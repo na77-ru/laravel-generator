@@ -19,7 +19,7 @@ class GeneratorServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->loadRoutesFrom(__DIR__.'/../../routes/web.php');
-        $this->loadViewsFrom(__DIR__.'/../../../resources/views', 'generator-contact-form');
+        $this->loadViewsFrom(__DIR__.'/../../../resources/views', 'generator_views');
         //dd(__METHOD__);
         $this->publishes([__DIR__ . '/../../../config/config.php' => config_path('alex-claimer-generator/config.php')],
             'alex-claimer-generator-config');

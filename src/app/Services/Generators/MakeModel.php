@@ -19,6 +19,18 @@ class MakeModel
     protected $realMade = [];
 
     /**
+     * MakeModel constructor.
+     * @param Table $tables
+     */
+    public function __construct(Table $tables)
+    {
+        $this->tablesNames = $tables->getTablesNames();
+        $this->belongsToKeys = $tables->getBelongsToKeys();
+        $this->writeModels();
+        $this->writeBaseModel();
+    }
+
+    /**
      * @return array
      */
     public function getRealMade(): array
@@ -26,18 +38,6 @@ class MakeModel
         return $this->realMade;
     }
 
-
-    /**
-     * MakeModel constructor.
-     */
-    public function __construct()
-    {
-        $tables = new Table();
-        $this->tablesNames = $tables->getTablesNames();
-        $this->belongsToKeys = $tables->getBelongsToKeys();
-        $this->writeModels();
-        $this->writeBaseModel();
-    }
 
     /**
      * @return array

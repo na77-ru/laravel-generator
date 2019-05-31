@@ -18,6 +18,18 @@ class MakeRequest
     protected $realMade = [];
 
     /**
+     * MakeRequest constructor.
+     * @param Table $tables
+     */
+    public function __construct(Table $tables)
+    {
+        $this->tablesNames = $tables->getTablesNames();
+        $this->belongsToKeys = $tables->getBelongsToKeys();
+        $this->writeRequests();
+        $this->writeBaseRequest();
+    }
+
+    /**
      * @return array
      */
     public function getRealMade(): array
@@ -34,28 +46,17 @@ class MakeRequest
         return $this->alreadyMade;
     }
 
-    public function __construct()
-    {
-        $tables = new Table();
-        $this->tablesNames = $tables->getTablesNames();
-        $this->belongsToKeys = $tables->getBelongsToKeys();
-        $this->writeRequests();
-        $this->writeBaseRequest();
-    }
 
     public function writeBelongsTo($table)
     {
         $str = "";
-        $strrr = "
+        $strComments = "
     /**
      * 
      **/\r\n";
-        //dd(__METHOD__, $this->belongsToKeys[$table], $table);
         if (is_array($this->belongsToKeys[$table])) {
             foreach ($this->belongsToKeys[$table]['belongsTo'] as $belongsTable) {
-
-                //dd(__METHOD__,$this->belongsToKeys[$table]['belongsTo'], $belongsTable, $table, Helper::className($belongsTable['to_table']));
-                $str .= $strrr;
+                $str .= $strComments;
 
                 return $str;
             }
