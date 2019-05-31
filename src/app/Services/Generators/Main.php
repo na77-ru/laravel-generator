@@ -41,7 +41,7 @@ class Main
 //        }
 
 
-        //$this->writeAlreadyMade();//11 uncomment
+        $this->writeAlreadyMade();//11 uncomment
 
        // echo('All classes generated successfully.');
         //dd($this->realMade);//111 //11??
