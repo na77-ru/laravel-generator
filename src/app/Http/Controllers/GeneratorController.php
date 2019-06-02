@@ -76,21 +76,7 @@ class GeneratorController extends BaseController
 
     public function menu_create_migration()
     {
-        $checkboxes = [
-            'id',
-            'parent_id',
-            'user_id',
-            'slug',
-            'title',
-            'description',
-            'active',
-            'is_published',
-            'published_at',
-            'timestamps',
-            'softDeletes',
-        ];
-        return view('generator_views::menu_migration_generator',
-            compact('checkboxes'));
+        return view('generator_views::menu_migration_generator');
     }
 
     /**
@@ -100,9 +86,20 @@ class GeneratorController extends BaseController
     {
         $param = $request->all();
 
-        $output = new MakeMigration($param);
+        $MakeMigration = new MakeMigration($param);
+        $result = $MakeMigration->GenerateMigration($param, $message);
 
-        dd(__METHOD__, $output);
+if ($result){
+    return redirect('generator_create_migration')
+        ->with([
+            'messages' => 'Migrations created successfully'
+        ]);
+}else{
+    return redirect('generator_create_migration')
+        ->withErrors(['msg' => ['Migrations created error', $message]])
+        ->withInput();
+}
+
 
     }
 

@@ -1,5 +1,17 @@
 @extends('generator_views::layouts.package')
-
+@php
+    $checkboxes = [
+        'id',
+        'slug',
+        'title',
+        'description',
+        'active',
+        'is_published',
+        'published_at',
+        'timestamps',
+        'softDeletes',
+    ];
+@endphp
 @section('content')
     @include('generator_views::inc.errors')
     @include('generator_views::inc.msg')

@@ -7,11 +7,33 @@ use Illuminate\Support\Str;
 
 class MakeMigration
 {
+
+    protected $param;
+
     public function __construct($param)
     {
+        $this->param = $param;
+    }
+
+    public function GenerateMigration($param, &$message = null)
+    {
+
+        if (($param['pivot'] || $param['only_pivot']) && (empty($param['name_1']) || empty($param['name_2']))) {
+            $message = 'pivot table need two tables to ref';
+            return false;
+        }
+
+        $param['short_name_1'] = $param['name_1'];
+        $param['short_name_2'] = $param['name_2'];
+
+        if (!empty(trim($param['prefix']))) {
+            $param['prefix'] .= '_';
+        }
+
+
         $output = $this->generateMigrationsFromStub($param);
 
-        return $output;
+        return true;
     }
 
     protected function generateMigrationsFromStub($param)
@@ -20,35 +42,42 @@ class MakeMigration
         $stubDirOneTable = $this->getStubDirOneTable();
         $stubDirPivotTable = $this->getStubDirPivotTable();
 
-        for ($i = 1; $i <= 2; $i++) {
-            if (!empty($param['name_' . $i])) {
-                $newParam['name'] = $param['name' . '_' . $i];
-                $newParam['id'] = $param['id' . '_' . $i];
-                $newParam['parent_id'] = $param['parent_id' . '_' . $i];
-                $newParam['user_id'] = $param['user_id' . '_' . $i];
-                $newParam['slug'] = $param['slug' . '_' . $i];
-                $newParam['title'] = $param['title' . '_' . $i];
-                $newParam['description'] = $param['description' . '_' . $i];
-                $newParam['active'] = $param['active' . '_' . $i];
-                $newParam['is_published'] = $param['is_published' . '_' . $i];
-                $newParam['published_at'] = $param['published_at' . '_' . $i];
-                $newParam['timestamps'] = $param['timestamps' . '_' . $i];
-                $newParam['softDeletes'] = $param['softDeletes' . '_' . $i];
+        $notOnlyPivot = !$param['only_pivot'];
+//dd(__METHOD__, $notOnlyPivot);
+        if ($notOnlyPivot) {
+            for ($i = 1; $i <= 2; $i++) {
+                if (!empty($param['name_' . $i])) {
+                    $newParam['name'] = $param['prefix'] . $param['name' . '_' . $i];
+                    $newParam['prefix'] = $param['prefix'];
+                    $newParam['columns_id'] = $param['columns_id'];
+                    $newParam['id'] = $param['id' . '_' . $i];
+                    $newParam['only_pivot'] = $param['only_pivot'];
+                    $newParam['slug'] = $param['slug' . '_' . $i];
+                    $newParam['title'] = $param['title' . '_' . $i];
+                    $newParam['description'] = $param['description' . '_' . $i];
+                    $newParam['active'] = $param['active' . '_' . $i];
+                    $newParam['is_published'] = $param['is_published' . '_' . $i];
+                    $newParam['published_at'] = $param['published_at' . '_' . $i];
+                    $newParam['timestamps'] = $param['timestamps' . '_' . $i];
+                    $newParam['softDeletes'] = $param['softDeletes' . '_' . $i];
 
-                $newParam['className'] = $this->getClassName($param['name_' . $i]);
+                    $newParam['className'] = $this->getClassName($newParam['name']);
 
-                $output = $this->getStubMigrationOneTable($stubDirOneTable, $newParam);
+                    $output = $this->getStubMigrationOneTable($stubDirOneTable, $newParam);
 
-                $migrationDirName = $this->getMigrationDirName($newParam['name']);
+                    $migrationDirName = $this->getMigrationDirName($newParam['name']);
 
-                file_put_contents($migrationDirName, $output);
+                    file_put_contents($migrationDirName, $output);
 
 
+                }
             }
         }
+        if ($param['pivot'] || $param['only_pivot']) {
+            //if ($param['pivot'])
 
-
-        if ($param['pivot']) {
+            $param['name_1'] = $param['prefix'] . $param['name_1'];
+            $param['name_2'] = $param['prefix'] . $param['name_2'];
 
             $param['name'] = $this->getPivotTableName($param);
             $param['className'] = $this->getPivotClassName($param['name']);
@@ -58,13 +87,14 @@ class MakeMigration
             $migrationDirName = $this->getMigrationDirName($param['name']);
 
             file_put_contents($migrationDirName, $output);
-
         }
-        dd(__METHOD__, $param);
+
+        //dd(__METHOD__, $param);//11
     }
 
     protected function getStubMigrationOneTable($stubDirOneTable, $param)
     {
+
         $output = file_get_contents($stubDirOneTable);
         $output = str_replace('{{className}}', $param['className'], $output);
         $output = str_replace('{{tableName}}', $param['name'], $output);
@@ -90,34 +120,46 @@ class MakeMigration
     protected function getColumns($param)
     {
         $columns = '';
-        if ($param['id'])$columns .= "\$table->bigIncrements('id');\r\n";
-        if($param['parent_id']) {
-            $columns .= "\t\t\t\$table->bigInteger('parent_id')->unsigned();\r\n";
-            $columns .= "\t\t\t\$table->foreign('parent_id')->references('id')
-                ->on('" . $param['name'] . "');\r\n";
+        if ($param['id']) $columns .= "\$table->bigIncrements('id');\r\n";
 
+        if (!empty($param['columns_id'])) {
+
+            $arColumns = explode(' ', $param['columns_id']);
+
+            foreach ($arColumns as $column_id) {
+                if ($column_id == 'parent_id') {
+                    $columns .= "\t\t\t\$table->bigInteger('parent_id')->unsigned();\r\n";
+                    $columns .= "\t\t\t\$table->foreign('parent_id')->references('id')
+                ->on('" . $param['name'] . "');\r\n";
+                } else {
+                    $tableForeignName = Str::plural(str_replace('_id', '', $column_id));
+
+                    $tableForeignName = $param['prefix'] . $tableForeignName;
+
+                    $columns .= "\t\t\t\$table->bigInteger('" . $column_id . "')->unsigned();\r\n";
+                    $columns .= "\t\t\t\$table->foreign('user_id')->references('id')->on('" . $tableForeignName . "');\r\n";
+                }
+            }
         }
-        if($param['user_id']){
-            $columns .= "\t\t\t\$table->bigInteger('user_id')->unsigned();\r\n";
-            $columns .= "\t\t\t\$table->foreign('user_id')->references('id')->on('users');\r\n";
-        }
-        if($param['slug'])$columns .= "\t\t\t\$table->string('slug')->unique();\r\n";
-        if($param['title'])$columns .= "\t\t\t\$table->string('title');\r\n";
-        if($param['description'])$columns .= "\t\t\t\$table->string('description')->nullable();\r\n";
-        if($param['active'])$columns .= "\t\t\t\$table->boolean('active')->default(false);\r\n";
-        if($param['is_published'])$columns .= "\t\t\t\$table->boolean('is_published')->default(false);\r\n";
-        if($param['published_at'])$columns .= "\t\t\t\$table->timestamp('published_at')->nullable();\r\n";
-        if($param['timestamps'])$columns .= "\t\t\t\$table->timestamps();\r\n";
-        if($param['softDeletes'])$columns .= "\t\t\t\$table->softDeletes();\r\n";
+
+        if ($param['slug']) $columns .= "\t\t\t\$table->string('slug')->unique();\r\n";
+        if ($param['title']) $columns .= "\t\t\t\$table->string('title');\r\n";
+        if ($param['description']) $columns .= "\t\t\t\$table->string('description')->nullable();\r\n";
+        if ($param['active']) $columns .= "\t\t\t\$table->boolean('active')->default(false);\r\n";
+        if ($param['is_published']) $columns .= "\t\t\t\$table->boolean('is_published')->default(false);\r\n";
+        if ($param['published_at']) $columns .= "\t\t\t\$table->timestamp('published_at')->nullable();\r\n";
+        if ($param['timestamps']) $columns .= "\t\t\t\$table->timestamps();\r\n";
+        if ($param['softDeletes']) $columns .= "\t\t\t\$table->softDeletes();\r\n";
 
         return $columns;
     }
+
     protected function getPivotColumns($param)
     {
-        $name1 = Str::singular($param['name_1']);
-        $name2 = Str::singular($param['name_2']);
-        $name_1 = $param['name_1'];
-        $name_2 = $param['name_2'];
+        $name1 = Str::singular($param['short_name_1']);
+        $name2 = Str::singular($param['short_name_2']);
+        $name_1 = $param['prefix'] . $param['short_name_1'];
+        $name_2 = $param['prefix'] . $param['short_name_2'];
 
         $columns = '';
         $columns .= "\$table->bigInteger('" . $name1 . "_id')->unsigned();\r\n";
@@ -150,9 +192,10 @@ class MakeMigration
         return 'Create' . ucfirst(Str::camel($name)) . 'Table';
     }
 
+
     protected function getPivotTableName($param)
     {
-        return 'link_' . Str::singular($param['name_1']) . '_' . $param['name_2'];
+        return $param['prefix'] . 'link_' . Str::singular($param['short_name_1']) . '_' . $param['short_name_2'];
     }
 
     /**
