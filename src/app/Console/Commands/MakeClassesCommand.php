@@ -9,14 +9,14 @@ use Illuminate\Console\Command;
 use Illuminate\Contracts\Database\ModelIdentifier;
 use Illuminate\Filesystem\Filesystem;
 
-class MakeMigration extends Command
+class MakeClassesCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'generate:migration';
+    protected $signature = 'generate:classes';
 
     /**
      * The console command description.

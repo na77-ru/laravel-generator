@@ -56,8 +56,10 @@ class Data
 
         return $low;
     }
+
     /**
      * @param $data
+     * @return bool
      */
     public function addData($data)
     {

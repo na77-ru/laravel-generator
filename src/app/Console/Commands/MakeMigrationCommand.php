@@ -8,22 +8,23 @@ use App\Services\Generator\MakeModel;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Database\ModelIdentifier;
 use Illuminate\Filesystem\Filesystem;
+use AlexClaimer\Generator\App\Services\Generators\Migrations\MakeMigration;
 
-class MakeClassesFromDB extends Command
+class MakeMigrationCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'generate:classes';
+    protected $signature = 'generate:migration {name : Class (singular) for example User}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'MakeModelsFromDB for MakeModel from DB';
+    protected $description = 'Make migration';
 
     /**
      * @var Filesystem $files
@@ -48,7 +49,19 @@ class MakeClassesFromDB extends Command
      */
     public function handle()
     {
-        new Main();
+        $makeMigration = new MakeMigration();
+
+        $param = [
+            'name' => 'post___user',
+            'className' => 'Post___user',
+            'namespace' => null,
+            'laravel' => true,
+            'table' => null,
+            'fields' => [],
+            'foreignKeys' => [],
+            'tableComment' => '',
+        ];
+
 
     }
 }

@@ -1,3 +1,0 @@
-blog_postsblog_categoriesssssssssssblog_postsblog_categoriesssssssssssblog_postsblog_categoriesssssssssssblog_postsblog_categoriesssssssssssblog_postsblog_categoriesssssssssssblog_postsblog_categoriesssssssssssblog_postsblog_categoriesblog_postsblog_categoriesblog_postsblog_categoriesblog_postsblog_categoriesblog_postsblog_categoriesblog_postsblog_categories/**
-* This is the model class for table " <?php '{{%'.$tName.'}}' ?> ".
-*

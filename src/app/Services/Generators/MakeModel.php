@@ -140,6 +140,7 @@ class MakeModel
                 $str .= $this->writeBelongsTo($tName);
 
                 $str .= "\r\n}";
+               // dd(__METHOD__, Helper::makeFileDirName('model', $ClassName));
                 file_put_contents(Helper::makeFileDirName('model', $ClassName), $str);
 
             }

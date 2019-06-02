@@ -4,6 +4,7 @@ namespace AlexClaimer\Generator\App\Http\Controllers;
 
 
 use AlexClaimer\Generator\App\Services\Generator\Main;
+use AlexClaimer\Generator\App\Services\Generators\Migrations\MakeMigration;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 
@@ -23,6 +24,7 @@ class GeneratorController extends BaseController
     {
         return view('generator_views::menu');
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -53,6 +55,7 @@ class GeneratorController extends BaseController
             ]);
         //dd(__METHOD__, $model);
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -71,15 +74,36 @@ class GeneratorController extends BaseController
         //dd(__METHOD__, $model);
     }
 
+    public function menu_create_migration()
+    {
+        $checkboxes = [
+            'id',
+            'parent_id',
+            'user_id',
+            'slug',
+            'title',
+            'description',
+            'active',
+            'is_published',
+            'published_at',
+            'timestamps',
+            'softDeletes',
+        ];
+        return view('generator_views::menu_migration_generator',
+            compact('checkboxes'));
+    }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @throws \Throwable
      */
-    public function create()
+    public function store_migration(Request $request)
     {
-        dd(__METHOD__);
+        $param = $request->all();
+
+        $output = new MakeMigration($param);
+
+        dd(__METHOD__, $output);
+
     }
 
     /**

@@ -3,7 +3,7 @@
 namespace AlexClaimer\Generator\App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use AlexClaimer\Generator\App\Console\Commands\MakeClassesFromDB;
+use AlexClaimer\Generator\App\Console\Commands\MakeClassesCommand;
 use Illuminate\View\Engines\EngineResolver;
 use Illuminate\View\Engines\PhpEngine;
 use Illuminate\View\Factory;
@@ -49,7 +49,7 @@ class GeneratorServiceProvider extends ServiceProvider
         $this->app->singleton(
             'command.make.classes',
             function ($app) use ($localViewFactory) {
-                return new MakeClassesFromDB($app['files']);
+                return new MakeClassesCommand($app['files']);
             }
         );
         $this->commands(
