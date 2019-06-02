@@ -2,6 +2,7 @@
 
 namespace AlexClaimer\Generator\App\Providers;
 
+use Barryvdh\LaravelIdeHelper\Console\ModelsCommand;
 use Illuminate\Support\ServiceProvider;
 use AlexClaimer\Generator\App\Console\Commands\MakeClassesCommand;
 use Illuminate\View\Engines\EngineResolver;
@@ -44,6 +45,9 @@ class GeneratorServiceProvider extends ServiceProvider
         //dd(__METHOD__);
         $this->mergeConfigFrom(__DIR__ . '/../../../config/config.php', 'alex-claimer-generator.config');
 
+
+
+
         $localViewFactory = $this->createLocalViewFactory();
 
         $this->app->singleton(
@@ -52,8 +56,16 @@ class GeneratorServiceProvider extends ServiceProvider
                 return new MakeClassesCommand($app['files']);
             }
         );
+
+//        $this->app->singleton(
+//            'command.generate:migration',
+//            function ($app) {
+//                return new MakeMigrationCommand($app['files']);
+//            }
+//        );
         $this->commands(
             'command.make.classes'
+           // 'command.generate:migration'
         );
     }
     /**

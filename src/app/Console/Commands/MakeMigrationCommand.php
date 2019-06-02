@@ -17,14 +17,14 @@ class MakeMigrationCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'generate:migration {name : Class (singular) for example User}';
+    protected $signature = 'generate:migration{name}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Make migration';
+    protected $description = 'Generate migration';
 
     /**
      * @var Filesystem $files
@@ -49,7 +49,8 @@ class MakeMigrationCommand extends Command
      */
     public function handle()
     {
-        $makeMigration = new MakeMigration();
+        dd(__METHOD__, $this->argument('name'));
+
 
         $param = [
             'name' => 'post___user',
@@ -61,7 +62,19 @@ class MakeMigrationCommand extends Command
             'foreignKeys' => [],
             'tableComment' => '',
         ];
+        $MakeMigration = new MakeMigration($param);
+        $result = $MakeMigration->GenerateMigration($param, $message);
 
+        if ($result){
+            return redirect('generator_create_migration')
+                ->with([
+                    'messages' => 'Migrations created successfully'
+                ]);
+        }else{
+            return redirect('generator_create_migration')
+                ->withErrors(['msg' => ['Migrations created error', $message]])
+                ->withInput();
+        }
 
     }
 }

@@ -23,7 +23,7 @@ class MakeClassesCommand extends Command
      *
      * @var string
      */
-    protected $description = 'MakeModelsFromDB for MakeModel from DB';
+    protected $description = 'Make classes from DB';
 
     /**
      * @var Filesystem $files
@@ -48,6 +48,7 @@ class MakeClassesCommand extends Command
      */
     public function handle()
     {
+        dd(__METHOD__);
         new Main();
 
     }
