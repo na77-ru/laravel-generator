@@ -10,20 +10,28 @@ php artisan vendor:publish --tag=alex-claimer-generator-config
 
 set in config/alex-claimer-generator/config.php
 
-php artisan generate:migration {{parameters}} - generate migration 
+php artisan generate:migration {{parameters}}  -  generate migration 
 
-{{parameters}} - {
+{{parameters}}  -  {
 posts - create migration for 'posts' table;
+
 posts_comments - create migrations for 'posts' and 'comments' tables;
+
 posts__comments - create migrations for 'posts' , 'comments' and
 pivot 'link_post_comments' tables;
+
+
 posts___comments - create migration only for pivot 'link_post_comments' table;
 
 
+
 posts_prefix_test - create migration for 'test_posts' table;
+
 posts__comments_prefix_test - create migrations for 'test_posts' , 'test_comments' and
                               pivot 'test_link_post_comments' tables;
+                                                            
 pivot with columns  'post_id'     on   'test_posts' 
+
                     'comment_id'     on   'test_comments'                      
 
 }
