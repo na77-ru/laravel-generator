@@ -10,6 +10,14 @@ php artisan vendor:publish --tag=alex-claimer-generator-config
 
 set in config/alex-claimer-generator/config.php
 
+
+
+
+
+url: Your_project/generator_create_migration 
+
+or
+
 php artisan generate:migration {{parameters}}  -  generate migration 
 
 {{parameters}}  -  {
@@ -35,6 +43,7 @@ pivot with columns  'post_id'     on   'test_posts'
                     'comment_id'     on   'test_comments'                      
 
 }
+php artisan migrate
 
 php artisan generate:classes  - generate classes from DB
 
