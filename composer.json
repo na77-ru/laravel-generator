@@ -30,14 +30,14 @@
             ]
         },
         "branch-alias": {
-            "dev-master": "1.3.8-dev"
+            "dev-master": "1.4-dev"
         }
     },
     "require": {
 
     },
     "require-dev": {
-
+        "doctrine/dbal": "^2.9"
     }
 
 

@@ -58,7 +58,7 @@ class MakeSeeds
 
                 file_put_contents($this->getDirFilePutSeeds($tName), $output);
 
-                dd(__METHOD__, $param, $output);
+               // dd(__METHOD__, $param, $output);
             }
         }
 
