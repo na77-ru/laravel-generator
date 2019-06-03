@@ -39,12 +39,12 @@
                         <div class="tab-pane fade show  active" id="table_1" role="tabpanel"
                              aria-labelledby="home-tab">
 
-                            @include('generator_views::inc.migration_generate_form', ['id' => '_1'])
+                            @include('generator_views::migration/inc.migration_generate_form', ['id' => '_1'])
 
                         </div>
                         <div class="tab-pane fade" id="table_2" role="tabpanel" aria-labelledby="profile-tab">
 
-                            @include('generator_views::inc.migration_generate_form', ['id' => '_2'])
+                            @include('generator_views::migration/inc.migration_generate_form', ['id' => '_2'])
 
                         </div>
                     </div>

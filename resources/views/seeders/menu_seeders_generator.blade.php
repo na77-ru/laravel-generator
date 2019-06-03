@@ -20,14 +20,21 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
-                        <h3>Menu Generators</h3>
+                        <h3>Menu seeders generator</h3>
                     </div>
                 </div>
             </div>
         </div>
-        @include('generator_views::inc.migration_generate')
+        @include('generator_views::seeders/inc.seeders_generate')
         <div class="row justify-content-center">
             <div class="col-md-12">
+
+                <div class="card">
+                    <div class="card-body">
+                        <a href="{{route('generator_menu')}}">generator menu</a>
+                    </div>
+                </div>
+
                 <div class="card">
                     <div class="card-body">
                         <a href="{{route('show_alex_claimer_generator_config')}}">show generator config</a>

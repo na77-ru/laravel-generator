@@ -4,6 +4,7 @@ namespace AlexClaimer\Generator\App\Http\Controllers;
 
 
 use AlexClaimer\Generator\App\Services\Generator\Main;
+use AlexClaimer\Generator\App\Services\Generator\MakeSeeds;
 use AlexClaimer\Generator\App\Services\Generators\Migrations\MakeMigration;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
@@ -74,9 +75,12 @@ class GeneratorController extends BaseController
         //dd(__METHOD__, $model);
     }
 
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function menu_create_migration()
     {
-        return view('generator_views::menu_migration_generator');
+        return view('generator_views::migration/menu_migration_generator');
     }
 
     /**
@@ -97,6 +101,38 @@ class GeneratorController extends BaseController
         } else {
             return redirect('generator_create_migration')
                 ->withErrors(['msg' => ['Migrations created error', $message]])
+                ->withInput();
+        }
+
+
+    }
+
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function menu_create_seeders()
+    {
+        return view('generator_views::seeders/menu_seeders_generator');
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function store_seeders(Request $request)
+    {
+        $param = $request->all();
+
+        $MakeSeeders= new MakeSeeds();
+        $result = $MakeSeeders->GenerateSeeders($message);
+
+        if ($result) {
+            return redirect('generator_create_seeders')
+                ->with([
+                    'messages' => 'Seeders created successfully'
+                ]);
+        } else {
+            return redirect('generator_create_seeders')
+                ->withErrors(['msg' => ['Seeders created error', $message]])
                 ->withInput();
         }
 

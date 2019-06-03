@@ -19,6 +19,7 @@ Route::get('/generator_create',
     '\AlexClaimer\Generator\App\Http\Controllers\GeneratorController@create')
     ->name('generator_create');
 
+//MIGRATION
 Route::get('/generator_create_migration',
     '\AlexClaimer\Generator\App\Http\Controllers\GeneratorController@menu_create_migration')
     ->name('generator_create_migration');
@@ -26,4 +27,13 @@ Route::get('/generator_create_migration',
 Route::patch('/generator_store_migration',
     '\AlexClaimer\Generator\App\Http\Controllers\GeneratorController@store_migration')
     ->name('generator_store_migration');
+
+//SEEDERS
+Route::get('/generator_create_seeders',
+    '\AlexClaimer\Generator\App\Http\Controllers\GeneratorController@menu_create_seeders')
+    ->name('generator_create_seeders');
+
+Route::patch('/generator_store_seeders',
+    '\AlexClaimer\Generator\App\Http\Controllers\GeneratorController@store_seeders')
+    ->name('generator_store_seeders');
 

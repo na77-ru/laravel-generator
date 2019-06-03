@@ -1,0 +1,35 @@
+<?php
+
+use {{ModelNameSpaceUse}};
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
+use Faker\Generator as Faker;
+
+class {{SeederClassName}} extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run(Faker $faker)
+    {
+        ${{tableName}} = {{ModelClassName}}::where('id', '=', 1)->first();
+        if (${{tableName}} === null) {
+{{variables}}
+            ${{tableName}}[] = [
+{{setFields}}
+            ];
+        }
+        for ($i = 2; $i <= 11; $i++) {
+            ${{tableName}} = {{ModelClassName}}::where('id', '=', $i)->first();
+            if (${{tableName}} === null) {
+{{variables}}
+                ${{tableName}}[] = [
+{{setFields}}
+                ];
+            }
+        }
+        DB::table('{{tableName}}')->insert(${{tableName}});
+    }
+}
