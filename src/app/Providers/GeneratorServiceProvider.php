@@ -4,8 +4,8 @@ namespace AlexClaimer\Generator\App\Providers;
 
 
 use Illuminate\Support\ServiceProvider;
-use AlexClaimer\Generator\App\Console\Commands\MakeClassesCommand;
-use AlexClaimer\Generator\App\Console\Commands\MakeMigrationCommand;
+use AlexClaimer\Generator\App\Console\Commands\GenerateClassesCommand;
+use AlexClaimer\Generator\App\Console\Commands\GenerateMigrationCommand;
 use Illuminate\View\Engines\EngineResolver;
 use Illuminate\View\Engines\PhpEngine;
 use Illuminate\View\Factory;
@@ -54,7 +54,7 @@ class GeneratorServiceProvider extends ServiceProvider
 //        $this->app->singleton(
 //            'command.generate.classes',
 //            function ($app) use ($localViewFactory) {
-//                return new MakeClassesCommand($app['files']);
+//                return new GenerateClassesCommand($app['files']);
 //            }
 //        );
 
@@ -62,14 +62,14 @@ class GeneratorServiceProvider extends ServiceProvider
         $this->app->singleton(
             'command.generate.classes',
             function ($app)  {
-                return new MakeClassesCommand($app['files']);
+                return new GenerateClassesCommand($app['files']);
             }
         );
 
         $this->app->singleton(
             'command.generate:migration',
             function ($app) {
-                return new MakeMigrationCommand($app['files']);
+                return new GenerateMigrationCommand($app['files']);
             }
         );
         $this->commands(

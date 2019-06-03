@@ -89,16 +89,16 @@ class GeneratorController extends BaseController
         $MakeMigration = new MakeMigration($param);
         $result = $MakeMigration->GenerateMigration($param, $message);
 
-if ($result){
-    return redirect('generator_create_migration')
-        ->with([
-            'messages' => 'Migrations created successfully'
-        ]);
-}else{
-    return redirect('generator_create_migration')
-        ->withErrors(['msg' => ['Migrations created error', $message]])
-        ->withInput();
-}
+        if ($result) {
+            return redirect('generator_create_migration')
+                ->with([
+                    'messages' => 'Migrations created successfully'
+                ]);
+        } else {
+            return redirect('generator_create_migration')
+                ->withErrors(['msg' => ['Migrations created error', $message]])
+                ->withInput();
+        }
 
 
     }

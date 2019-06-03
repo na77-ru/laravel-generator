@@ -9,7 +9,7 @@ use Illuminate\Console\Command;
 use Illuminate\Contracts\Database\ModelIdentifier;
 use Illuminate\Filesystem\Filesystem;
 
-class MakeClassesCommand extends Command
+class GenerateClassesCommand extends Command
 {
     /**
      * The name and signature of the console command.
