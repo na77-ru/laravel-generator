@@ -48,24 +48,32 @@ class GeneratorServiceProvider extends ServiceProvider
 
 
 
-        $localViewFactory = $this->createLocalViewFactory();
+//        $localViewFactory = $this->createLocalViewFactory();
+//
+//        $this->app->singleton(
+//            'command.generate.classes',
+//            function ($app) use ($localViewFactory) {
+//                return new MakeClassesCommand($app['files']);
+//            }
+//        );
+
 
         $this->app->singleton(
-            'command.make.classes',
-            function ($app) use ($localViewFactory) {
+            'command.generate.classes',
+            function ($app)  {
                 return new MakeClassesCommand($app['files']);
             }
         );
 
-//        $this->app->singleton(
-//            'command.generate:migration',
-//            function ($app) {
-//                return new MakeMigrationCommand($app['files']);
-//            }
-//        );
+        $this->app->singleton(
+            'command.generate:migration',
+            function ($app) {
+                return new MakeMigrationCommand($app['files']);
+            }
+        );
         $this->commands(
-            'command.make.classes'
-           // 'command.generate:migration'
+            'command.generate.classes',
+            'command.generate:migration'
         );
     }
     /**
