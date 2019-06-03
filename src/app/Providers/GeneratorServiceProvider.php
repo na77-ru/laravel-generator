@@ -2,9 +2,10 @@
 
 namespace AlexClaimer\Generator\App\Providers;
 
-use Barryvdh\LaravelIdeHelper\Console\ModelsCommand;
+
 use Illuminate\Support\ServiceProvider;
 use AlexClaimer\Generator\App\Console\Commands\MakeClassesCommand;
+use AlexClaimer\Generator\App\Console\Commands\MakeMigrationCommand;
 use Illuminate\View\Engines\EngineResolver;
 use Illuminate\View\Engines\PhpEngine;
 use Illuminate\View\Factory;

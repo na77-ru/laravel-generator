@@ -48,7 +48,7 @@ class MakeClassesCommand extends Command
      */
     public function handle()
     {
-        dd(__METHOD__);
+        //dd(__METHOD__);
         new Main();
 
     }
