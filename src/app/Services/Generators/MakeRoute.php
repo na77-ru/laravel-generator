@@ -48,20 +48,41 @@ class MakeRoute
     public function writeRoutes()
     {
 
-        $output = file_get_contents(base_path() . 'routes/web.php');
-        dd(__METHOD__, $output);
-        $arrAlreadyMade = config('alex-claimer-generator.already_made.controllers');
+        $output_web = file_get_contents(base_path() . '\routes\web.php');
+        $output = '';
+        $stub = 'route.stub';
+       // dd(__METHOD__, $output_web);
+        $arrAlreadyMade = config('alex-claimer-generator.already_made.routes');
         foreach ($this->tablesNames as $tName => $cNames) {
             $ClassName = Helper::className($tName) . "Route";
 
             if (!is_array($arrAlreadyMade) || !in_array($ClassName, $arrAlreadyMade)) {
                 $this->realMade[] = $this->alreadyMade[] = $ClassName;
+                $output .= file_get_contents(__DIR__ . '/Stubs/Routes/' . $stub);
 
-                
 
-               // file_put_contents(Helper::makeFileDirName('v', $ClassName), $output);
+                $output = str_replace('{{ModelClassName}}',
+                    Helper::className($tName),
+                    $output);
+
+
+                $output = str_replace('{{ControllerClassName}}',
+                    Helper::className($tName, 'Controller'),
+                    $output);
+
+
+                $output = str_replace('{{make_views_routes_url}}',
+                    Helper::make_views_routes_url($tName),
+                    $output);
+
+
+                $output = str_replace('{{make_views_routes_name}}',
+                    Helper::make_views_routes_name($tName),
+                    $output);
+
             }
         }
+         file_put_contents(base_path() . '\routes\web.php', $output_web . $output);
         return true;
     }
 

@@ -121,7 +121,16 @@ class Helper
      * @param $tName
      * @return string
      */
-    public static  function make_views_routes($tName, $type = '')
+    public static  function make_views_routes_url($tName, $type = '')
+    {
+        $tName = substr($tName, strpos($tName, '_') + 1);
+        return lcfirst(self::getPostfix()) . "/" . $tName . "/" . $type;
+    }
+    /**
+     * @param $tName
+     * @return string
+     */
+    public static  function make_views_routes_name($tName, $type = '')
     {
         $tName = substr($tName, strpos($tName, '_') + 1);
         return lcfirst(self::getPostfix()) . "." . $tName . "." . $type;

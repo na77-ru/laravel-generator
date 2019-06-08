@@ -40,7 +40,10 @@ class Main
             $this->setAlreadyMade(new MakeView($tableObj), 'views');
         }
         if (config('alex-claimer-generator.config.generate_routes')) {
-            $this->setAlreadyMade(new MakeRoute($tableObj), 'views');
+            $this->setAlreadyMade(new MakeRoute($tableObj), 'routes');
+        }
+        if (config('alex-claimer-generator.config.generate_providers')) {
+            $this->setAlreadyMade(new MakeProvider($tableObj), 'providers');
         }
 
 

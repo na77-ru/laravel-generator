@@ -76,8 +76,6 @@ class MakeController
         $postfix = Helper::getPostfix();
         $output = file_get_contents(__DIR__ . '/Stubs/Controllers/' . $stub);
 
-        $output = $this->strings_replace_use($tName, $cNames, $stub, $output);
-
         $output = str_replace('{{namespace}}', "namespace " .
             Helper::makeNameSpace('controller') .
             ";", $output);
@@ -123,7 +121,7 @@ class MakeController
             Helper::make_views_directory($tName),
             $output);
         $output = str_replace('{{views_routes}}',
-            Helper::make_views_routes($tName),
+            Helper::make_views_routes_name($tName),
             $output);
 
         return $output;

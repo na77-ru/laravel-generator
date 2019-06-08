@@ -35,9 +35,16 @@ return [
     'request' => [
         'namespace' => '\app\Http\Requests',
     ],
-    'generate_views' => false, // not generate yet
+    'generate_views' => true, // not generate yet
     'view' => [
         'namespace' => 'resources\views',
     ],
+
+    'generate_routes' => true,
+
+    'provider' => [
+        'namespace' => '\app\Providers',
+    ],
+    'generate_providers' => true,
 
 ];
