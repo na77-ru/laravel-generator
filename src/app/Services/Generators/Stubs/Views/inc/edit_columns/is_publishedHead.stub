@@ -1,0 +1,7 @@
+                @if($item->is_published && empty($item->deleted_at))
+                    <b style="color: green">Опубликовано</b>
+                @elseif(!$item->is_published && empty($item->deleted_at) )
+                    <b style="color: red">Черновик</b>
+                @elseif(!empty($item->deleted_at) )
+                    <b style="color: red">Удалено</b>
+                @endif

@@ -1,0 +1,9 @@
+                        <div class="form-group">
+                            <label for="slug">Идентификатор</label>
+                            <input name="slug" value="{{ old('slug', $item->slug) }}"
+                                   id="slug"
+                                   type="text"
+                                   class="form-control"
+                                   minlength="3"
+                                   >
+                        </div>

@@ -1,0 +1,34 @@
+@extends('layouts.app')
+{{-- !!!! to look package Former !!!!! --}}
+@section('content')
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Create {{table_name}}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+
+        @php /**@var {{ModelNameSpace}} $item */ @endphp
+        <form method="POST" action="{{ route('{{postfix}}{{table_name}}.store', $item->id) }}">
+            @csrf
+
+            @include('inc.errors')
+            @include('inc.msg')
+
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    @include('{{postfix}}{{table_name}}.inc.edit_main_col')
+                </div>
+                <div class="col-md-4">
+                    @include('{{postfix}}{{table_name}}.inc.edit_add_col')
+                </div>
+            </div>
+
+        </form>
+    </div>
+@endsection

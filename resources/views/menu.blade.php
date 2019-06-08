@@ -14,28 +14,7 @@
             </div>
         </div>
         @include('generator_views::inc.generate_form')
-        <div class="row justify-content-center">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-body">
-                        <a href="{{route('show_alex_claimer_generator_config')}}">show generator config</a>
-                    </div>
-                </div>
 
-                <div class="card">
-                    <div class="card-body">
-                        <a href="{{route('generator_create_migration')}}">generator create migration</a>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-body">
-                        <a href="{{route('generator_create_seeders')}}">generator create seeders</a>
-                    </div>
-                </div>
-
-            </div>
-        </div>
     </div>
 @endsection
 

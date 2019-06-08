@@ -41,13 +41,6 @@
                 <!-- Left Side Of Navbar -->
                 <ul class="navbar-nav mr-auto">
 
-                    <li><a href="{{route('generator_menu')}}">{{__('menu')}}</a></li> &nbsp; &nbsp;
-                    <li><a href="{{route('show_alex_claimer_generator_config')}}">{{__('config')}}</a></li> &nbsp;
-                    &nbsp;
-                    <li><a href="{{route('generator_create_migration')}}">{{__('migration')}}</a></li> &nbsp; &nbsp;
-                    <li><a href="{{route('generator_create_seeders')}}">{{__('seeders')}}</a></li> &nbsp; &nbsp;
-
-
                 </ul>
 
                 <!-- Right Side Of Navbar -->

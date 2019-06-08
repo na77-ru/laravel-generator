@@ -11,6 +11,8 @@ class Table
 {
     protected $tablesNames = [];
     protected $allTablesNames = [];
+    protected $belongsToKeys = [];
+    protected $ignoredTables = [];
 
     /**
      * @return array
@@ -19,8 +21,6 @@ class Table
     {
         return $this->allTablesNames;
     }
-
-    protected $belongsToKeys = [];
 
     /**
      * @return array
@@ -38,7 +38,6 @@ class Table
         return $this->belongsToKeys;
     }
 
-    protected $ignoredTables = [];
 
     public function __construct()
     {
@@ -192,7 +191,7 @@ class Table
         $db_name_key = 'Tables_in_' . config('database.connections.mysql.database');
 
         foreach ($tables as $table) {
-                $arTablesNames[] = $table->$db_name_key;
+            $arTablesNames[] = $table->$db_name_key;
         }
 
         return $arTablesNames;

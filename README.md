@@ -4,7 +4,7 @@ from DB tables.
 
 Usage
 
-**composer require alex-claimer/generator --dev**
+**composer require --dev alex-claimer/generator**
 
 **php artisan vendor:publish --tag=alex-claimer-generator-config**
 

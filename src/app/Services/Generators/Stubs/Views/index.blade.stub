@@ -1,0 +1,84 @@
+@extends('{{postfix}}layouts.app')
+
+@section('content')
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h3>{{table_name}}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+        @include('inc.msg')
+
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+
+                @if($paginator->total() > $paginator->count())
+
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-body">
+                                    {{ $paginator->links() }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-right">
+                            <div class="card">
+                                <div class="card-body">
+                                    <nav class="navbar navbar-toggleable-md navbar-light bg-faded">
+                                        <a class="btn btn-success" href="{{route('{{postfix}}{{table_name}}.create', 1)}}">{{ __('{{postfix}}{{table_name}}.create') }}</a>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                @else
+                    <nav class="navbar navbar-toggleable-md navbar-light bg-faded">
+                        <a class="btn btn-success" href="{{route('{{postfix}}{{table_name}}.create', 1)}}">{{ __('{{postfix}}{{table_name}}.create') }}</a>
+                    </nav>
+                @endif
+                <div class="card">
+                    <div class="card-body">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+{{<thead><td>}}
+
+
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach($paginator as $item)
+                                @php /**@var {{ModelNameSpace}} $item */ @endphp
+
+{{<tr><td>}}
+
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if($paginator->total() > $paginator->count())
+            <div class="row justify-content-center">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            {{ $paginator->links() }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+    </div>
+@endsection
+

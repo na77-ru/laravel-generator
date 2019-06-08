@@ -1,0 +1,180 @@
+<?php
+
+{{namespace}}
+
+{{use}
+
+/**
+ * Class CategoryBlogAdminController
+ * @package App\Http\Controllers\Blog\Admin
+ * @property BlogCategoryRepository $blogCategoryRepository
+ */
+class CategoryBlogAdminController extends BaseBlogAdminController
+{
+
+    private $blogCategoryRepository;
+
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        // $this->blogCategoryRepository = app(BlogCategoryRepository::class);
+        $this->blogCategoryRepository = new BlogCategoryRepository(app());
+    }
+
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @throws \Exception
+     */
+    public function index()
+    {
+        $paginator = $this->blogCategoryRepository->getAllWithPaginate(config('admin.perPage'));
+
+        return view('blog.admin.category.index', compact('paginator'));
+        // return view('uikit.blog.admin.category.index', compact('paginator'));
+    }
+
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @throws \Exception
+     */
+    public function create()
+    {
+        $item = $this->blogCategoryRepository->makeModel();
+
+        $categoryList = $this->blogCategoryRepository->getForCategorySelect();
+
+        return view('blog.admin.category.create',
+            compact('item', 'categoryList'));
+    }
+
+    /**
+     * @param BlogCategoryStoreRequest $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function store(BlogCategoryStoreRequest $request)
+    {
+        $data = $request->input();
+        $item = $this->blogCategoryRepository->create($data);
+
+        if ($item) {
+            return redirect()
+                ->route("blog.admin.categories.index")
+                ->with([
+                    'messages' => __("Запись  $item->title  успешно сохранена"),
+                    'alert-type' => 'alert-success',
+                ]);
+        } else {
+            return back()
+                ->withErrors(['msg' => "Ошибка сохранения  записи $item->title ."])
+                ->withInput();
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $t = new BlogAdminCategory();
+
+        dd(__METHOD__);
+    }
+
+    /**
+     * @param $id
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @throws \Exception
+     */
+    public function edit($id)
+    {
+        $item = $this->blogCategoryRepository->getEdit($id);
+        $categoryList = $this->blogCategoryRepository->getForCategorySelect();
+        //dd(__METHOD__, $categoryList);
+        return view('blog.admin.category.edit',
+            compact('item', 'categoryList'));
+    }
+
+    /**
+     * @param BlogCategoryUpdateRequest $request
+     * @param $id
+     * @return RedirectResponse
+     */
+    public function update(BlogCategoryStoreRequest $request, $id)
+    {
+//        $r = new BlogCategoryUpdateRequest($request->all());
+//        $validate = $r->validated($request->all());
+//
+//        dd(__METHOD__, $r, $validate, $request->all());
+
+
+        /**@var \App\Models\Blog\Admin\BlogAdminCategory $data */
+        $data = $request->input();
+
+        $item = $this->blogCategoryRepository->find($id);
+
+        if (empty($item)) {
+            return back()
+                ->withErrors(['msg' => "Запись id = [{$id}] не найдена"])
+                ->withInput();
+        }
+
+        if ($this->blogCategoryRepository->update($data, $id)) {
+            return redirect()
+                ->route("blog.admin.categories.index")
+                ->with([
+                    'messages' => app()->msg->getMsg(),//in BlogAdminObserver app()->msg->setMsg()
+                    'alert-type' => app()->msg->getAT(),
+                ]);
+        } else {
+            return back()
+                ->withErrors(['msg' => "Ошибка сохранения записи с id = [{$id}]."])
+                ->withInput();
+        }
+
+    }
+
+    /**
+     * @param $id
+     * @return RedirectResponse
+     * @throws \Exception
+     */
+    public function destroy($id)
+    {
+        $result = $this->blogCategoryRepository->delete($id);
+        if ($result) {
+            return redirect()
+                ->route("blog.admin.categories.index")
+                ->with([
+                    'messages' => 'Запись с <b>id - ' . $id . '</b> успешно удалена',
+                    'alert-type' => 'alert-success',
+                ]);
+        } else {
+            return back()
+                ->withErrors(['msg' => "Ошибка удаления записи с id = [{$id}]."])
+                ->withInput();
+        }
+    }
+
+    public function restore($id = null)
+    {
+        $result = $this->blogCategoryRepository->restore($id);
+
+        if ($result) {
+            return redirect()
+                ->route("blog.admin.categories.index")
+                ->with([
+                    'messages' => app()->msg->getMsg(),//in BlogPostRepository app()->msg->setMsg()
+                    'alert-type' => app()->msg->getAT(),
+                ]);
+        } else {
+            return back()
+                ->withErrors(['msg' => "Ошибка востановления категорий."])
+                ->withInput();
+        }
+    }
+}

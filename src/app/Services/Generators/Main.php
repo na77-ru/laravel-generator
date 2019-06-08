@@ -36,14 +36,15 @@ class Main
         if (config('alex-claimer-generator.config.generate_requests')) {
             $this->setAlreadyMade(new MakeRequest($tableObj), 'requests');
         }
-//        if (config('alex-claimer-generator.config.generate_views')) {
-//            $this->setAlreadyMade(new MakeRequest(), 'views');
-//        }
+        if (config('alex-claimer-generator.config.generate_views')) {
+            $this->setAlreadyMade(new MakeView($tableObj), 'views');
+        }
 
 
         $this->writeAlreadyMade();//11 uncomment
+        //  Helper::writeAlreadyMade($this->alreadyMade);
 
-       // echo('All classes generated successfully.');
+        // echo('All classes generated successfully.');
         //dd($this->realMade);//111 //11??
 
         // cd packages/AlexClaimer/Generator
@@ -63,20 +64,36 @@ class Main
 
     }
 
+
     /**
      *
      */
     protected function writeAlreadyMade()
     {
-        $this->alreadyMade = Arr::sort($this->alreadyMade);
+        $arrAlreadyMadeSeeders = config('alex-claimer-generator.already_made.seeders');
+        $this->alreadyMade['seeders'] = $arrAlreadyMadeSeeders;
 
+        $this->alreadyMade = Arr::sort($this->alreadyMade);
+        //dd(__METHOD__, $this->alreadyMade);
         $str_alreadyMade = "<?php\r\nreturn [\r\n";
         foreach ($this->alreadyMade as $type => $arr) {
-
+//bbb(__METHOD__,'arr', $arr);
             $str_alreadyMade .= "    '$type' => [\r\n";
 
             foreach ($arr as $name) {
-                $str_alreadyMade .= "        '" . $name . "',\r\n";
+//bbb(__METHOD__, 'name', $name);
+                if (is_array($name)) {
+                    foreach ($name as $blade) {
+
+                        dd(__METHOD__, $this->alreadyMade, $blade);
+                        $str_alreadyMade .= "\t\t[\r\n";
+                        $str_alreadyMade .= "        '" . $blade . "',\r\n";
+                        $str_alreadyMade .= "\t\t],\r\n";
+                    }
+                } else {
+                    $str_alreadyMade .= "        '" . $name . "',\r\n";
+                }
+
 
             }
             $str_alreadyMade .= "   ],\r\n";

@@ -54,13 +54,10 @@ class MakeObserver
     /**
      * 
      **/\r\n";
-        //dd(__METHOD__, $this->belongsToKeys[$table], $table);
+
         if (is_array($this->belongsToKeys[$table])) {
             foreach ($this->belongsToKeys[$table]['belongsTo'] as $belongsTable) {
-
-                //dd(__METHOD__,$this->belongsToKeys[$table]['belongsTo'], $belongsTable, $table, Helper::className($belongsTable['to_table']));
                 $str .= $strComments;
-
                 return $str;
             }
         }

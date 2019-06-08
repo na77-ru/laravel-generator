@@ -1,0 +1,69 @@
+@extends('{{postfix}}layouts.app')
+
+@section('content')
+@php /**@var {{ModelNameSpace}} $item */ @endphp
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Update {{table_name}}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+        <form method="POST" action="{{ route('{{postfix}}{{table_name}}.update', $item->id) }}">
+            @method('PATCH')
+            {{--    @method('PUT')--}}
+            @csrf
+
+
+            @include('inc.errors')
+            @include('inc.msg')
+
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    @include('{{postfix}}{{table_name}}.inc.edit_main_col')
+                </div>
+                <div class="col-md-4">
+                    @include('{{postfix}}{{table_name}}.inc.edit_add_col')
+                </div>
+            </div>
+        </form>
+        <br>
+        @if($item->exists)
+            <div class="row justify-content-center">
+                @if(!$item->deleted_at)
+                    <div class="col-md-12">
+                        <div class="card">
+                            <form method="POST" action="{{ route('{{postfix}}{{table_name}}.destroy', $item->id) }}">
+                                @method('DELETE')
+                                @csrf
+                                <div class="card-body">
+                                    <button type="submit"
+                                            class="btn btn-danger">{{__('{{postfix/}}form.Delete')}}</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                @endif
+                @if($item->deleted_at)
+                    <div class="col-md-12">
+                        <div class="card">
+                            <form method="POST" action="{{ route('{{postfix}}{{table_name}}.restore', $item->id) }}">
+                                @method('PATCH')
+                                @csrf
+                                <div class="card-body">
+                                    <button type="submit"
+                                            class="btn btn-success">{{__('{{postfix/}}form.Restore')}}</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                @endif
+            </div>
+        @endif
+    </div>
+@endsection
+

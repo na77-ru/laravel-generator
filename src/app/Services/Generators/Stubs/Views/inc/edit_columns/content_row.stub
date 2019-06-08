@@ -1,0 +1,9 @@
+                        <div class="form-group">
+                            <label for="content_row">Текст</label>
+                            <textarea name="content_row"
+                                      id="content_row"
+                                      class="form-control"
+                                      rows="12">{{ old('content_row', $item->content_row) }}
+                            </textarea>
+
+                        </div>

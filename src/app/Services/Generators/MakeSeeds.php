@@ -31,13 +31,15 @@ class MakeSeeds
     {
         $this->generateSeedersFromStub();
 
+        $this->writeAlreadyMade();
+
         return true;
     }
 
     protected function generateSeedersFromStub()
     {
         $param = [];
-        $arrAlreadyMade = config('alex-claimer-generator.already_made.observers');
+        $this->alreadyMade['seeders'] = $arrAlreadyMade = config('alex-claimer-generator.already_made.seeders');
 
         foreach ($this->tablesNames as $tName => $cNames) {
             $param['ModelClassName'] = Helper::className($tName);
@@ -49,16 +51,15 @@ class MakeSeeds
             $param['tableName'] = $tName;
             $param['columnNames'] = $cNames;
 
-
             if (!is_array($arrAlreadyMade) || !in_array($param['SeederClassName'], $arrAlreadyMade)) {
-                $this->realMade[] = $this->alreadyMade[] = $param['SeederClassName'];
+                $this->realMade['seeders'][] = $this->alreadyMade['seeders'][] = $param['SeederClassName'];
 
 
                 $output = $this->getStubSeeder($param);
 
                 file_put_contents($this->getDirFilePutSeeds($tName), $output);
 
-               // dd(__METHOD__, $param, $output);
+                // dd(__METHOD__, $param, $output);
             }
         }
 
@@ -92,8 +93,11 @@ class MakeSeeds
             } elseif ($column['name'] == 'created_at') {
                 $str .= "\t\t\t\t'created_at' => \$createdAt,\r\n";
             } elseif ($column['name'] == 'updated_at') {
-                $str .= "\t\t\t\t'slug' => \$updatedAt,\r\n";
-            }  elseif($column['name'] !== 'id') {
+                $str .= "\t\t\t\t'updated_at' => \$updatedAt,\r\n";
+            } elseif ($column['name'] == 'password') {
+                $str .= "\t\t\t\t'password' => bcrypt('admin'),\r\n";
+            } elseif ($column['name'] !== 'id' && $column['name'] !== 'deleted_at') {
+
 
                 $str .= "\t\t\t\t'" . $column['name'] . "' => '',\r\n";
             }
@@ -122,6 +126,34 @@ class MakeSeeds
         return $output;
     }
 
+
+    protected function writeAlreadyMade()
+    {
+        $this->alreadyMade['seeders'] = Arr::sort($this->alreadyMade['seeders']);
+
+       $arrAlreadyMade = config('alex-claimer-generator.already_made');
+        $arrAlreadyMade['seeders'] = $this->alreadyMade['seeders'];
+
+        $arrAlreadyMade = Arr::sort($arrAlreadyMade);
+
+        $str_alreadyMade = "<?php\r\nreturn [\r\n";
+        foreach ($arrAlreadyMade as $type => $arr) {
+
+            $str_alreadyMade .= "    '$type' => [\r\n";
+
+            foreach ($arr as $name) {
+                $str_alreadyMade .= "        '" . $name . "',\r\n";
+
+            }
+            $str_alreadyMade .= "   ],\r\n";
+        }
+        $str_alreadyMade .= "];";
+
+
+        file_put_contents(base_path() . '\config\alex-claimer-generator\already_made.php', $str_alreadyMade);
+
+    }
+
     protected function getDirFileStubSeed()
     {
         return __DIR__ . '/Stubs/Seeders/seeder.stub';
@@ -137,6 +169,7 @@ class MakeSeeds
         $seedFileName = $this->getClassNameSeeder($tableName) . '.php';
         return $seedFileName;
     }
+
     protected function getClassNameSeeder($tableName)
     {
         $seedFileName = ucfirst(Str::camel($tableName)) . 'TableSeeder';
@@ -150,27 +183,6 @@ class MakeSeeds
     {
         return $this->realMade;
     }
-
-    /**
-     * @return array
-     */
-    public function getAlreadyMade(): array
-    {
-        return $this->alreadyMade;
-    }
-
-    /**
-     * @return string
-     */
-    public function writeSeeds()
-    {
-
-        $str = "";
-
-
-        return $str;
-    }
-
 
 }
 

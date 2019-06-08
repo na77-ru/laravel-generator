@@ -1,0 +1,48 @@
+@php /**@var {{ModelNameSpace}} $item */ @endphp
+{{belongsToComment}}
+
+<div class="row justify-content-center">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+{{is_publishedHead}}
+            </div>
+            <div class="card-body">
+                <div class="card-title"></div>
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#main_data" role="tab">Основные данные</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#add_data" role="tab">Дополнительные данные</a>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="main_data" role="tabpanel" aria-labelledby="home-tab">
+
+                        <input type="hidden" name="id" value="{{ $item->id }}">
+
+{{title}}
+
+{{content_row}}
+
+                    </div>
+
+{{belongsTo}}
+
+{{slug}}
+
+{{is_slugChange}}
+
+{{excerpt}}
+
+{{is_published}}
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

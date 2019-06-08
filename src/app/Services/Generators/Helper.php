@@ -3,6 +3,7 @@
 namespace AlexClaimer\Generator\App\Services\Generator;
 
 use Illuminate\Support\Str;
+use  Illuminate\Support\Arr;
 
 class Helper
 {
@@ -27,17 +28,35 @@ class Helper
      * @param $ClassName
      * @return string
      */
-    public static function makeFileDirName($type, $ClassName)
+    public static function makeFileDirName($type, $ClassName, $viewTableName = '')
     {
+
         $postfix = config('alex-claimer-generator.config.namespace_postfix');
+        if ($viewTableName !== '') {
+            $postfix = lcfirst($postfix);
+        }
         if (trim($postfix) !== '') $postfix .= '\\';
         $dirName = base_path() .
-            config('alex-claimer-generator.config.' . $type . '.namespace') . '\\' . $postfix;
+            config('alex-claimer-generator.config.' . $type . '.namespace') . '\\' . $postfix  . $viewTableName;
+
+        self::filterDirNameClassName($dirName, $ClassName);
 
         $dirName = self::checkAndMakeDir($dirName);
 
-       // dd(__METHOD__, $dirName, $ClassName, $dirName . $ClassName . '.php');//11
+        // dd(__METHOD__, $dirName, $ClassName, $dirName . $ClassName . '.php');//11
         return $dirName . $ClassName . '.php';
+    }
+
+    public static function filterDirNameClassName(&$dirName, &$ClassName)
+    {
+
+        if ( $pos = strpos($ClassName,'/') ) {
+
+            $dirName = $dirName . "\\" . substr($ClassName, 0, $pos);
+            $ClassName = substr($ClassName, $pos + 1);
+
+            //dd(__METHOD__, $dirName, $ClassName);
+        }
     }
 
     /**
@@ -96,5 +115,27 @@ class Helper
             }
         }
         return $arr;
+    }
+
+    public static function writeAlreadyMade($alreadyMade)
+    {
+        $alreadyMade = Arr::sort($alreadyMade);
+
+        $str_alreadyMade = "<?php\r\nreturn [\r\n";
+        foreach ($alreadyMade as $type => $arr) {
+
+            $str_alreadyMade .= "    '$type' => [\r\n";
+
+            foreach ($arr as $name) {
+                $str_alreadyMade .= "        '" . $name . "',\r\n";
+
+            }
+            $str_alreadyMade .= "   ],\r\n";
+        }
+        $str_alreadyMade .= "];";
+
+
+        file_put_contents(base_path() . '\config\alex-claimer-generator\already_made.php', $str_alreadyMade);
+
     }
 }
