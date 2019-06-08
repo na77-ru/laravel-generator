@@ -76,7 +76,7 @@ class MakeRequest
         // $str = File::prepend( __DIR__.'\GeneratorMiddleware\Templates\Request\RequestBegin.php', 'ssssssssss');//11??
         $arrAlreadyMade = config('alex-claimer-generator.already_made.requests');
         foreach ($this->tablesNames as $tName => $cNames) {
-            $ClassName = Helper::className($tName) . "Request";
+            $ClassName = Helper::className($tName) . "StoreRequest";
 
             if (!is_array($arrAlreadyMade) || !in_array($ClassName, $arrAlreadyMade)) {
                 $this->realMade[] = $this->alreadyMade[] = $ClassName;

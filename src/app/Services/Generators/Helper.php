@@ -7,6 +7,17 @@ use  Illuminate\Support\Arr;
 
 class Helper
 {
+
+    /**
+     * @param $tab_name
+     * @return string
+     */
+    public static function className($table_name, $Type = '')
+    {
+        $ClassName = Str::singular(ucfirst(Str::camel($table_name)));
+
+        return $ClassName . $Type;
+    }
     /**
      * @param $type
      * @return bool|string
@@ -47,7 +58,7 @@ class Helper
         return $dirName . $ClassName . '.php';
     }
 
-    public static function filterDirNameClassName(&$dirName, &$ClassName)
+    protected static function filterDirNameClassName(&$dirName, &$ClassName)
     {
 
         if ( $pos = strpos($ClassName,'/') ) {
@@ -63,7 +74,7 @@ class Helper
      * @param $dirName
      * @return string
      */
-    public static function checkAndMakeDir($dirNameBegin)
+    protected static function checkAndMakeDir($dirNameBegin)
     {
         $arDirName = explode('\\', $dirNameBegin);
         $newDirName = '';
@@ -88,16 +99,6 @@ class Helper
         return substr($key, 0, strpos($key, '_id'));
     }
 
-    /**
-     * @param $tab_name
-     * @return string
-     */
-    public static function className($tab_name)
-    {
-        $ClassName = Str::singular(ucfirst(Str::camel($tab_name)));
-
-        return $ClassName;
-    }
 
     /**
      * @param $arrFirst
@@ -116,26 +117,29 @@ class Helper
         }
         return $arr;
     }
-
-    public static function writeAlreadyMade($alreadyMade)
+    /**
+     * @param $tName
+     * @return string
+     */
+    public static  function make_views_routes($tName, $type = '')
     {
-        $alreadyMade = Arr::sort($alreadyMade);
+        $tName = substr($tName, strpos($tName, '_') + 1);
+        return lcfirst(self::getPostfix()) . "." . $tName . "." . $type;
+    }
+    /**
+     * @param $tName
+     * @return string
+     */
+    public static  function make_views_directory($tName, $type = '')
+    {
+        return lcfirst(self::getPostfix()) . "." . $tName . "." . $type;
+    }
 
-        $str_alreadyMade = "<?php\r\nreturn [\r\n";
-        foreach ($alreadyMade as $type => $arr) {
-
-            $str_alreadyMade .= "    '$type' => [\r\n";
-
-            foreach ($arr as $name) {
-                $str_alreadyMade .= "        '" . $name . "',\r\n";
-
-            }
-            $str_alreadyMade .= "   ],\r\n";
-        }
-        $str_alreadyMade .= "];";
-
-
-        file_put_contents(base_path() . '\config\alex-claimer-generator\already_made.php', $str_alreadyMade);
-
+    /**
+     * @return \Illuminate\Config\Repository|mixed
+     */
+    public static function getPostfix()
+    {
+        return config('alex-claimer-generator.config.namespace_postfix');
     }
 }

@@ -13,7 +13,7 @@ class GeneratorController extends BaseController
 {
     public function __construct()
     {
-        $this->middleware('web');
+        $this->middleware('web');//11 uncomment
     }
 
     /**

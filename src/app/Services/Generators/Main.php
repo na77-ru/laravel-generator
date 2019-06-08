@@ -39,13 +39,13 @@ class Main
         if (config('alex-claimer-generator.config.generate_views')) {
             $this->setAlreadyMade(new MakeView($tableObj), 'views');
         }
+        if (config('alex-claimer-generator.config.generate_routes')) {
+            $this->setAlreadyMade(new MakeRoute($tableObj), 'views');
+        }
 
 
-        $this->writeAlreadyMade();//11 uncomment
-        //  Helper::writeAlreadyMade($this->alreadyMade);
+       // $this->writeAlreadyMade();//11 uncomment
 
-        // echo('All classes generated successfully.');
-        //dd($this->realMade);//111 //11??
 
         // cd packages/AlexClaimer/Generator
         // cd ../../../

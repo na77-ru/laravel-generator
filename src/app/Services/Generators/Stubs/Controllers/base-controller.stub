@@ -1,0 +1,12 @@
+<?php
+{{namespace}}
+
+use App\Http\Controllers\Controller;
+
+abstract class {{BaseControllerClassName}} extends Controller
+{
+    public function __construct()
+    {
+        parent::__construct();
+    }
+}

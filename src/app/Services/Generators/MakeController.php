@@ -1,11 +1,10 @@
 <?php
-
-
 namespace AlexClaimer\Generator\App\Services\Generator;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 
 class MakeController
@@ -14,6 +13,7 @@ class MakeController
     protected $tablesNames = [];
     protected $alreadyMade = [];
     protected $realMade = [];
+    protected $tables;
 
     /**
      * MakeController constructor.
@@ -21,10 +21,12 @@ class MakeController
      */
     public function __construct(Table $tables)
     {
+        $this->tables = $tables;
         $this->tablesNames = $tables->getTablesNames();
         $this->writeControllers();
         $this->writeBaseController();
     }
+
     /**
      * @return array
      */
@@ -41,12 +43,12 @@ class MakeController
         return $this->alreadyMade;
     }
 
-
-
+    /**
+     * @return bool
+     */
     public function writeControllers()
     {
-
-        $str = "";
+        $stub = 'controller.stub';
 
         $arrAlreadyMade = config('alex-claimer-generator.already_made.controllers');
         foreach ($this->tablesNames as $tName => $cNames) {
@@ -54,50 +56,99 @@ class MakeController
 
             if (!is_array($arrAlreadyMade) || !in_array($ClassName, $arrAlreadyMade)) {
                 $this->realMade[] = $this->alreadyMade[] = $ClassName;
-                $str = "<?php\r\nnamespace " . Helper::makeNameSpace('controller') .
-                    ";\r\n\r\n";
 
-                $str .= "use " . Helper::makeNameSpace('model') . '\\' . Helper::className($tName) . ";\r\n\r\n";
+                $output = $this->strings_replace($tName, $cNames, $stub);
 
-
-                $str .= "class " . $ClassName . " extends BaseController
-{   
- 
-    
-}";
-
-                file_put_contents(Helper::makeFileDirName('controller', $ClassName), $str);
-
+                file_put_contents(Helper::makeFileDirName('controller', $ClassName), $output);
             }
         }
-        return $str;
+        return true;
     }
 
-    public function writeBaseController()
+    /**
+     * @param $tName
+     * @param $cNames
+     * @param $stub
+     * @return false|mixed|string
+     */
+    protected function strings_replace($tName, $cNames, $stub)
+    {
+        $postfix = Helper::getPostfix();
+        $output = file_get_contents(__DIR__ . '/Stubs/Controllers/' . $stub);
+
+        $output = $this->strings_replace_use($tName, $cNames, $stub, $output);
+
+        $output = str_replace('{{namespace}}', "namespace " .
+            Helper::makeNameSpace('controller') .
+            ";", $output);
+
+        $str_use = '';
+        $ClassNameRequest = Helper::className($tName, "StoreRequest");
+        $ClassNameRepository = Helper::className($tName, "Repository");
+
+        $NameSpaceRequest = Helper::makeNameSpace('request');
+        $NameSpaceRepository = Helper::makeNameSpace('repository');
+
+        $str_use .= "use " . Helper::makeNameSpace('model') . '\\' . $ClassName = Helper::className($tName) . " as Model;\r\n";
+        $str_use .= "use " . $NameSpaceRequest . "\\" . $ClassNameRequest . ";\r\n";
+        $str_use .= "use " . $NameSpaceRepository . "\\" . $ClassNameRepository . ";\r\n";
+
+        $output = str_replace('{{use}}', $str_use, $output);
+
+
+        $output = str_replace('{{BaseControllerClassName}}',
+            "Base" . $postfix . "Controller",
+            $output);
+        $output = str_replace('{{ControllerClassName}}',
+            Helper::className($tName, "Controller"),
+            $output);
+        $output = str_replace('{{RepositoryClassName}}',
+            Helper::className($tName) . "Repository",
+            $output);
+        $output = str_replace('{{repositoryVar}}',
+            lcfirst(Helper::className($tName) . "Repository"),
+            $output);
+        $output = str_replace('{{ModelClass}}',
+            Helper::className($tName),
+            $output);
+        $output = str_replace('{{ModelNameSpace}}',
+            Helper::makeNameSpace('model'),
+            $output);
+        $output = str_replace('{{ModelClassStoreRequest}}',
+            $ClassNameRequest,
+            $output);
+
+
+        $output = str_replace('{{views_directory}}',
+            Helper::make_views_directory($tName),
+            $output);
+        $output = str_replace('{{views_routes}}',
+            Helper::make_views_routes($tName),
+            $output);
+
+        return $output;
+    }
+
+    /**
+     * @return false|mixed|string
+     */
+    protected function writeBaseController()
     {
 
-        $str = "";
-
-        // $str = File::prepend( __DIR__.'\GeneratorMiddleware\Templates\Model\ModelBegin.php', 'ssssssssss');//11??
+        $stub = 'base-controller.stub';
         $arrAlreadyMade = config('alex-claimer-generator.already_made.controllers');
-
-        $ClassName = "Base" . "Controller";
+        $postfix = Helper::getPostfix();
+        $output = file_get_contents(__DIR__ . '/Stubs/Controllers/' . $stub);
+        $ClassName = "Base" . $postfix . "Controller";
 
         if (!is_array($arrAlreadyMade) || !in_array($ClassName, $arrAlreadyMade)) {
             $this->realMade[] = $this->alreadyMade[] = $ClassName;
-            $str = "<?php\r\nnamespace " . Helper::makeNameSpace('controller') . ";\r\n\r\n";
-            $str .= "";
-            $str .= "use App\Http\Controllers\Controller;\r\n\r\n";
 
+            $output = $this->strings_replace('base', 'bases', $stub);
 
-            $str .= "abstract class " . $ClassName . " extends Controller
-{ 
-         
-}";
-
-            file_put_contents(Helper::makeFileDirName('controller', $ClassName), $str);
+            file_put_contents(Helper::makeFileDirName('controller', $ClassName), $output);
         }
-        return $str;
+        return $output;
     }
 }
 

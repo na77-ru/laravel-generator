@@ -2,25 +2,23 @@
 
 {{namespace}}
 
-{{use}
+{{use}}
 
 /**
- * Class CategoryBlogAdminController
- * @package App\Http\Controllers\Blog\Admin
- * @property BlogCategoryRepository $blogCategoryRepository
+ * Class {{ControllerClassName}}
+ * @property {{RepositoryClassName}} ${{repositoryVar}}
  */
-class CategoryBlogAdminController extends BaseBlogAdminController
+class {{ControllerClassName}} extends {{BaseControllerClassName}}
 {
 
-    private $blogCategoryRepository;
+    private ${{repositoryVar}}; // there may be zero or more declarations
 
 
     public function __construct()
     {
         parent::__construct();
 
-        // $this->blogCategoryRepository = app(BlogCategoryRepository::class);
-        $this->blogCategoryRepository = new BlogCategoryRepository(app());
+        $this->{{repositoryVar}} = app({{RepositoryClassName}}::class);
     }
 
     /**
@@ -29,10 +27,9 @@ class CategoryBlogAdminController extends BaseBlogAdminController
      */
     public function index()
     {
-        $paginator = $this->blogCategoryRepository->getAllWithPaginate(config('admin.perPage'));
+        $paginator = $this->{{repositoryVar}}->getAllWithPaginate(config('admin.perPage'));
 
-        return view('blog.admin.category.index', compact('paginator'));
-        // return view('uikit.blog.admin.category.index', compact('paginator'));
+        return view('{{views_directory}}index', compact('paginator'));
     }
 
     /**
@@ -41,26 +38,26 @@ class CategoryBlogAdminController extends BaseBlogAdminController
      */
     public function create()
     {
-        $item = $this->blogCategoryRepository->makeModel();
+        $item = $this->{{repositoryVar}}->makeModel();
 
-        $categoryList = $this->blogCategoryRepository->getForCategorySelect();
+        $categoryList = $this->{{repositoryVar}}->getFor{{ModelClass}}Select();
 
         return view('blog.admin.category.create',
             compact('item', 'categoryList'));
     }
 
     /**
-     * @param BlogCategoryStoreRequest $request
+     * @param {{ModelClassStoreRequest}} $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(BlogCategoryStoreRequest $request)
+    public function store({{ModelClassStoreRequest}} $request)
     {
         $data = $request->input();
-        $item = $this->blogCategoryRepository->create($data);
+        $item = $this->{{repositoryVar}}->create($data);
 
         if ($item) {
             return redirect()
-                ->route("blog.admin.categories.index")
+                ->route("{{views_routes}}index")
                 ->with([
                     'messages' => __("Запись  $item->title  успешно сохранена"),
                     'alert-type' => 'alert-success',
@@ -80,8 +77,6 @@ class CategoryBlogAdminController extends BaseBlogAdminController
      */
     public function show($id)
     {
-        $t = new BlogAdminCategory();
-
         dd(__METHOD__);
     }
 
@@ -92,30 +87,24 @@ class CategoryBlogAdminController extends BaseBlogAdminController
      */
     public function edit($id)
     {
-        $item = $this->blogCategoryRepository->getEdit($id);
-        $categoryList = $this->blogCategoryRepository->getForCategorySelect();
+        $item = $this->{{repositoryVar}}->getEdit($id);
+        $categoryList = $this->{{repositoryVar}}->getFor{{ModelClass}}Select();
         //dd(__METHOD__, $categoryList);
-        return view('blog.admin.category.edit',
+        return view('{{views_directory}}edit',
             compact('item', 'categoryList'));
     }
 
     /**
-     * @param BlogCategoryUpdateRequest $request
+     * @param {{ModelClassStoreRequest}} $request
      * @param $id
      * @return RedirectResponse
      */
-    public function update(BlogCategoryStoreRequest $request, $id)
+    public function update({{ModelClassStoreRequest}} $request, $id)
     {
-//        $r = new BlogCategoryUpdateRequest($request->all());
-//        $validate = $r->validated($request->all());
-//
-//        dd(__METHOD__, $r, $validate, $request->all());
-
-
-        /**@var \App\Models\Blog\Admin\BlogAdminCategory $data */
+        /**@var {{ModelNameSpace}}\{{ModelClass}} $data */
         $data = $request->input();
 
-        $item = $this->blogCategoryRepository->find($id);
+        $item = $this->{{repositoryVar}}->find($id);
 
         if (empty($item)) {
             return back()
@@ -123,9 +112,9 @@ class CategoryBlogAdminController extends BaseBlogAdminController
                 ->withInput();
         }
 
-        if ($this->blogCategoryRepository->update($data, $id)) {
+        if ($this->{{repositoryVar}}->update($data, $id)) {
             return redirect()
-                ->route("blog.admin.categories.index")
+                ->route("{{views_routes}}index")
                 ->with([
                     'messages' => app()->msg->getMsg(),//in BlogAdminObserver app()->msg->setMsg()
                     'alert-type' => app()->msg->getAT(),
@@ -145,10 +134,10 @@ class CategoryBlogAdminController extends BaseBlogAdminController
      */
     public function destroy($id)
     {
-        $result = $this->blogCategoryRepository->delete($id);
+        $result = $this->{{repositoryVar}}->delete($id);
         if ($result) {
             return redirect()
-                ->route("blog.admin.categories.index")
+                ->route("{{views_routes}}index")
                 ->with([
                     'messages' => 'Запись с <b>id - ' . $id . '</b> успешно удалена',
                     'alert-type' => 'alert-success',
@@ -162,11 +151,11 @@ class CategoryBlogAdminController extends BaseBlogAdminController
 
     public function restore($id = null)
     {
-        $result = $this->blogCategoryRepository->restore($id);
+        $result = $this->{{repositoryVar}}->restore($id);
 
         if ($result) {
             return redirect()
-                ->route("blog.admin.categories.index")
+                ->route("{{views_routes}}index")
                 ->with([
                     'messages' => app()->msg->getMsg(),//in BlogPostRepository app()->msg->setMsg()
                     'alert-type' => app()->msg->getAT(),
