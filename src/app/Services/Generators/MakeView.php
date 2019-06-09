@@ -95,7 +95,7 @@ class MakeView
             $success = \File::copy(
 
                 __DIR__ . ('/../../../../resources/views/layouts/app.blade.php'),
-                base_path('resources/views/' . $postfix . 'app.blade.php')
+                base_path('/resources/views/' . $postfix . 'app.blade.php')
             );
             $this->setAlreadyMadeViews('app', 'app.blade');
         }

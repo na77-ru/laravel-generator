@@ -47,11 +47,11 @@ class Helper
             $postfix = lcfirst($postfix);
         }
         if (trim($postfix) !== '') $postfix .= '\\';
-        $dirName = base_path() .
+        $dirName = base_path()  . "\\" .
             config('alex-claimer-generator.config.' . $type . '.namespace') . '\\' . $postfix  . $viewTableName;
-      //  if (strpos($dirName, 'resou'))bbb(__METHOD__, $dirName, $ClassName, '');
+        if (strpos($dirName, 'resou'))bbb(__METHOD__, $dirName, $ClassName, '');
         self::filterDirNameClassName($dirName, $ClassName);
-   // if (strpos($dirName, 'inc'))dd(__METHOD__, $dirName, $ClassName);
+    if (strpos($dirName, 'inc'))dd(__METHOD__, $dirName, $ClassName);
         $dirName = self::checkAndMakeDir($dirName);
 
         // dd(__METHOD__, $dirName, $ClassName, $dirName . $ClassName . '.php');//11
