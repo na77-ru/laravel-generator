@@ -205,7 +205,7 @@ class MakeMigration
      */
     protected function getMigrationFileName($name, $i)
     {
-        return Carbon::now()->format('Y_m_d_his') . '_' . $i . '_create_' . $name . '_table.php';
+        return Carbon::now()->addSecond($i)->format('Y_m_d_his') . '_create_' . $name . '_table.php';
     }
 
     /**
