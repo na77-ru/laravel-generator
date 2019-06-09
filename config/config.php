@@ -14,6 +14,8 @@ return [
     'only_table_with_prefix' => false,
     'table_prefix' => 'test', // 'test',
 
+    'not_with_link_tables' => true,
+
     'namespace_postfix' => '', // 'Test',
     'generate_models' => true,
     'model' => [
