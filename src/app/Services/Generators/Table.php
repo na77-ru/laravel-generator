@@ -162,7 +162,7 @@ class Table
 
         $only_this_table = config('alex-claimer-generator.config.only_this_table');
 
-        $not_with_link_tables = config('alex-claimer-generator.config.with_link_tables');
+        $not_with_link_tables = config('alex-claimer-generator.config.not_with_link_tables');
 
         if ($only_this_table) {
             $tables = $only_this_table;
@@ -170,17 +170,18 @@ class Table
 
         foreach ($tables as $table) {
 
-            if (!$only_table_with_prefix && !($not_with_link_tables && strpos($table->$db_name_key , '_link_'))||
+            if (!$only_table_with_prefix ||
                 ($only_table_with_prefix && strpos('_' . $table->$db_name_key, $table_prefix . '_'))) {
 
-                if (!in_array($table->$db_name_key, $this->ignoredTables)) {
+                if (!in_array($table->$db_name_key, $this->ignoredTables) &&
+                     !($not_with_link_tables && strpos($table->$db_name_key , '_link_')) ) {
                     $arTablesNames[] = $table->$db_name_key;
 
                 }
             }
 
         }
-        return $arTablesNames;
+  return $arTablesNames;
     }
 
     /**

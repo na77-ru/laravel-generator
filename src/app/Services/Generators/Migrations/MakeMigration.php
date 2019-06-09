@@ -49,7 +49,7 @@ class MakeMigration
                 if (!empty($param['name_' . $i])) {
                     $newParam['name'] = $param['prefix'] . $param['name' . '_' . $i];
                     $newParam['prefix'] = $param['prefix'];
-                    $newParam['columns_id'] = $param['columns_id'];
+                    $newParam['columns_id'] = $param['columns_id_' . $i];
                     $newParam['id'] = $param['id' . '_' . $i];
                     $newParam['only_pivot'] = $param['only_pivot'];
                     $newParam['slug'] = $param['slug' . '_' . $i];
@@ -65,7 +65,7 @@ class MakeMigration
 
                     $output = $this->getStubMigrationOneTable($stubDirOneTable, $newParam);
 
-                    $migrationDirName = $this->getMigrationDirName($newParam['name']);
+                    $migrationDirName = $this->getMigrationDirName($newParam['name'], $i);
 
                     file_put_contents($migrationDirName, $output);
 
@@ -84,7 +84,7 @@ class MakeMigration
 
             $output = $this->getStubMigrationPivotTable($stubDirPivotTable, $param);
 
-            $migrationDirName = $this->getMigrationDirName($param['name']);
+            $migrationDirName = $this->getMigrationDirName($param['name'], 3);
 
             file_put_contents($migrationDirName, $output);
         }
@@ -94,7 +94,6 @@ class MakeMigration
 
     protected function getStubMigrationOneTable($stubDirOneTable, $param)
     {
-
         $output = file_get_contents($stubDirOneTable);
         $output = str_replace('{{className}}', $param['className'], $output);
         $output = str_replace('{{tableName}}', $param['name'], $output);
@@ -137,7 +136,7 @@ class MakeMigration
                     $tableForeignName = $param['prefix'] . $tableForeignName;
 
                     $columns .= "\t\t\t\$table->bigInteger('" . $column_id . "')->unsigned();\r\n";
-                    $columns .= "\t\t\t\$table->foreign('user_id')->references('id')->on('" . $tableForeignName . "');\r\n";
+                    $columns .= "\t\t\t\$table->foreign('" . $column_id . "')->references('id')->on('" . $tableForeignName . "');\r\n";
                 }
             }
         }
@@ -204,9 +203,9 @@ class MakeMigration
      * @param string $name
      * @return string
      */
-    protected function getMigrationFileName($name)
+    protected function getMigrationFileName($name, $i)
     {
-        return Carbon::now()->format('Y_m_d_his') . '_create_' . $name . '_table.php';
+        return Carbon::now()->format('Y_m_d_his') . '_' . $i . '_create_' . $name . '_table.php';
     }
 
     /**
@@ -233,9 +232,9 @@ class MakeMigration
      * @param $name
      * @return string
      */
-    protected function getMigrationDirName($name)
+    protected function getMigrationDirName($name, $i)
     {
-        return base_path() . '\database\migrations\\' . $this->getMigrationFileName($name);
+        return base_path() . '\database\migrations\\' . $this->getMigrationFileName($name, $i);
     }
 
 

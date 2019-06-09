@@ -10,8 +10,8 @@
 </div>
 
 <div class="form-group">
-    <label for="columns_id">{{ __('columns_id') }}</label>
-    <input name="columns_id" value="{{ old('columns_id', 'parent_id user_id') }}"
+    <label for="columns_id{{ $id }}">{{ __('columns_id') . $id }}</label>
+    <input name="columns_id{{ $id }}" value="{{ old('columns_id' . $id, 'parent_id user_id') }}"
            id="columns_id"
            type="text"
            class="form-control"

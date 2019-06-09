@@ -47,7 +47,7 @@ class Main
         }
 
 
-       // $this->writeAlreadyMade();//11 uncomment
+        $this->writeAlreadyMade();//11 uncomment
 
 
         // cd packages/AlexClaimer/Generator
@@ -80,26 +80,29 @@ class Main
         //dd(__METHOD__, $this->alreadyMade);
         $str_alreadyMade = "<?php\r\nreturn [\r\n";
         foreach ($this->alreadyMade as $type => $arr) {
-//bbb(__METHOD__,'arr', $arr);
-            $str_alreadyMade .= "    '$type' => [\r\n";
 
-            foreach ($arr as $name) {
-//bbb(__METHOD__, 'name', $name);
-                if (is_array($name)) {
-                    foreach ($name as $blade) {
 
-                        dd(__METHOD__, $this->alreadyMade, $blade);
-                        $str_alreadyMade .= "\t\t[\r\n";
-                        $str_alreadyMade .= "        '" . $blade . "',\r\n";
-                        $str_alreadyMade .= "\t\t],\r\n";
+            if ($arr !== null) {
+                $str_alreadyMade .= "    '$type' => [\r\n";
+
+                foreach ($arr as $name) {
+
+                    if (is_array($name)) {
+                        foreach ($name as $blade) {
+
+                            dd(__METHOD__, $this->alreadyMade, $blade);
+                            $str_alreadyMade .= "\t\t[\r\n";
+                            $str_alreadyMade .= "        '" . $blade . "',\r\n";
+                            $str_alreadyMade .= "\t\t],\r\n";
+                        }
+                    } else {
+                        $str_alreadyMade .= "        '" . $name . "',\r\n";
                     }
-                } else {
-                    $str_alreadyMade .= "        '" . $name . "',\r\n";
+
+
                 }
-
-
+                $str_alreadyMade .= "   ],\r\n";
             }
-            $str_alreadyMade .= "   ],\r\n";
         }
         $str_alreadyMade .= "];";
 
