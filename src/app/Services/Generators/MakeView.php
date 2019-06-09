@@ -90,10 +90,12 @@ class MakeView
     {
         $success = false;
         if ($this->notExist('app', 'app.blade')) {
+            $postfix = lcfirst(config('alex-claimer-generator.config.namespace_postfix')) . '/';
+
             $success = \File::copy(
 
                 __DIR__ . ('/../../../../resources/views/layouts/app.blade.php'),
-                base_path('resources/views/test/app.blade.php')
+                base_path('resources/views/' . $postfix . 'app.blade.php')
             );
             $this->setAlreadyMadeViews('app', 'app.blade');
         }
