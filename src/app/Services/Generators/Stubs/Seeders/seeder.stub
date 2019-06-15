@@ -14,16 +14,18 @@ class {{SeederClassName}} extends Seeder
      */
     public function run(Faker $faker)
     {
-        ${{tableName}} = {{ModelClassName}}::where('id', '=', 1)->first();
-        if (${{tableName}} === null) {
+        ${{tableName}}= [];
+
+        $result = {{ModelClassName}}::where('id', '=', 1)->first();
+        if ($result === null) {
 {{variables}}
             ${{tableName}}[] = [
 {{setFields}}
             ];
         }
         for ($i = 2; $i <= 11; $i++) {
-            ${{tableName}} = {{ModelClassName}}::where('id', '=', $i)->first();
-            if (${{tableName}} === null) {
+            $result = {{ModelClassName}}::where('id', '=', $i)->first();
+            if ($result === null) {
 {{variables}}
                 ${{tableName}}[] = [
 {{setFields}}
