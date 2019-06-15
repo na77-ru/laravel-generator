@@ -43,15 +43,16 @@ class Helper
     {
 
         $postfix = config('alex-claimer-generator.config.namespace_postfix');
+        if ($type === 'package')  $postfix = '';
         if ($viewTableName !== '') {
             $postfix = lcfirst($postfix);
         }
         if (trim($postfix) !== '') $postfix .= '\\';
         $dirName = base_path()  . "\\" .
             config('alex-claimer-generator.config.' . $type . '.namespace') . '\\' . $postfix  . $viewTableName;
-
+       // bbb(__METHOD__, $dirName, $ClassName);
         self::filterDirNameClassName($dirName, $ClassName);
-
+       // dd(__METHOD__, $dirName, $ClassName);
         $dirName = self::checkAndMakeDir($dirName);
 
         // dd(__METHOD__, $dirName, $ClassName, $dirName . $ClassName . '.php');//11
@@ -61,7 +62,7 @@ class Helper
     protected static function filterDirNameClassName(&$dirName, &$ClassName)
     {
 
-        if ( $pos = strpos($ClassName,'/') ) {
+        while ( $pos = strpos($ClassName,'/') ) {
 
             $dirName = $dirName . "\\" . substr($ClassName, 0, $pos);
             $ClassName = substr($ClassName, $pos + 1);

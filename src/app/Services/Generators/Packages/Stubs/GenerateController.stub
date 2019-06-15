@@ -1,0 +1,117 @@
+<?php
+namespace {{Vendor}}\{{PackageName}}\App\Http\Controllers;
+
+
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller as BaseController;
+
+class {{ClassName}} extends BaseController
+{
+    public function __construct()
+    {
+        $this->middleware('web');//11 uncomment
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function {{package_name}}_menu()
+    {
+        return view('{{package_name}}_views::menu');
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function show_{{vendor_}}_{{package_name}}_config()
+    {
+        return view('{{package_name}}_views::show_{{vendor_}}_{{package_name}}_config');
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function {{package_name}}_patch(Request $request)
+    {
+        $all = $request->all();
+        //dd(__METHOD__, $request, $all);
+        new Main();
+
+        return redirect()
+            ->route('{{package_name}}_menu')
+            ->with([
+                '_token' => $all['_token'],
+                'messages' => 'All successfully.',
+                'alert-type' => 'success',
+            ]);
+        //dd(__METHOD__, $model);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        dd(__METHOD__, $request);
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $request = new Request();
+        dd(__METHOD__, $request, $id);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        $request = new Request();
+        dd(__METHOD__, $request, $id);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+
+        dd(__METHOD__, $request, $id);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        $request = new Request();
+        dd(__METHOD__, $request, $id);
+    }
+
+
+}

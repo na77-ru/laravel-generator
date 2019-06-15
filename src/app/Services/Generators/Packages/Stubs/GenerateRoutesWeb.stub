@@ -1,0 +1,9 @@
+<?php
+
+Route::get('/{{package_name}}_menu',
+    '\{{Vendor}}\{{PackageName}}\App\Http\Controllers\{{PackageName}}Controller@{{package_name}}_menu')
+    ->name('{{package_name}}_menu');
+
+Route::get('/{{package_name}}_patch',
+    '\{{Vendor}}\{{PackageName}}\App\Http\Controllers\{{PackageName}}Controller@{{package_name}}_patch')
+    ->name('{{package_name}}_patch');

@@ -1,0 +1,44 @@
+{
+    "name": "{{vendor-}}/{{package-name}}",
+    "type": "library",
+    "description": "description: {{vendor-}}/{{package-name}} library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Alex",
+            "email": "alex@na.ru"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "{{Vendor}}\\{{PackageName}}\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "{{Vendor}}\\{{PackageName}}\\": "src/",
+            "{{Vendor}}\\{{PackageName}}\\App\\": "src/app/",
+            "{{Vendor}}\\{{PackageName}}\\Tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "laravel": {
+            "providers": [
+                "{{Vendor}}\\{{PackageName}}\\App\\Providers\\{{PackageName}}ServiceProvider"
+            ]
+        },
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    },
+    "require": {
+
+    },
+    "require-dev": {
+        "doctrine/dbal": "^2.9"
+    }
+
+
+}

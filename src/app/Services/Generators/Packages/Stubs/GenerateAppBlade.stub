@@ -30,7 +30,7 @@
             <a class="navbar-brand" href="{{ url('/') }}">
                 {{ config('app.name', 'Laravel') }}
             </a>
-            {{--            @include('generator_views::inc.slide_bar_toggle_button')--}}
+{{--            @include('generator_views::inc.slide_bar_toggle_button')--}}
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
                     aria-controls="navbarSupportedContent" aria-expanded="false"
                     aria-label="{{ __('Toggle navigation') }}">
@@ -40,13 +40,6 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <!-- Left Side Of Navbar -->
                 <ul class="navbar-nav mr-auto">
-
-                    <li><a href="{{route('generator_menu')}}">{{__('menu')}}</a></li> &nbsp; &nbsp;
-                    <li><a href="{{route('show_alex_claimer_generator_config')}}">{{__('config')}}</a></li> &nbsp;
-                    &nbsp;
-                    <li><a href="{{route('generator_create_migration')}}">{{__('migration')}}</a></li> &nbsp; &nbsp;
-                    <li><a href="{{route('generator_create_seeders')}}">{{__('seeders')}}</a></li> &nbsp; &nbsp;
-                    <li><a href="{{ route('generator_create_packages') }}"> {{ __('packages') }}</a></li>
 
                 </ul>
 
@@ -91,9 +84,9 @@
 
     <main class="py-4">
 
-        {{--        <nav id="sidebar">--}}
-        {{--            @include('generator_views::inc.slide_bar')--}}
-        {{--        </nav>--}}
+{{--        <nav id="sidebar">--}}
+{{--            @include('generator_views::inc.slide_bar')--}}
+{{--        </nav>--}}
         <div id="content">
             @yield('content')
         </div>

@@ -37,3 +37,12 @@ Route::patch('/generator_store_seeders',
     '\AlexClaimer\Generator\App\Http\Controllers\GeneratorController@store_seeders')
     ->name('generator_store_seeders');
 
+//PACKAGES
+Route::get('/generator_create_packages',
+    '\AlexClaimer\Generator\App\Http\Controllers\GeneratorController@menu_create_packages')
+    ->name('generator_create_packages');
+
+Route::patch('/generator_store_packages',
+    '\AlexClaimer\Generator\App\Http\Controllers\GeneratorController@store_packages')
+    ->name('generator_store_packages');
+

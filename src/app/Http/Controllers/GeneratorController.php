@@ -5,9 +5,11 @@ namespace AlexClaimer\Generator\App\Http\Controllers;
 
 use AlexClaimer\Generator\App\Services\Generator\Main;
 use AlexClaimer\Generator\App\Services\Generator\MakeSeeds;
+use AlexClaimer\Generator\App\Services\Generators\Packages\MakePackages;
 use AlexClaimer\Generator\App\Services\Generators\Migrations\MakeMigration;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Str;
 
 class GeneratorController extends BaseController
 {
@@ -133,6 +135,54 @@ class GeneratorController extends BaseController
         } else {
             return redirect('generator_create_seeders')
                 ->withErrors(['msg' => ['Seeders created error', $message]])
+                ->withInput();
+        }
+
+
+    }
+
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function menu_create_packages()
+    {
+        return view('generator_views::package/menu_package_generator');
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function store_packages(Request $request)
+    {
+        $param = $request->all();
+
+        //dd(__METHOD__, $param);
+        $VendorName =  ucfirst(Str::camel($param['vendor-name']));
+        $PackageName =  ucfirst(Str::camel($param['package-name']));
+
+        $MakePackages = new MakePackages($param['vendor-name'], $param['package-name']);
+        $result = $MakePackages->GeneratePackages($message);
+        $message_add = "    \"autoload-dev\": {
+        \"psr-4\": {
+
+            ...
+            \"$VendorName\\\\$PackageName\\\\\": \"packages/$VendorName/$PackageName/src\",
+            ...
+        }
+    },";
+        $message_add2 = "$VendorName\\$PackageName\\App\\Providers\\" . $PackageName . "ServiceProvider::class,";
+        if ($result) {
+            return redirect('generator_create_packages')
+                ->with([
+                    'messages' => [
+                        'Package created successfully',
+                        $message_add,
+                        $message_add2
+                        ]
+                ]);
+        } else {
+            return redirect('generator_create_packages')
+                ->withErrors(['msg' => ['Package created error', $message]])
                 ->withInput();
         }
 

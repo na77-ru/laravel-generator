@@ -17,6 +17,9 @@
         <a class="dropdown-item" href="{{ route('generator_create_seeders') }}">
             {{ __('seeders') }}
         </a>
+        <a class="dropdown-item" href="{{ route('generator_create_packages') }}">
+            {{ __('packages') }}
+        </a>
 
 
     </div>

@@ -8,7 +8,7 @@ use App\Services\Generator\MakeModel;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Database\ModelIdentifier;
 use Illuminate\Filesystem\Filesystem;
-use AlexClaimer\Generator\App\Services\Generators\Migrations\MakeMigration;
+use AlexClaimer\Generator\App\Services\Generators\Migrations\MakePackages;
 
 class GenerateMigrationCommand extends Command
 {
@@ -115,7 +115,7 @@ class GenerateMigrationCommand extends Command
 
        // dd(__METHOD__, $newParam);
 
-        $MakeMigration = new MakeMigration($newParam);
+        $MakeMigration = new MakePackages($newParam);
         $MakeMigration->GenerateMigration($newParam, $message);
 
 

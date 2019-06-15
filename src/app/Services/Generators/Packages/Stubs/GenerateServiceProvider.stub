@@ -1,17 +1,16 @@
 <?php
 
-namespace AlexClaimer\Generator\App\Providers;
+namespace {{Vendor}}\{{PackageName}}\App\Providers;
 
 
 use Illuminate\Support\ServiceProvider;
-use AlexClaimer\Generator\App\Console\Commands\GenerateClassesCommand;
-use AlexClaimer\Generator\App\Console\Commands\GenerateMigrationCommand;
+use {{Vendor}}\{{PackageName}}\App\Console\Commands\{{PackageName}}Command;
 use Illuminate\View\Engines\EngineResolver;
 use Illuminate\View\Engines\PhpEngine;
 use Illuminate\View\Factory;
 use Illuminate\View\FileViewFinder;
 
-class GeneratorServiceProvider extends ServiceProvider
+class {{PackageName}}ServiceProvider extends ServiceProvider
 {
     /**
      * Publishes configuration file.
@@ -21,17 +20,17 @@ class GeneratorServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->loadRoutesFrom(__DIR__.'/../../routes/web.php');
-        $this->loadViewsFrom(__DIR__.'/../../../resources/views', 'generator_views');
+        $this->loadViewsFrom(__DIR__.'/../../../resources/views', '{{package_name}}_views');
 
         //dd(__METHOD__);
         $this->publishes([__DIR__ . '/../../../resources/css/app.css'
-        => base_path('public/vendor/alex-claimer/generator/css/app.css')],
-            'alex-claimer-generator-config');
+        => base_path('public/vendor/{{vendor_}}/{{package_name}}/css/app.css')],
+            '{{vendor_}}-{{package_name}}-config');
         $this->publishes([__DIR__ . '/../../../resources/js/app.js'
-        => base_path('public/vendor/alex-claimer/generator/js/app.js')],
-            'alex-claimer-generator-config');
-        $this->publishes([__DIR__ . '/../../../config/config.php' => config_path('alex-claimer-generator/config.php')],
-            'alex-claimer-generator-config');
+        => base_path('public/vendor/{{vendor_}}/{{package_name}}/js/app.js')],
+            '{{vendor_}}-{{package_name}}-config');
+        $this->publishes([__DIR__ . '/../../../config/config.php' => config_path('{{vendor_}}-{{package_name}}/config.php')],
+            '{{vendor_}}-{{package_name}}-config');
 
 
     }
@@ -44,7 +43,7 @@ class GeneratorServiceProvider extends ServiceProvider
     public function register()
     {
         //dd(__METHOD__);
-        $this->mergeConfigFrom(__DIR__ . '/../../../config/config.php', 'alex-claimer-generator.config');
+  //      $this->mergeConfigFrom(__DIR__ . '/../../../config/config.php', 'alex_claimer-package_name.config');
 
 
 
@@ -59,23 +58,23 @@ class GeneratorServiceProvider extends ServiceProvider
 //        );
 
 
-        $this->app->singleton(
-            'command.generate.classes',
-            function ($app)  {
-                return new GenerateClassesCommand($app['files']);
-            }
-        );
-
-        $this->app->singleton(
-            'command.generate:migration',
-            function ($app) {
-                return new GenerateMigrationCommand($app['files']);
-            }
-        );
-        $this->commands(
-            'command.generate.classes',
-            'command.generate:migration'
-        );
+//        $this->app->singleton(
+//            'command.generate.classes',
+//            function ($app)  {
+//                return new GenerateClassesCommand($app['files']);
+//            }
+//        );
+//
+//        $this->app->singleton(
+//            'command.generate:migration',
+//            function ($app) {
+//                return new GenerateMigrationCommand($app['files']);
+//            }
+//        );
+//        $this->commands(
+//            'command.generate.classes',
+//            'command.generate:migration'
+//        );
     }
     /**
      * @return Factory
