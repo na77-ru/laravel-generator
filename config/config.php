@@ -37,7 +37,7 @@ return [
     'request' => [
         'namespace' => '\app\Http\Requests',
     ],
-    'generate_views' => true, // not generate yet
+    'generate_views' => true,
     'view' => [
         'namespace' => 'resources\views',
     ],
