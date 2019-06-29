@@ -23,6 +23,6 @@ class {{ClassServiceProvider}} extends ServiceProvider
      */
     public function boot()
     {
-        {{includes_in_boot}}
+{{includes_in_boot}}
     }
 }

@@ -129,15 +129,21 @@ class MakeView
         if (empty($postfix)) {
             $output = str_replace('{{postfix}}', '', $output);
         } else {
-            $output = str_replace('{{postfix}}', $postfix . '.', $output);
+            $output = str_replace('{{postfix}}', Helper::make_views_routes_prefix(), $output);
         }
 
+        $output = str_replace('{{route_name_without_action_and_\')}} }}', '{{route(\''.Helper::make_views_routes_name($tName).'', $output);
         $output = str_replace('{{postfix/}}', $postfix . '/', $output);
         $output = str_replace('{{table_name}}', $tName, $output);
         $output = str_replace('{{ModelNameSpace}}',
             Helper::makeNameSpace('model') . Helper::className($tName), $output);
         $output = str_replace('{{<thead><td>}}', $this->theadIndex($tName, $cNames, $postfix), $output);
         $output = str_replace('{{<tr><td>}}', $this->tdIndex($tName, $cNames, $postfix), $output);
+
+        $output = str_replace('{{belongsToComment}}', '', $output); //11 replace with something
+
+
+
 
         return $output;
     }
@@ -235,7 +241,7 @@ class MakeView
         foreach ($columns as $column) {
             // dd(__METHOD__, $column);
             if ($column['name'] != 'id')
-                $str .= "<th>\t\t\t{{ __('$postfix.form.$tableName." . $column['name'] . ") }}</th>\r\n";
+                $str .= "<th>\t\t\t{{ __('" . $column['name'] . "') }}</th>\r\n";
         }
         return $str;
     }
@@ -253,7 +259,7 @@ class MakeView
         foreach ($columns as $column) {
             // dd(__METHOD__, $column);
             if ($column['name'] == 'id') {
-                $str .= "\t\t\t<td><a href=\"{{route('$postfix.$tableName.edit', \$item->id)}}\">
+                $str .= "\t\t\t<td><a href=\"{{route('" . Helper::make_views_routes_name($tableName, 'edit')."', \$item->id)}}\">
                                             {{ \$item->id }}
                 </a>
            </td>\r\n";
@@ -319,11 +325,14 @@ class MakeView
         }
 
         if (Arr::exists($cNames, 'title')) {
-            // bbb(__METHOD__, $tName, $cNames);
             $title = file_get_contents(__DIR__ .
                 '/Stubs/Views/inc/edit_columns/title.stub');
             $output = str_replace('{{title}}', $title, $output);
-        } else {
+        } elseif (Arr::exists($cNames, 'name')) {
+                $name = file_get_contents(__DIR__ .
+                    '/Stubs/Views/inc/edit_columns/name.stub');
+                $output = str_replace('{{title}}', $name, $output);
+            } else {
             $output = str_replace('{{title}}', '', $output);
         }
         if (Arr::exists($cNames, 'content_row')) {

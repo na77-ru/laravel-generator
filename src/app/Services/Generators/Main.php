@@ -43,8 +43,8 @@ class Main
             $this->setAlreadyMade(new MakeRoute($tableObj), 'routes');
         }
         if (config('alex-claimer-generator.config.generate_providers')) {
-            $this->setAlreadyMade(new MakeProvider($tableObj), 'providers');
-        }
+        $this->setAlreadyMade(new MakeProvider($tableObj), 'providers');
+    }
 
 
         $this->writeAlreadyMade();//11 uncomment

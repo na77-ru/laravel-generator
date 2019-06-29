@@ -18,6 +18,7 @@ class Helper
 
         return $ClassName . $Type;
     }
+
     /**
      * @param $type
      * @return bool|string
@@ -36,6 +37,20 @@ class Helper
     }
 
     /**
+     * @param $postfix
+     * @return string
+     */
+    public static function BaseClassName()
+    {
+        $postfix = self::getPostfix();
+        if ($pos = strpos($postfix, '\\')) {
+            $postfix = substr($postfix, $pos + 1);
+        }
+
+        return 'Base' . $postfix;
+    }
+
+    /**
      * @param $ClassName
      * @return string
      */
@@ -43,16 +58,19 @@ class Helper
     {
 
         $postfix = config('alex-claimer-generator.config.namespace_postfix');
-        if ($type === 'package')  $postfix = '';
+        if ($type === 'package') $postfix = '';
         if ($viewTableName !== '') {
             $postfix = lcfirst($postfix);
         }
         if (trim($postfix) !== '') $postfix .= '\\';
-        $dirName = base_path()  . "\\" .
-            config('alex-claimer-generator.config.' . $type . '.namespace') . '\\' . $postfix  . $viewTableName;
-       // bbb(__METHOD__, $dirName, $ClassName);
+        if ($type == 'view') {
+            $postfix = self::make_views_address_prefix().'\\';
+        }
+        $dirName = base_path() . "\\" .
+            config('alex-claimer-generator.config.' . $type . '.namespace') . '\\' . $postfix . $viewTableName;
+        // bbb(__METHOD__, $dirName, $ClassName);
         self::filterDirNameClassName($dirName, $ClassName);
-       // dd(__METHOD__, $dirName, $ClassName);
+        // dd(__METHOD__, $dirName, $ClassName);
         $dirName = self::checkAndMakeDir($dirName);
 
         // dd(__METHOD__, $dirName, $ClassName, $dirName . $ClassName . '.php');//11
@@ -62,7 +80,7 @@ class Helper
     protected static function filterDirNameClassName(&$dirName, &$ClassName)
     {
 
-        while ( $pos = strpos($ClassName,'/') ) {
+        while ($pos = strpos($ClassName, '/')) {
 
             $dirName = $dirName . "\\" . substr($ClassName, 0, $pos);
             $ClassName = substr($ClassName, $pos + 1);
@@ -118,31 +136,81 @@ class Helper
         }
         return $arr;
     }
+
     /**
      * @param $tName
      * @return string
      */
-    public static  function make_views_routes_url($tName, $type = '')
+    public static function make_views_routes_url($tName, $type = '')
     {
+        $postfix = str_replace('\\', '/', self::getPostfix());
         $tName = substr($tName, strpos($tName, '_') + 1);
-        return lcfirst(self::getPostfix()) . "/" . $tName . "/" . $type;
+        if ($type !== ''){
+            $type = '/' . $type;
+        }
+        return strtolower($postfix) . "/" . $tName .  $type;
     }
+
     /**
      * @param $tName
      * @return string
      */
-    public static  function make_views_routes_name($tName, $type = '')
+    public static function make_views_routes_name($tName, $type = '')
     {
+        $postfix = str_replace('\\', '_', self::getPostfix());
         $tName = substr($tName, strpos($tName, '_') + 1);
-        return lcfirst(self::getPostfix()) . "." . $tName . "." . $type;
+        if ($type !== '') {
+            $type = '.' . $type;
+        }
+        return strtolower($postfix) . "_" . $tName . $type;
     }
+
     /**
      * @param $tName
      * @return string
      */
-    public static  function make_views_directory($tName, $type = '')
+    public static function make_views_routes_prefix()
     {
-        return lcfirst(self::getPostfix()) . "." . $tName . "." . $type;
+        $postfix = str_replace('\\', '.', self::getPostfix());
+
+        return strtolower($postfix);
+    }
+
+    /**
+     * @param $tName
+     * @return string
+     */
+    public static function make_views_address_prefix()
+    {
+        return strtolower(self::getPostfix());
+    }
+
+    /**
+     * @param $tName
+     * @return string
+     */
+    public static function make_views_address_name($tName, $type = '')
+    {
+        $postfix = str_replace('\\', '.', self::getPostfix());
+        $tName = substr($tName, strpos($tName, '.') + 1);
+        if ($type !== '') {
+            $type = '.' . $type;
+        }
+        return strtolower($postfix) . "_" . $tName . $type;
+    }
+
+    /**
+     * @param $tName
+     * @return string
+     */
+    public static function make_views_directory($tName, $type = '')
+    {
+        $postfix = str_replace('\\', '.', self::getPostfix());
+        $tName = substr($tName, strpos($tName, '.') );
+        if ($type !== '') {
+            $type = '.' . $type;
+        }
+        return strtolower($postfix) . "." . $tName . $type;
     }
 
     /**

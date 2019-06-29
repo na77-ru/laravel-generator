@@ -52,8 +52,8 @@ class MakeProvider
 
 
         $arrAlreadyMade = config('alex-claimer-generator.already_made.providers');
-        foreach ($this->tablesNames as $tName => $cNames) {
-            $ClassName = Helper::getPostfix() . "ServiceProvider";
+
+            $ClassName = Helper::BaseClassName() . "ServiceProvider";
 
             if (!is_array($arrAlreadyMade) || !in_array($ClassName, $arrAlreadyMade)) {
                 $this->realMade[] = $this->alreadyMade[] = $ClassName;
@@ -71,15 +71,15 @@ class MakeProvider
                 $output = str_replace('{{ClassServiceProvider}}', $ClassName, $output);
                 $str_use = '';
                 foreach ($this->tablesNames as $tabName => $colNames) {
-                    $str_use .=  Helper::className($tabName) . "::observe(" . Helper::className($tabName, 'Observer'). "::class);\r\n";
+                    $str_use .=  "\t\t" . Helper::className($tabName) . "::observe(" . Helper::className($tabName, 'Observer'). "::class);\r\n";
                 }
                 $output = str_replace('{{includes_in_boot}}', $str_use  , $output);
 
                 //{{ModelClassName}}::observe({{ObserverClassName}}::class);
             }
-        }
+
         //dd(__METHOD__, Helper::makeFileDirName('provider', Helper::getPostfix() . "ServiceProvider"));
-         file_put_contents(Helper::makeFileDirName('provider', Helper::getPostfix() . "ServiceProvider"),
+         file_put_contents(Helper::makeFileDirName('provider', $ClassName),
              $output);
         return true;
     }

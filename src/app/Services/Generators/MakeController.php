@@ -95,7 +95,7 @@ class MakeController
 
 
         $output = str_replace('{{BaseControllerClassName}}',
-            "Base" . $postfix . "Controller",
+            Helper::BaseClassName($postfix) . "Controller",
             $output);
         $output = str_replace('{{ControllerClassName}}',
             Helper::className($tName, "Controller"),
@@ -137,7 +137,7 @@ class MakeController
         $arrAlreadyMade = config('alex-claimer-generator.already_made.controllers');
         $postfix = Helper::getPostfix();
         $output = file_get_contents(__DIR__ . '/Stubs/Controllers/' . $stub);
-        $ClassName = "Base" . $postfix . "Controller";
+        $ClassName = Helper::BaseClassName(). "Controller";
 
         if (!is_array($arrAlreadyMade) || !in_array($ClassName, $arrAlreadyMade)) {
             $this->realMade[] = $this->alreadyMade[] = $ClassName;

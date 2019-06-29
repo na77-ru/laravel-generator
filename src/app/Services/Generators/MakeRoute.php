@@ -1,4 +1,5 @@
 <?php
+
 namespace AlexClaimer\Generator\App\Services\Generator;
 
 use Illuminate\Support\Facades\DB;
@@ -51,7 +52,7 @@ class MakeRoute
         $output_web = file_get_contents(base_path() . '\routes\web.php');
         $output = '';
         $stub = 'route.stub';
-       // dd(__METHOD__, $output_web);
+        // dd(__METHOD__, $output_web);
         $arrAlreadyMade = config('alex-claimer-generator.already_made.routes');
         foreach ($this->tablesNames as $tName => $cNames) {
             $ClassName = Helper::className($tName) . "Route";
@@ -67,7 +68,7 @@ class MakeRoute
 
 
                 $output = str_replace('{{ControllerClassName}}',
-                    Helper::className($tName, 'Controller'),
+                    Helper::getPostfix() . '\\' . Helper::className($tName, 'Controller'),
                     $output);
 
 
@@ -82,10 +83,9 @@ class MakeRoute
 
             }
         }
-         file_put_contents(base_path() . '\routes\web.php', $output_web . $output);
+        file_put_contents(base_path() . '\routes\web.php', $output_web . $output);
         return true;
     }
-
 
 
 }

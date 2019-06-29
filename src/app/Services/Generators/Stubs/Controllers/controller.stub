@@ -29,7 +29,7 @@ class {{ControllerClassName}} extends {{BaseControllerClassName}}
     {
         $paginator = $this->{{repositoryVar}}->getAllWithPaginate(config('admin.perPage'));
 
-        return view('{{views_directory}}index', compact('paginator'));
+        return view('{{views_directory}}.index', compact('paginator'));
     }
 
     /**
@@ -40,10 +40,11 @@ class {{ControllerClassName}} extends {{BaseControllerClassName}}
     {
         $item = $this->{{repositoryVar}}->makeModel();
 
-        $categoryList = $this->{{repositoryVar}}->getFor{{ModelClass}}Select();
+        //$categoryList = $this->{{repositoryVar}}->getFor{{ModelClass}}Select();
 
-        return view('blog.admin.category.create',
-            compact('item', 'categoryList'));
+        return view('{{views_directory}}.create',
+            //compact('item', 'categoryList'));
+            compact('item'));
     }
 
     /**
@@ -57,7 +58,7 @@ class {{ControllerClassName}} extends {{BaseControllerClassName}}
 
         if ($item) {
             return redirect()
-                ->route("{{views_routes}}index")
+                ->route("{{views_routes}}.index")
                 ->with([
                     'messages' => __("Запись  $item->title  успешно сохранена"),
                     'alert-type' => 'alert-success',
@@ -88,10 +89,11 @@ class {{ControllerClassName}} extends {{BaseControllerClassName}}
     public function edit($id)
     {
         $item = $this->{{repositoryVar}}->getEdit($id);
-        $categoryList = $this->{{repositoryVar}}->getFor{{ModelClass}}Select();
+        //$categoryList = $this->{{repositoryVar}}->getFor{{ModelClass}}Select();
         //dd(__METHOD__, $categoryList);
-        return view('{{views_directory}}edit',
-            compact('item', 'categoryList'));
+        return view('{{views_directory}}.edit',
+            //compact('item', 'categoryList'));
+            compact('item'));
     }
 
     /**

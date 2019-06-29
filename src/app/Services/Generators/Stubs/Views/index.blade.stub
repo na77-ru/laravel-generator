@@ -1,4 +1,4 @@
-@extends('{{postfix}}layouts.app')
+@extends('{{postfix}}.app')
 
 @section('content')
     <div class="container-fluid">
@@ -31,7 +31,7 @@
                             <div class="card">
                                 <div class="card-body">
                                     <nav class="navbar navbar-toggleable-md navbar-light bg-faded">
-                                        <a class="btn btn-success" href="{{route('{{postfix}}{{table_name}}.create', 1)}}">{{ __('{{postfix}}{{table_name}}.create') }}</a>
+                                        <a class="btn btn-success" href="{{route_name_without_action_and_')}} }}.create')}}">{{ __('{{table_name}}').__(' create') }}</a>
                                     </nav>
                                 </div>
                             </div>
@@ -40,7 +40,7 @@
                     </div>
                 @else
                     <nav class="navbar navbar-toggleable-md navbar-light bg-faded">
-                        <a class="btn btn-success" href="{{route('{{postfix}}{{table_name}}.create', 1)}}">{{ __('{{postfix}}{{table_name}}.create') }}</a>
+                        <a class="btn btn-success" href="{{route_name_without_action_and_')}} }}.create')}}">{{ __('{{table_name}}').__(' create') }}</a>
                     </nav>
                 @endif
                 <div class="card">

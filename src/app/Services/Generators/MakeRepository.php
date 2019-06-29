@@ -146,7 +146,7 @@ class " . $ClassName = Helper::className($tName) . "Repository extends BaseRepos
         \$result = \$this
             ->makeModel()
             ->select(\$columns)
-            ->where('id', '<>', 1)
+            //->where('id', '<>', 1)
             ->orderBy('id', 'ASC')
             ->withTrashed()";
         //dd(__METHOD__, $cNames, in_array('parent_id', $cNames));
