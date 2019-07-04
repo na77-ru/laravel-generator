@@ -126,6 +126,7 @@ class Helper
      */
     public static function addArr($arrFirst, $arrSecond)
     {
+        dd(__METHOD__, $arrFirst, $arrSecond);
         $arr = $arrFirst;
         foreach ($arrSecond as $item) {
             if (!is_array($arrFirst) || !in_array($item, $arrFirst)) {

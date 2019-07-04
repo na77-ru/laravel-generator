@@ -107,7 +107,7 @@ class MakeModel
                 $str .= " */\r\n";
 
 
-                $str .= "class " . $ClassName . " extends BaseModel
+                $str .= "class " . $ClassName . " extends " . Helper::BaseClassName() . "Model
 {   
     protected \$table = '$tName';
     public \$timestamps = false;
@@ -139,8 +139,17 @@ class MakeModel
 
                 $str .= $this->writeBelongsTo($tName);
 
+                $str .= "   /**
+     * @return array
+     */
+    public function getComparable(): array
+    {
+        return \$this->comparable;
+    }";
+
+
                 $str .= "\r\n}";
-               // dd(__METHOD__, Helper::makeFileDirName('model', $ClassName));
+                // dd(__METHOD__, Helper::makeFileDirName('model', $ClassName));
                 file_put_contents(Helper::makeFileDirName('model', $ClassName), $str);
 
             }
@@ -156,7 +165,7 @@ class MakeModel
         // $str = File::prepend( __DIR__.'\GeneratorMiddleware\Templates\Model\ModelBegin.php', 'ssssssssss');//11??
         $arrAlreadyMade = config('alex-claimer-generator.already_made.models');
 
-        $ClassName = "BaseModel";
+        $ClassName = Helper::BaseClassName() . "Model";
 
         if (!is_array($arrAlreadyMade) || !in_array($ClassName, $arrAlreadyMade)) {
             $this->realMade[] = $this->alreadyMade[] = $ClassName;

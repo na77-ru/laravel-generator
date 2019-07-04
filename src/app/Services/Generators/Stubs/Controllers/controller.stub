@@ -116,7 +116,7 @@ class {{ControllerClassName}} extends {{BaseControllerClassName}}
 
         if ($this->{{repositoryVar}}->update($data, $id)) {
             return redirect()
-                ->route("{{views_routes}}index")
+                ->route("{{views_routes}}.index")
                 ->with([
                     'messages' => app()->msg->getMsg(),//in BlogAdminObserver app()->msg->setMsg()
                     'alert-type' => app()->msg->getAT(),
@@ -139,7 +139,7 @@ class {{ControllerClassName}} extends {{BaseControllerClassName}}
         $result = $this->{{repositoryVar}}->delete($id);
         if ($result) {
             return redirect()
-                ->route("{{views_routes}}index")
+                ->route("{{views_routes}}.index")
                 ->with([
                     'messages' => 'Запись с <b>id - ' . $id . '</b> успешно удалена',
                     'alert-type' => 'alert-success',
@@ -157,7 +157,7 @@ class {{ControllerClassName}} extends {{BaseControllerClassName}}
 
         if ($result) {
             return redirect()
-                ->route("{{views_routes}}index")
+                ->route("{{views_routes}}.index")
                 ->with([
                     'messages' => app()->msg->getMsg(),//in BlogPostRepository app()->msg->setMsg()
                     'alert-type' => app()->msg->getAT(),

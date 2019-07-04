@@ -136,7 +136,7 @@ class MakeView
         $output = str_replace('{{postfix/}}', $postfix . '/', $output);
         $output = str_replace('{{table_name}}', $tName, $output);
         $output = str_replace('{{ModelNameSpace}}',
-            Helper::makeNameSpace('model') . Helper::className($tName), $output);
+            Helper::makeNameSpace('model') . '\\' . Helper::className($tName), $output);
         $output = str_replace('{{<thead><td>}}', $this->theadIndex($tName, $cNames, $postfix), $output);
         $output = str_replace('{{<tr><td>}}', $this->tdIndex($tName, $cNames, $postfix), $output);
 

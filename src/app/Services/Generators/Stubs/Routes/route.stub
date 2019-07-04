@@ -7,8 +7,8 @@
         ->names('{{make_views_routes_name}}');
 
     Route::patch('/{{make_views_routes_url}}/restore/all', '{{ControllerClassName}}@restore')
-        ->name('{{make_views_routes_name}}_restore_all');
+        ->name('{{make_views_routes_name}}.restore_all');
 
     Route::patch('/{{make_views_routes_url}}/restore/{id}', '{{ControllerClassName}}@restore')
-        ->name('{{make_views_routes_name}}_restore');
+        ->name('{{make_views_routes_name}}.restore');
 // << {{ModelClassName}} END
