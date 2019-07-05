@@ -52,7 +52,7 @@ class GeneratorController extends BaseController
         return redirect()
             ->route('generator_menu')
             ->with([
-                '_token' => $all['_token'],
+               // '_token' => $all['_token'],
                 'messages' => 'All classes generated successfully.',
                 'alert-type' => 'success',
             ]);

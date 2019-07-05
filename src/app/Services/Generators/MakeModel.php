@@ -81,21 +81,54 @@ class MakeModel
     }
 
     /**
+     * @param $table
+     * @return string
+     */
+    public function writeBelongsToMany($table)
+    {
+        $str = "";
+        $strComment = "
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\belongsToMany
+     **/\r\n";
+
+
+        $str .= $strComment;
+        $str .= "//    public function " . "users" . "()\r\n";
+        $str .= "//    {\r\n";
+
+        $str .= "//        return \$this->belongsToMany(";
+        $str .= "\r\n//User::class, ";
+        $str .= "\r\n//'auth_link_user_roles'";
+        $str .= "\r\n//'role_id'";
+        $str .= "\r\n//'id'";
+        $str .= "\r\n//'id'";
+        $str .= "\r\n//');\r\n";
+
+        $str .= "//    }\r\n";
+
+        return $str;
+
+
+        return "";
+    }
+
+    /**
      * @return string
      */
     public function writeModels()
     {
-
         $str = "";
 
-        // $str = File::prepend( __DIR__.'\GeneratorMiddleware\Templates\Model\ModelBegin.php', 'ssssssssss');//11??
         $arrAlreadyMade = config('alex-claimer-generator.already_made.models');
         foreach ($this->tablesNames as $tName => $cNames) {
-            $ClassName = Helper::className($tName);
+            $className = Helper::className($tName);
+            $nameSpace = Helper::makeNameSpace('model');
+            $fullClassName = $nameSpace . "\\" . $className;
 
-            if (!is_array($arrAlreadyMade) || !in_array($ClassName, $arrAlreadyMade)) {
-                $this->realMade[] = $this->alreadyMade[] = $ClassName;
-                $str = "<?php\r\nnamespace " . Helper::makeNameSpace('model') .
+            if (!is_array($arrAlreadyMade) || !in_array($fullClassName, $arrAlreadyMade)) {
+                $this->realMade[] = $this->alreadyMade[] = $fullClassName;
+                $str = "<?php\r\nnamespace " . $nameSpace .
                     ";\r\n\r\n";
 
                 $str .= "/**\r\n";
@@ -106,8 +139,7 @@ class MakeModel
                 }
                 $str .= " */\r\n";
 
-
-                $str .= "class " . $ClassName . " extends " . Helper::BaseClassName() . "Model
+                $str .= "class " . $className . " extends " . Helper::BaseClassName() . "Model
 {   
     protected \$table = '$tName';
     public \$timestamps = false;
@@ -139,6 +171,8 @@ class MakeModel
 
                 $str .= $this->writeBelongsTo($tName);
 
+                $str .= $this->writeBelongsToMany($tName);
+
                 $str .= "   /**
      * @return array
      */
@@ -149,8 +183,8 @@ class MakeModel
 
 
                 $str .= "\r\n}";
-                // dd(__METHOD__, Helper::makeFileDirName('model', $ClassName));
-                file_put_contents(Helper::makeFileDirName('model', $ClassName), $str);
+                // dd(__METHOD__, Helper::makeFileDirName('model', $className));
+                file_put_contents(Helper::makeFileDirName('model', $className), $str);
 
             }
         }
@@ -165,21 +199,23 @@ class MakeModel
         // $str = File::prepend( __DIR__.'\GeneratorMiddleware\Templates\Model\ModelBegin.php', 'ssssssssss');//11??
         $arrAlreadyMade = config('alex-claimer-generator.already_made.models');
 
-        $ClassName = Helper::BaseClassName() . "Model";
+        $className = Helper::BaseClassName() . "Model";
+        $nameSpace = Helper::makeNameSpace('model');
+        $fullClassName = $nameSpace . "\\" . $className;
 
-        if (!is_array($arrAlreadyMade) || !in_array($ClassName, $arrAlreadyMade)) {
-            $this->realMade[] = $this->alreadyMade[] = $ClassName;
-            $str = "<?php\r\nnamespace " . Helper::makeNameSpace('model') . ";\r\n\r\n";
+        if (!is_array($arrAlreadyMade) || !in_array($fullClassName, $arrAlreadyMade)) {
+            $this->realMade[] = $this->alreadyMade[] = $nameSpace . "\\" . $className;
+            $str = "<?php\r\nnamespace " . $nameSpace . ";\r\n\r\n";
             $str .= "use Illuminate\Database\Eloquent\Model;\r\n";
             $str .= "use Illuminate\Database\Eloquent\SoftDeletes;\r\n\r\n";
 
 
-            $str .= "abstract class " . $ClassName . " extends Model
+            $str .= "abstract class " . $className . " extends Model
 { 
         use SoftDeletes;  
 }";
 
-            file_put_contents(Helper::makeFileDirName('model', $ClassName), $str);
+            file_put_contents(Helper::makeFileDirName('model', $className), $str);
         }
         return $str;
     }

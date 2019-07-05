@@ -35,6 +35,30 @@ class Helper
 
         return $str;
     }
+    /**
+     * @param $type
+     * @return bool|string
+     */
+    public static function makeNameSpaceForView($tName, $bladeName)
+    {
+        $postfix = config('alex-claimer-generator.config.namespace_postfix');
+        if (trim($postfix) !== '') $postfix .= '\\';
+
+        $str =  '\\' . $postfix;
+
+        $str = strtolower($str);
+
+        $str .=  $tName . '.' . $bladeName;
+
+        return $str;
+    }    /**
+ * @param $type
+ * @return bool|string
+ */
+    public static function makeFullNameSpaceForView($tName)
+    {
+        return config('alex-claimer-generator.config.view.namespace') . '\\' . self::makeNameSpaceForView($tName);
+    }
 
     /**
      * @param $postfix
@@ -126,7 +150,7 @@ class Helper
      */
     public static function addArr($arrFirst, $arrSecond)
     {
-        dd(__METHOD__, $arrFirst, $arrSecond);
+        //dd(__METHOD__, $arrFirst, $arrSecond);
         $arr = $arrFirst;
         foreach ($arrSecond as $item) {
             if (!is_array($arrFirst) || !in_array($item, $arrFirst)) {

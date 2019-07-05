@@ -38,6 +38,7 @@ class MakeView
         $this->writeInc_AddBlade();
 
         $this->writeLayout();
+        $this->writeInc();
 
         $this->writeAlreadyMade();
         //dd(__METHOD__);
@@ -89,6 +90,85 @@ class MakeView
     protected function writeLayout()
     {
         $success = false;
+        $postfix = lcfirst(config('alex-claimer-generator.config.namespace_postfix'));
+        $postfix = substr($postfix, 0, strpos($postfix, '\\')) . '/';
+        $inViewDir = $postfix . 'app.blade.php';
+
+        if ($this->notExist('app', $inViewDir)) {
+            $success = \File::copy(
+                __DIR__ . ('/../../../../resources/views/layouts/app.blade.php'),
+                base_path('/resources/views/' . $inViewDir)
+            );
+            $this->setAlreadyMadeApp('app', $inViewDir);
+        }
+
+        return $success;
+    }
+
+    protected function writeInc()
+    {
+        $newDirName = base_path() . '/resources/views/inc';
+        if (!is_dir($newDirName)) {
+            mkdir($newDirName);
+        }
+        $newDirName = base_path() . '/resources/views/inc/form';
+        if (!is_dir($newDirName)) {
+            mkdir($newDirName);
+        }
+        $success = false;
+        $inViewDir = 'inc/form/relations.blade.php';
+        if ($this->notExist('app', $inViewDir)) {
+            $success = \File::copy(
+                __DIR__ . '/Stubs/Views/app/' . $inViewDir,
+                base_path('/resources/views/' . $inViewDir)
+            );
+            $this->setAlreadyMadeApp('app', $inViewDir);
+        }
+        $inViewDir = 'inc/form/select_relations.blade.php';
+        if ($this->notExist('app', $inViewDir)) {
+            $postfix = lcfirst(config('alex-claimer-generator.config.namespace_postfix'));
+
+            $postfix = substr($postfix, 0, strpos($postfix, '\\')) . '/';
+
+            $success = \File::copy(
+
+                __DIR__ . '/Stubs/Views/app/' . $inViewDir,
+                base_path('/resources/views/' . $inViewDir)
+            );
+            $this->setAlreadyMadeApp('app', $inViewDir);
+        }
+        $inViewDir = 'inc/msg.blade.php';
+        if ($this->notExist('app', $inViewDir)) {
+            $postfix = lcfirst(config('alex-claimer-generator.config.namespace_postfix'));
+
+            $postfix = substr($postfix, 0, strpos($postfix, '\\')) . '/';
+
+            $success = \File::copy(
+
+                __DIR__ . '/Stubs/Views/app/' . $inViewDir,
+                base_path('/resources/views/' . $inViewDir)
+            );
+            $this->setAlreadyMadeApp('app', $inViewDir);
+        }
+        $inViewDir = 'inc/errors.blade.php';
+        if ($this->notExist('app', $inViewDir)) {
+            $postfix = lcfirst(config('alex-claimer-generator.config.namespace_postfix'));
+
+            $postfix = substr($postfix, 0, strpos($postfix, '\\')) . '/';
+
+            $success = \File::copy(
+
+                __DIR__ . '/Stubs/Views/app/' . $inViewDir,
+                base_path('/resources/views/' . $inViewDir)
+            );
+            $this->setAlreadyMadeApp('app', $inViewDir);
+        }
+
+    }
+
+    protected function writeMenu()
+    {
+        $success = false;
         if ($this->notExist('app', 'app.blade')) {
             $postfix = lcfirst(config('alex-claimer-generator.config.namespace_postfix')) . '/';
 
@@ -97,7 +177,7 @@ class MakeView
                 __DIR__ . ('/../../../../resources/views/layouts/app.blade.php'),
                 base_path('/resources/views/' . $postfix . 'app.blade.php')
             );
-            $this->setAlreadyMadeViews('app', 'app.blade');
+            $this->setAlreadyMadeApp('app', $postfix . 'app.blade');
         }
         //dd(__METHOD__, $success);
         return $success;
@@ -105,6 +185,16 @@ class MakeView
 
     protected function setAlreadyMadeViews($tName, $bladeName)
     {
+        $postfix = lcfirst(config('alex-claimer-generator.config.namespace_postfix'));
+        // dd(__METHOD__, $postfix);
+        if ($this->notExist($tName, $bladeName)) {
+            $this->viewsAlreadyMade[$tName][] = $this->alreadyMade[$tName][] = Helper::makeNameSpaceForView($tName, $bladeName);
+        }
+    }
+
+    protected function setAlreadyMadeApp($tName, $bladeName)
+    {
+
         if ($this->notExist($tName, $bladeName)) {
             $this->viewsAlreadyMade[$tName][] = $this->alreadyMade[$tName][] = $bladeName;
         }
@@ -112,12 +202,30 @@ class MakeView
 
     protected function notExist($tName, $bladeName)
     {
+
         if (empty($this->viewsAlreadyMade)) {
             $this->viewsAlreadyMade = config('alex-claimer-generator.already_made_views.views');
         }
+//        if ($tName == 'app'){
+//            dd(__METHOD__,
+//                empty($this->viewsAlreadyMade),
+//                $this->viewsAlreadyMade,
+//                Helper::makeNameSpaceForView($tName, $bladeName),
+//                !Arr::exists($this->viewsAlreadyMade, $tName),
+//                Helper::makeNameSpaceForView($tName, $bladeName),
+//                $this->viewsAlreadyMade[$tName],
+//                !in_array(Helper::makeNameSpaceForView($tName, $bladeName), $this->viewsAlreadyMade[$tName])
+//            );
+//        }
+
         return (empty($this->viewsAlreadyMade)
             || !Arr::exists($this->viewsAlreadyMade, $tName)
-            || !in_array($bladeName, $this->viewsAlreadyMade[$tName]));
+            || (
+            !in_array(Helper::makeNameSpaceForView($tName, $bladeName), $this->viewsAlreadyMade[$tName])
+            &&
+            !in_array($bladeName, $this->viewsAlreadyMade[$tName])
+            )
+            );
     }
 
 
@@ -132,7 +240,7 @@ class MakeView
             $output = str_replace('{{postfix}}', Helper::make_views_routes_prefix(), $output);
         }
 
-        $output = str_replace('{{route_name_without_action_and_\')}} }}', '{{route(\''.Helper::make_views_routes_name($tName).'', $output);
+        $output = str_replace('{{route_name_without_action_and_\')}} }}', '{{route(\'' . Helper::make_views_routes_name($tName) . '', $output);
         $output = str_replace('{{postfix/}}', $postfix . '/', $output);
         $output = str_replace('{{table_name}}', $tName, $output);
         $output = str_replace('{{ModelNameSpace}}',
@@ -141,8 +249,6 @@ class MakeView
         $output = str_replace('{{<tr><td>}}', $this->tdIndex($tName, $cNames, $postfix), $output);
 
         $output = str_replace('{{belongsToComment}}', '', $output); //11 replace with something
-
-
 
 
         return $output;
@@ -208,6 +314,7 @@ class MakeView
 
     protected function writeAlreadyMade()
     {
+        $nameSpace = Helper::getPostfix();
         $this->viewsAlreadyMade = Arr::sort($this->viewsAlreadyMade);
         //dd(__METHOD__, $this->viewsAlreadyMade);
         $str_viewsAlreadyMade = "<?php\r\nreturn [\r\n";
@@ -217,6 +324,8 @@ class MakeView
             $str_viewsAlreadyMade .= "\t\t'$type' => [\r\n";
 
             foreach ($arr as $table => $name) {
+
+                //dd(__METHOD__, $name);
 
                 $str_viewsAlreadyMade .= "\t\t\t'" . $name . "',\r\n";
 
@@ -259,7 +368,7 @@ class MakeView
         foreach ($columns as $column) {
             // dd(__METHOD__, $column);
             if ($column['name'] == 'id') {
-                $str .= "\t\t\t<td><a href=\"{{route('" . Helper::make_views_routes_name($tableName, 'edit')."', \$item->id)}}\">
+                $str .= "\t\t\t<td><a href=\"{{route('" . Helper::make_views_routes_name($tableName, 'edit') . "', \$item->id)}}\">
                                             {{ \$item->id }}
                 </a>
            </td>\r\n";
@@ -329,10 +438,10 @@ class MakeView
                 '/Stubs/Views/inc/edit_columns/title.stub');
             $output = str_replace('{{title}}', $title, $output);
         } elseif (Arr::exists($cNames, 'name')) {
-                $name = file_get_contents(__DIR__ .
-                    '/Stubs/Views/inc/edit_columns/name.stub');
-                $output = str_replace('{{title}}', $name, $output);
-            } else {
+            $name = file_get_contents(__DIR__ .
+                '/Stubs/Views/inc/edit_columns/name.stub');
+            $output = str_replace('{{title}}', $name, $output);
+        } else {
             $output = str_replace('{{title}}', '', $output);
         }
         if (Arr::exists($cNames, 'content_row')) {

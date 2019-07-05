@@ -173,15 +173,21 @@ class Table
             if (!$only_table_with_prefix ||
                 ($only_table_with_prefix && strpos('_' . $table->$db_name_key, $table_prefix . '_'))) {
 
-                if (!in_array($table->$db_name_key, $this->ignoredTables) &&
-                     !($not_with_link_tables && strpos($table->$db_name_key , '_link_')) ) {
-                    $arTablesNames[] = $table->$db_name_key;
+                $t_name = $table->$db_name_key;
+                if (
+                    !in_array($t_name, $this->ignoredTables) &&
+                    !in_array(substr($t_name, strpos($t_name, '_')+1), $this->ignoredTables) &&
+                    !($not_with_link_tables && strpos($t_name, '_link_'))
+                ) {
+//                    if (strpos($t_name, 'reset'))
+//                    dd(__METHOD__, substr($t_name, strpos($t_name, '_')+1));
+                    $arTablesNames[] = $t_name;
 
                 }
             }
 
         }
-  return $arTablesNames;
+        return $arTablesNames;
     }
 
     /**

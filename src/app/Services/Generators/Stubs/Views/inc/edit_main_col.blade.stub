@@ -27,7 +27,13 @@
 
 {{content_row}}
 
-                    </div>
+{{--                        @include('inc.form.select_relations',--}}
+{{--                         [--}}
+{{--                         'relsList' => $auth_rolesList,--}}
+{{--                          'itemRels' => $item->roles,--}}
+{{--                            'relsName' => 'roles'--}}
+{{--                          ]--}}
+{{--                          )--}}
 
 {{belongsTo}}
 

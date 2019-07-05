@@ -52,14 +52,17 @@ class MakeController
 
         $arrAlreadyMade = config('alex-claimer-generator.already_made.controllers');
         foreach ($this->tablesNames as $tName => $cNames) {
-            $ClassName = Helper::className($tName) . "Controller";
 
-            if (!is_array($arrAlreadyMade) || !in_array($ClassName, $arrAlreadyMade)) {
-                $this->realMade[] = $this->alreadyMade[] = $ClassName;
+            $className = Helper::className($tName) . "Controller";
+            $nameSpace = Helper::makeNameSpace('model');
+            $fullClassName = $nameSpace . "\\" . $className;
+
+            if (!is_array($arrAlreadyMade) || !in_array($fullClassName, $arrAlreadyMade)) {
+                $this->realMade[] = $this->alreadyMade[] = $fullClassName;
 
                 $output = $this->strings_replace($tName, $cNames, $stub);
 
-                file_put_contents(Helper::makeFileDirName('controller', $ClassName), $output);
+                file_put_contents(Helper::makeFileDirName('controller', $className), $output);
             }
         }
         return true;
@@ -81,15 +84,15 @@ class MakeController
             ";", $output);
 
         $str_use = '';
-        $ClassNameRequest = Helper::className($tName, "StoreRequest");
-        $ClassNameRepository = Helper::className($tName, "Repository");
+        $classNameRequest = Helper::className($tName, "StoreRequest");
+        $classNameRepository = Helper::className($tName, "Repository");
 
         $NameSpaceRequest = Helper::makeNameSpace('request');
         $NameSpaceRepository = Helper::makeNameSpace('repository');
 
-        $str_use .= "use " . Helper::makeNameSpace('model') . '\\' . $ClassName = Helper::className($tName) . " as Model;\r\n";
-        $str_use .= "use " . $NameSpaceRequest . "\\" . $ClassNameRequest . ";\r\n";
-        $str_use .= "use " . $NameSpaceRepository . "\\" . $ClassNameRepository . ";\r\n";
+        $str_use .= "use " . Helper::makeNameSpace('model') . '\\' . $className = Helper::className($tName) . " as Model;\r\n";
+        $str_use .= "use " . $NameSpaceRequest . "\\" . $classNameRequest . ";\r\n";
+        $str_use .= "use " . $NameSpaceRepository . "\\" . $classNameRepository . ";\r\n";
 
         $output = str_replace('{{use}}', $str_use, $output);
 
@@ -113,7 +116,7 @@ class MakeController
             Helper::makeNameSpace('model'),
             $output);
         $output = str_replace('{{ModelClassStoreRequest}}',
-            $ClassNameRequest,
+            $classNameRequest,
             $output);
 
 
@@ -137,14 +140,17 @@ class MakeController
         $arrAlreadyMade = config('alex-claimer-generator.already_made.controllers');
         $postfix = Helper::getPostfix();
         $output = file_get_contents(__DIR__ . '/Stubs/Controllers/' . $stub);
-        $ClassName = Helper::BaseClassName(). "Controller";
 
-        if (!is_array($arrAlreadyMade) || !in_array($ClassName, $arrAlreadyMade)) {
-            $this->realMade[] = $this->alreadyMade[] = $ClassName;
+        $className = Helper::BaseClassName() . "Controller";
+        $nameSpace = Helper::makeNameSpace('controller');
+        $fullClassName = $nameSpace . "\\" . $className;
+
+        if (!is_array($arrAlreadyMade) || !in_array($fullClassName, $arrAlreadyMade)) {
+            $this->realMade[] = $this->alreadyMade[] = $fullClassName;
 
             $output = $this->strings_replace('base', 'bases', $stub);
 
-            file_put_contents(Helper::makeFileDirName('controller', $ClassName), $output);
+            file_put_contents(Helper::makeFileDirName('controller', $className), $output);
         }
         return $output;
     }

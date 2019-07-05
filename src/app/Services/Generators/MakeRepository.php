@@ -48,10 +48,12 @@ class MakeRepository
         $arrAlreadyMade = config('alex-claimer-generator.already_made.repositories');
 
         foreach ($this->tablesNames as $tName => $cNames) {
-            $ClassName = Helper::className($tName) . 'Repository';
-            if (!is_array($arrAlreadyMade) || !in_array($ClassName, $arrAlreadyMade)) {
-                // writeBaseRepository
-                $this->realMade[] = $this->alreadyMade[] = $ClassName;
+            $className = Helper::className($tName) . 'Repository';
+            $nameSpace = Helper::makeNameSpace('model');
+            $fullClassName = $nameSpace . "\\" . $className;
+
+            if (!is_array($arrAlreadyMade) || !in_array($fullClassName, $arrAlreadyMade)) {
+                $this->realMade[] = $this->alreadyMade[] = $fullClassName;
 
                 $str = $this->writeRepositoriesBegin($tName);
 
@@ -65,7 +67,7 @@ class MakeRepository
                 $str .= $this->writeRepositoriesEnd();
 
 
-                file_put_contents(Helper::makeFileDirName('repository', $ClassName), $str);
+                file_put_contents(Helper::makeFileDirName('repository', $className), $str);
 
 
             }
@@ -80,9 +82,9 @@ class MakeRepository
 namespace " .
             Helper::makeNameSpace('repository') . ";
             
-use " . Helper::makeNameSpace('model') . '\\' . $ClassName = Helper::className($tName) . " as Model;
+use " . Helper::makeNameSpace('model') . '\\' . $className = Helper::className($tName) . " as Model;
 
-class " . $ClassName = Helper::className($tName) . "Repository extends BaseRepository
+class " . $className = Helper::className($tName) . "Repository extends BaseRepository
 {
  
         ";
@@ -221,10 +223,13 @@ class " . $ClassName = Helper::className($tName) . "Repository extends BaseRepos
     {
         $arrAlreadyMade = config('alex-claimer-generator.already_made.repositories');
 
-        $ClassName = "BaseRepository";
-        if (!is_array($arrAlreadyMade) || !in_array($ClassName, $arrAlreadyMade)) {
-            // writeBaseRepository
-            $this->realMade[] = $this->alreadyMade[] = $ClassName;
+
+        $className = Helper::BaseClassName() . "Repository";
+        $nameSpace = Helper::makeNameSpace('repository');
+        $fullClassName = $nameSpace . "\\" . $className;
+
+        if (!is_array($arrAlreadyMade) || !in_array($fullClassName, $arrAlreadyMade)) {
+            $this->realMade[] = $this->alreadyMade[] = $fullClassName;
 
             $str = $this->writeBaseRepositoryBegin();
 
@@ -250,7 +255,7 @@ class " . $ClassName = Helper::className($tName) . "Repository extends BaseRepos
             $str .= $this->writeBaseRepositoryEnd();
 
 
-            file_put_contents(Helper::makeFileDirName('repository', $ClassName), $str);
+            file_put_contents(Helper::makeFileDirName('repository', $className), $str);
 
 
         }

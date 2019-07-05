@@ -58,7 +58,9 @@
                                 @php /**@var {{ModelNameSpace}} $item */ @endphp
 
 {{<tr><td>}}
-
+{{--                                    <td>--}}
+{{--                                        @include('inc.form.relations', ['relations' => $item->roles])--}}
+{{--                                    </td>--}}
                             @endforeach
                             </tbody>
                         </table>

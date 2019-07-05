@@ -6,6 +6,8 @@ return [
         'telescope_entries',
         'telescope_entries_tags',
         'telescope_monitoring',
+        'theme',
+        'social_login',
         //'users',
     ],
     'only_this_table' => [

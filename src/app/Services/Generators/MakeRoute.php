@@ -55,15 +55,19 @@ class MakeRoute
         // dd(__METHOD__, $output_web);
         $arrAlreadyMade = config('alex-claimer-generator.already_made.routes');
         foreach ($this->tablesNames as $tName => $cNames) {
-            $ClassName = Helper::className($tName) . "Route";
+            $className = Helper::className($tName) . "\Routes";
 
-            if (!is_array($arrAlreadyMade) || !in_array($ClassName, $arrAlreadyMade)) {
-                $this->realMade[] = $this->alreadyMade[] = $ClassName;
+            $nameSpace = Helper::makeNameSpace('route');
+
+            $fullClassName = $nameSpace . "\\" . $className;
+           // dd(__METHOD__, $fullClassName);
+            if (!is_array($arrAlreadyMade) || !in_array($fullClassName, $arrAlreadyMade)) {
+                $this->realMade[] = $this->alreadyMade[] = $fullClassName;
                 $output .= file_get_contents(__DIR__ . '/Stubs/Routes/' . $stub);
 
 
                 $output = str_replace('{{ModelClassName}}',
-                    Helper::className($tName),
+                    $fullClassName,
                     $output);
 
 

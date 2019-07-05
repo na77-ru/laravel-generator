@@ -23,28 +23,36 @@ class Main
 
         if (config('alex-claimer-generator.config.generate_models')) {
             $this->setAlreadyMade(new MakeModel($tableObj), 'models');
-        }
+        }else{$this->getAlreadyMadeFromConfig('models');}
+
         if (config('alex-claimer-generator.config.generate_controllers')) {
             $this->setAlreadyMade(new MakeController($tableObj), 'controllers');
-        }
+        }else{$this->getAlreadyMadeFromConfig('controllers');}
+
         if (config('alex-claimer-generator.config.generate_repositories')) {
             $this->setAlreadyMade(new MakeRepository($tableObj), 'repositories');
-        }
+        }else{$this->getAlreadyMadeFromConfig('repositories');}
+
         if (config('alex-claimer-generator.config.generate_observers')) {
             $this->setAlreadyMade(new MakeObserver($tableObj), 'observers');
-        }
+        }else{$this->getAlreadyMadeFromConfig('observers');}
+
         if (config('alex-claimer-generator.config.generate_requests')) {
             $this->setAlreadyMade(new MakeRequest($tableObj), 'requests');
-        }
+        }else{$this->getAlreadyMadeFromConfig('requests');}
+
         if (config('alex-claimer-generator.config.generate_views')) {
             $this->setAlreadyMade(new MakeView($tableObj), 'views');
-        }
+        }else{$this->getAlreadyMadeFromConfig('views');}
+
         if (config('alex-claimer-generator.config.generate_routes')) {
             $this->setAlreadyMade(new MakeRoute($tableObj), 'routes');
-        }
+        }else{$this->getAlreadyMadeFromConfig('routes');}
+
         if (config('alex-claimer-generator.config.generate_providers')) {
         $this->setAlreadyMade(new MakeProvider($tableObj), 'providers');
-    }
+    }else{$this->getAlreadyMadeFromConfig('providers');}
+
 
 
         $this->writeAlreadyMade();//11 uncomment
@@ -66,6 +74,12 @@ class Main
         // bbb(__METHOD__, $class_type, $class);
 
     }
+    protected function getAlreadyMadeFromConfig($class_type)
+    {
+        $this->alreadyMade[$class_type] = Arr::sort(
+            config('alex-claimer-generator.already_made.' . $class_type)
+        );
+    }
 
 
     /**
@@ -75,8 +89,8 @@ class Main
     {
         $arrAlreadyMadeSeeders = config('alex-claimer-generator.already_made.seeders');
         $this->alreadyMade['seeders'] = $arrAlreadyMadeSeeders;
-
-        $this->alreadyMade = Arr::sort($this->alreadyMade);
+        //bbb(__METHOD__, $this->alreadyMade);
+        ksort($this->alreadyMade);
         //dd(__METHOD__, $this->alreadyMade);
         $str_alreadyMade = "<?php\r\nreturn [\r\n";
         foreach ($this->alreadyMade as $type => $arr) {

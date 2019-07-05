@@ -76,14 +76,16 @@ class MakeRequest
         // $str = File::prepend( __DIR__.'\GeneratorMiddleware\Templates\Request\RequestBegin.php', 'ssssssssss');//11??
         $arrAlreadyMade = config('alex-claimer-generator.already_made.requests');
         foreach ($this->tablesNames as $tName => $cNames) {
-            $ClassName = Helper::className($tName) . "StoreRequest";
+            $className = Helper::className($tName) . "StoreRequest";
+            $nameSpace = Helper::makeNameSpace('request');
+            $fullClassName = $nameSpace . "\\" . $className;
 
-            if (!is_array($arrAlreadyMade) || !in_array($ClassName, $arrAlreadyMade)) {
-                $this->realMade[] = $this->alreadyMade[] = $ClassName;
+            if (!is_array($arrAlreadyMade) || !in_array($fullClassName, $arrAlreadyMade)) {
+                $this->realMade[] = $this->alreadyMade[] = $fullClassName;
                 $str = "<?php\r\nnamespace " . Helper::makeNameSpace('request') .
                     ";\r\n\r\n";
                 $str .= "use " . Helper::makeNameSpace('model') . '\\' . Helper::className($tName) . ";\r\n\r\n";
-                $str .= "class " . $ClassName . " extends BaseRequest
+                $str .= "class " . $className . " extends " . Helper::BaseClassName() . "Request
 {   ";
 
 
@@ -96,7 +98,7 @@ class MakeRequest
                 $str .= "\r\n}";
 
                 //bbb(__METHOD__, $tName);
-                file_put_contents(Helper::makeFileDirName('request', $ClassName), $str);
+                file_put_contents(Helper::makeFileDirName('request', $className), $str);
 
             }
         }
@@ -214,16 +216,19 @@ class MakeRequest
 
         $arrAlreadyMade = config('alex-claimer-generator.already_made.requests');
 
-        $ClassName = "BaseRequest";
 
-        if (!is_array($arrAlreadyMade) || !in_array($ClassName, $arrAlreadyMade)) {
-            $this->realMade[] = $this->alreadyMade[] = $ClassName;
+        $className = Helper::BaseClassName() . "Request";
+        $nameSpace = Helper::makeNameSpace('model');
+        $fullClassName = $nameSpace . "\\" . $className;
+
+        if (!is_array($arrAlreadyMade) || !in_array($fullClassName, $arrAlreadyMade)) {
+            $this->realMade[] = $this->alreadyMade[] = $fullClassName;
             $str = "<?php\r\nnamespace " . Helper::makeNameSpace('request') . ";\r\n\r\n";
 
             $str .= "use Illuminate\Foundation\Http\FormRequest;\r\n";
             $str .= "\r\n";
 
-            $str .= "abstract class " . $ClassName . " extends FormRequest";
+            $str .= "abstract class " . $className . " extends FormRequest";
             $str .= "\r\n{ ";
 //            $str .= $this->write_base_creating();
 //            $str .= $this->write_base_updating();
@@ -235,7 +240,7 @@ class MakeRequest
 
             $str .= "\r\n}";
 
-            file_put_contents(Helper::makeFileDirName('request', $ClassName), $str);
+            file_put_contents(Helper::makeFileDirName('request', $className), $str);
         }
         return $str;
     }
