@@ -1,8 +1,9 @@
 <?php
 
-namespace AlexClaimer\Generator\App\Services\Generator\MakeViews;
+namespace AlexClaimer\Generator\App\Services\Generators\MakeViews;
 
-use AlexClaimer\Generator\App\Services\Generator\Helper;
+use AlexClaimer\Generator\App\Services\Generators\MakeRoutes\Route;
+use AlexClaimer\Generator\App\Services\Generators\Helper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
@@ -15,8 +16,11 @@ class MakeIndexView
     protected $allRelationsDot = [];
 
     /**
-     * MakeView constructor.
-     * @param Table $tables
+     * MakeIndexView constructor.
+     * @param $tables
+     * @param $tName
+     * @param $cNames
+     * @param $bladeName
      */
     public function __construct($tables, $tName, $cNames, $bladeName)
     {
@@ -26,278 +30,164 @@ class MakeIndexView
         $this->writeBlade($tName, $cNames, $bladeName);
     }
 
-    protected function writeBlade($tName, $cNames, $bladeName)
+    /**
+     * @param $tName
+     * @param $cNames
+     * @param $bladeName
+     */
+    protected function writeBlade($tName, $cNames, $bladeName): void
     {
         $output = file_get_contents(__DIR__ . '/../Stubs/Views/index.blade.stub');
 
-
-
-        $output = str_replace(
-            '{{columns}}',
-            $this->getColumns($tName),
-            $output
-        );
+        $output = $this->strings_replace($tName, $cNames, $output);
 
         file_put_contents(Helper::makeFileDirName('view', $bladeName, $tName), $output);
-
-    }
-
-
-    protected function getColumns($tName)
-    {
-        $str = "";
-        //  ignored_columns_in_edit_create_views  from config
-        $ignored_columns = config('alex-claimer-generator.config.ignored_columns_in_edit_create_views');
-
-        foreach ($this->tablesNamesData[$tName] as $colName => $data) {
-
-            if (!in_array($colName, $ignored_columns)) {
-
-                //NOT 'id', 'is_published', 'slug', '*_id'
-                if ($colName != 'id' && !strpos($colName, '_id') && $colName != 'is_published' && $colName != 'slug') {
-
-                    $required = $data['required'];
-                    // FOR  checkbox
-                    if (strpos(' ' . $data['Type'], 'tinyint')) {
-                        $str .= $this->getColumnsCheckBoxData($colName, $required);
-                    } // FOR input text
-                    elseif (strpos(' ' . $data['Type'], 'varchar') || strpos(' ' . $data['Type'], 'int')) {
-                        $str .= $this->getColumnsVarCharData($colName, $required);
-                    } // FOR  textarea
-                    elseif (strpos(' ' . $data['Type'], 'text')) {
-                        $str .= $this->getColumnsTextareaData($colName, $required);
-                    }
-
-
-                } elseif ($colName == 'slug') {
-
-                    $str .= $this->getColumnSlug(); //FOR 'slug'
-
-                } elseif ($colName == 'is_published') {
-
-                    $str .= $this->getColumnIsPublished();; //FOR  'is_published'
-                } else {
-
-                    $str .= ''; //FOR 'id', '*_id'
-                }
-
-            }
-        }
-        //Relations
-        $str .= $this->getRelations($tName, $str);
-        //dd(__METHOD__, $this->allRelations, $this->tablesNamesData, $str);
-        return $str;
     }
 
     /**
-     * @param $colName
-     * @param $required
-     * @return false|mixed|string
-     */
-    protected function getColumnsCheckBoxData($colName, $required)
-    {
-        $stub = file_get_contents(__DIR__ .
-            '/../Stubs/Views/inc/1/form/checkbox.stub');
-
-        $stub = str_replace('{{name}}', $colName, $stub);
-        $stub = str_replace('{{Name}}', Str::ucfirst($colName), $stub);
-        $stub = str_replace('required', $required, $stub);
-
-        return $stub;
-    }
-
-    /**
-     * @param $colName
-     * @param $required
-     * @return false|mixed|string
-     */
-    protected function getColumnsVarCharData($colName, $required)
-    {
-        $stub = file_get_contents(__DIR__ .
-            '/../Stubs/Views/inc/1/form/input_text.stub');
-
-        $stub = str_replace('{{name}}', $colName, $stub);
-        $stub = str_replace('{{Name}}', Str::ucfirst($colName), $stub);
-        $stub = str_replace('required', $required, $stub);
-
-        return $stub;
-    }
-
-    /**
-     * @param $colName
-     * @param $required
-     * @return false|mixed|string
-     */
-    protected function getColumnsTextareaData($colName, $required)
-    {
-        $stub = file_get_contents(__DIR__ .
-            '/../Stubs/Views/inc/1/form/textarea.stub');
-
-        $stub = str_replace('{{name}}', $colName, $stub);
-        $stub = str_replace('{{Name}}', Str::ucfirst($colName), $stub);
-        $stub = str_replace('required', $required, $stub);
-
-        return $stub;
-    }
-
-    /**
-     * @return false|string
-     */
-    protected function getColumnIsPublished()
-    {
-        $stub = file_get_contents(__DIR__ .
-            '/../Stubs/Views/inc/1/form/is_published.stub');
-
-        return $stub;
-    }
-
-    /**
+     * @param $tName
      * @param $cNames
      * @param $output
      * @return mixed
      */
-    protected function getHeadIsPublished($cNames, $output)
+    protected function strings_replace($tName, $cNames, $output)
     {
-        if (Arr::exists($cNames, 'is_published')) {
-            $is_publishedHead = file_get_contents(__DIR__ .
-                '/../Stubs/Views/inc/1/form/is_publishedHead.stub');
-            $output = str_replace('{{is_publishedHead}}', $is_publishedHead, $output);
+        View::getPostfixPrefix($postfix, $prefix);
+
+        if (empty($postfix)) {
+            $output = str_replace('{{postfix}}', '', $output);
+            $output = str_replace('{{postfix.app}}', 'app', $output);
         } else {
-            $output = str_replace('{{is_publishedHead}}', '', $output);
+
+            $output = str_replace('{{postfix}}', Route::make_routes_prefix(), $output);
+            $output = str_replace('{{postfix.app}}', lcfirst($prefix) . '.app', $output);
         }
+
+        $output = str_replace('{{route_name_without_action_and_\')}} }}', '{{route(\'' . Route::make_routes_name($tName) . '', $output);
+        $output = str_replace('{{postfix/}}', $postfix . '/', $output);
+        $output = str_replace('{{table_name}}', $tName, $output);
+        $output = str_replace('{{ModelNameSpace}}', Helper::fullNameSpace($tName), $output);
+        $output = str_replace('{{<thead><td>}}', $this->theadIndex($tName, $cNames), $output);
+        $output = str_replace('{{<tr><td>}}', $this->tdIndex($tName, $cNames), $output);
+
+        $output = str_replace('{{belongsToComment}}', '', $output); //11 replace with something
+
+
         return $output;
     }
 
-    protected function getColumnFromPropertyForSelect($tName)
+    /**
+     * @param $tableName
+     * @param string $str
+     * @return string
+     */
+    protected function theadIndexRelations($tableName, $str = '')
     {
-        if (Arr::exists($this->tablesNamesData, $tName)) {
+        if (Arr::exists($this->allRelations, $tableName)) {
 
-            if (Arr::exists($this->tablesNamesData[$tName], 'title')) {
-                return 'title';
-            } elseif (Arr::exists($this->tablesNamesData[$tName], 'name')) {
-                return 'name';
-            } elseif (Arr::exists($this->tablesNamesData[$tName], 'slug')) {
-                return 'slug';
+            foreach ($this->allRelations[$tableName] as $property => $relData) {
+                $str .= "\t\t\t\t\t\t\t\t<th class='rel'>{{ __('{$property}') }}</th>\r\n";
             }
         }
-        return 'id';
+
+        return $str;
     }
 
     /**
-     * @param $tName
+     * @param $columns
+     * @param $postfix
      * @return string
      */
-    protected function getRelations($tName)
+    protected function theadIndex($tableName, $columns)
     {
-        $output = '';
-        if (Arr::exists($this->allRelations, $tName)) {
 
-            foreach ($this->allRelations[$tName] as $cName => $data) {
-
-                //dd(__METHOD__, $tName, $cName, $data, $this->allRelations);
-
-                if ($data['type'] === 'belongsTo') {
-                    $output .= $this->getBelongsTo($cName, $data);
-
-                } elseif ($data['type'] === 'belongsToMany') {
-                    $output .= $this->getBelongsToMany($cName, $data);
-
-                } elseif ($data['type'] === 'hasMany') {
-                    $output .= $this->getHasMany($cName, $data);
+        $ignored_columns = View::getIgnoredColumns('index');
+        $str = "\t\t\t\t\t\t\t\t<th>#</th>\r\n";
+        $ii = 0;
+        $bRel = false;
+        foreach ($columns as $column) {
+            if (!in_array($column['name'], $ignored_columns)){
+                if (strpos($column['name'], '_at') && $ii < count($columns)) {
+                    $ii = count($columns);
+                    $bRel = true;
                 }
+                if ($ii++ === count($columns) - 1 || $bRel) {
+                    $bRel = false;
+                    $str .= $this->theadIndexRelations($tableName);
+                }
+                if ($column['name'] != 'id' && !strpos($column['name'], '_id')) {
+                    $str .= "\t\t\t\t\t\t\t\t<th class='col'>{{ __('" . $column['name'] . "') }}</th>\r\n";
+                }
+            }else{$ii++;}
+        }
+        return $str;
+    }
+
+    /**
+     * @param $columns
+     * @param $postfix
+     * @return string
+     */
+    protected function tdIndex($tableName, $columns)
+    {
+        $ignored_columns = View::getIgnoredColumns('index');
+        $str = "\t\t\t<tr @if(!empty(\$item->deleted_at) || !empty(\$item->parent->deleted_at))
+                style=\"color:red;\"
+            @endif>\r\n";
+        $ii = 0;
+        $bRel = false;
+        foreach ($columns as $column) {
+            if (!in_array( $column['name'], $ignored_columns)) {
+                if (strpos($column['name'], '_at') && $ii < count($columns)) {
+                    $ii = count($columns);
+                    $bRel = true;
+                }
+                if ($ii++ === count($columns) - 1 || $bRel) {
+                    $bRel = false;
+                    $str .= $this->tdIndexRelations($tableName);
+                }
+
+                if ($column['name'] == 'id') {
+                    $str .= "\t\t\t<td><a href=\"{{route('" . Route::make_routes_name($tableName, 'edit') . "', \$item->id)}}\">
+                                            {{ \$item->id }}
+                </a>
+           </td>\r\n";
+                } elseif (!strpos($column['name'], '_id')) {
+                    $str .= "\t\t\t<td>{{ \$item->" . $column['name'] . " }}</td>\r\n";
+                }
+            }else{$ii++;}
+        }
+        $str .= "</tr>";
+        return $str;
+    }
+
+    /**
+     * @param $tableName
+     * @param string $str
+     * @return string
+     */
+    protected function tdIndexRelations($tableName, $str = '')
+    {
+        if (Arr::exists($this->allRelations, $tableName)) {
+
+            foreach ($this->allRelations[$tableName] as $property => $relData) {
+                $str .= "\t\t\t\t\t\t\t\t<td>\r\n";
+                //if($tableName == 'auth_roles')bbb($relData);
+                if ($relData['type'] == 'belongsToMany') {
+                    $str .= "\t\t\t\t\t\t\t\t\t@include('inc.form.relations', ['relations' => \$item->$property]) ";
+                } elseif ($relData['type'] == 'belongsTo') {
+                    $str .= "\t\t\t\t\t\t\t\t\t{{\$item->" . $property . "['" .
+                        View::getColumnName($this->tablesNamesData[$relData['to_table']]) .
+                        "']}}";
+                }
+
+
+                $str .= "\r\n\t\t\t\t\t\t\t\t</td>\r\n";
             }
-        }
-        return $output;
-    }
-
-
-    /**
-     * @param $property
-     * @param $data
-     * @return false|mixed|string
-     */
-    protected function getBelongsTo($property, $relData)
-    {
-
-        //if ($property == 'user') dd(__METHOD__, $property, $relData, $this->allRelations);
-        $fullClassName = Helper::makeNameSpace('model') . Helper::className($relData['to_table']);
-        $comments = "\t\t\t\t@php /**@var " . $fullClassName . " \$" . $relData['to_table'] . "Option */ @endphp\r\n";
-        $comments .= "\t\t\t\t@php /**@var " . $fullClassName . " \$item->" . $property . " */ @endphp";
-
-        $output = file_get_contents(__DIR__ . '/../Stubs/Views/inc/1/form/belongsTo.stub');
-
-        $column = $this->getColumnFromPropertyForSelect($relData['to_table']);
-        $output = str_replace('{{column}}', $column, $output);
-        $output = str_replace('{{old_column}}', $relData['to_table'] . '_' . $column, $output);
-
-        $output = str_replace('{{modelBelongsToComments}}', $comments, $output);
-        if ($relData['required'] === '') {
-            $output = str_replace('{{option_for_null_value}}', "\t\t\t\t<option value=\"\" selected></option>", $output);
-        } else {
-            $output = str_replace('{{option_for_null_value}}', "", $output);
+            //if($tableName == 'auth_roles')dd(__METHOD__, $this->allRelations[$tableName]);
         }
 
-        $output = str_replace('{{modelBelongsTo}}', $relData['to_table'], $output);
-        $output = str_replace('{{Property}}', $property, $output);
-
-        return $output;
+        return $str;
     }
-
-    /**
-     * @param $property
-     * @param $data
-     * @return string
-     */
-    protected function getBelongsToMany($property, $data)
-    {
-        //dd($data);
-        $arrColumns = $this->tablesNamesData[$data['to_table']];
-
-        if (Arr::exists($arrColumns, 'name')) {
-            $name = 'name';
-        } elseif (Arr::exists($arrColumns, 'title')) {
-            $name = 'title';
-        } elseif (Arr::exists($arrColumns, 'slug')) {
-            $name = 'slug';
-        } elseif (Arr::exists($arrColumns, 'id')) {
-            $name = 'id';
-        } elseif (Arr::exists($arrColumns, 'comment')) {
-            $name = 'comment';
-        } else {
-            $name = null;
-        }
-        $output = "\r\n\t\t\t\t\t\t\t@include('inc.form.select_relations',
-                         [
-                         'relationsList' => \$" . $data['to_table'] . "List,
-                            'relationName' => '" . $property . "',
-                            'columnName' => '" . $name . "'
-                          ]
-                          )";
-        return $output;
-    }
-
-    /**
-     * @param $tName
-     * @param $output
-     * @return string
-     */
-    protected function getHasMany($property, $data)
-    {
-        $output = '';
-        return $output;
-    }
-
-
-    /**
-     * @return false|string
-     */
-    protected function getColumnSlug()
-    {
-        $stub = file_get_contents(__DIR__ .
-            '/../Stubs/Views/inc/1/form/slug.stub');
-
-        return $stub;
-    }
-
 }
 

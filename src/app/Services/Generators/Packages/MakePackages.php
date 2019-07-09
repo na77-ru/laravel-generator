@@ -2,7 +2,7 @@
 
 namespace AlexClaimer\Generator\App\Services\Generators\Packages;
 
-use AlexClaimer\Generator\App\Services\Generator\Helper;
+use AlexClaimer\Generator\App\Services\Generators\Helper;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 

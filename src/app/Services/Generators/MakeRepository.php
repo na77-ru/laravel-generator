@@ -1,8 +1,9 @@
 <?php
 
 
-namespace AlexClaimer\Generator\App\Services\Generator;
+namespace AlexClaimer\Generator\App\Services\Generators;
 
+use AlexClaimer\Generator\App\Services\Generators\MakeViews\View;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -266,19 +267,8 @@ class " . $className = Helper::className($tName) . "Repository extends " . Helpe
                 }
 
                 $str .= "\r\n//\t\t\t\$with[] = '$property:$columns';";
-                $columns = '';
-                $i = 0;
-
-                if (Arr::exists($this->tablesNames, $arrBelongsTo['to_table'])) {
-                    foreach ($this->tablesNames[$arrBelongsTo['to_table']] as $columnName => $val) {
-
-                        $columns .= $columnName;
-                        if ($i++ == 1) break;
-                        else $columns .= ',';
-
-                    }
-                }
-
+                $columns = 'id,';
+                $columns .= View::getColumnName($this->tablesNamesData[$arrBelongsTo['to_table']]);
                 $str .= "\r\n\t\t\t\$with[] = '$property:$columns';";
             }
         }
@@ -302,16 +292,8 @@ class " . $className = Helper::className($tName) . "Repository extends " . Helpe
                 }
 
                 $str .= "\r\n//\t\t\t\$with[] = '$property:$columns';";
-                $columns = '';
-                $i = 0;
-                foreach ($this->tablesNames[$arrToMany['to_table']] as $columnName => $val) {
-
-                    $columns .= $columnName;
-                    if ($i++ == 1) break;
-                    else $columns .= ',';
-
-                }
-
+                $columns = 'id,';
+                $columns .= View::getColumnName($this->tablesNamesData[$arrToMany['to_table']]);
                 $str .= "\r\n\t\t\t\$with[] = '$property:$columns';";
             }
         }

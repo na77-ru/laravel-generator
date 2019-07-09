@@ -1,13 +1,13 @@
 <?php
 
-namespace AlexClaimer\Generator\App\Services\Generator;
+namespace AlexClaimer\Generator\App\Services\Generators;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Arr;
-use AlexClaimer\Generator\App\Services\Generator\Table;
+use AlexClaimer\Generator\App\Services\Generators\Table;
 
 class MakeSeeds
 {

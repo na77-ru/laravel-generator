@@ -1,9 +1,13 @@
 <?php
 
 
-namespace AlexClaimer\Generator\App\Services\Generator;
+namespace AlexClaimer\Generator\App\Services\Generators;
 
-use AlexClaimer\Generator\App\Services\Generator\MakeViews\MakeColumnsForViewEdit;
+use AlexClaimer\Generator\App\Services\Generators\MakeViews\MakeColumnsForViewEdit;
+use AlexClaimer\Generator\App\Services\Generators\MakeViews\MakeIndexView;
+//packages/AlexClaimer/Generator/src/app/Services/Generators/MakeRoutes/Route.php
+use AlexClaimer\Generator\App\Services\Generators\MakeRoutes\Route;
+use AlexClaimer\Generator\App\Services\Generators\MakeViews\View;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -40,7 +44,7 @@ class MakeView
 
     protected function writeViews()
     {
-        $this->writeIndexBlade();
+        //$this->writeIndexBlade();
         $this->writeEditBlade();
         $this->writeCreateBlade();
 
@@ -50,13 +54,18 @@ class MakeView
                 new MakeColumnsForViewEdit($this->tables, $tName, $cNames, $bladeName);
                 $this->setAlreadyMadeViews($tName, $bladeName);
             }
+            $bladeName = "index.blade";
+            if ($this->notExist($tName, $bladeName)) {
+                new MakeIndexView($this->tables, $tName, $cNames, $bladeName);
+                $this->setAlreadyMadeViews($tName, $bladeName);
+            }
         }
         $this->writeInc_AddBlade();
 
         $this->writeLayout();
         $this->writeInc();
 
-        // $this->writeAlreadyMade(); //uncomment
+        $this->writeAlreadyMade(); //uncomment//11
         //dd(__METHOD__);
     }
 
@@ -86,8 +95,12 @@ class MakeView
         $success = false;
         $postfix = lcfirst(config('alex-claimer-generator.config.namespace_postfix'));
         $postfix = substr($postfix, 0, strpos($postfix, '\\')) . '/';
+        View::getPostfixPrefix($postfix, $prefix);
+        if($postfix !== ""){
+            $postfix .= "/";
+        }
         $inViewDir = $postfix . 'app.blade.php';
-
+       // dd(__METHOD__, $inViewDir);
         if ($this->notExist('app', $inViewDir)) {
             $success = \File::copy(
                 __DIR__ . ('/../../../../resources/views/layouts/app.blade.php'),
@@ -236,18 +249,14 @@ class MakeView
                 $prefix = substr($postfix, 0, $pos);
             else $prefix = $postfix;
             //dd(__METHOD__, lcfirst($prefix));
-            $output = str_replace('{{postfix}}', Helper::make_views_routes_prefix(), $output);
+            $output = str_replace('{{postfix}}', Route::make_routes_prefix(), $output);
             $output = str_replace('{{postfix.app}}', lcfirst($prefix) . '.app', $output);
         }
 
-        $output = str_replace('{{route_name_without_action_and_\')}} }}', '{{route(\'' . Helper::make_views_routes_name($tName) . '', $output);
+        $output = str_replace('{{route_name_without_action_and_\')}} }}', '{{route(\'' . Route::make_routes_name($tName) . '', $output);
         $output = str_replace('{{postfix/}}', $postfix . '/', $output);
         $output = str_replace('{{table_name}}', $tName, $output);
-        $output = str_replace('{{ModelNameSpace}}',
-            Helper::makeNameSpace('model') . '\\' . Helper::className($tName), $output);
-        $output = str_replace('{{<thead><td>}}', $this->theadIndex($tName, $cNames, $postfix), $output);
-        $output = str_replace('{{<tr><td>}}', $this->tdIndex($tName, $cNames, $postfix), $output);
-
+        $output = str_replace('{{ModelNameSpace}}', Helper::fullNameSpace($tName), $output);
         $output = str_replace('{{belongsToComment}}', '', $output); //11 replace with something
 
 
@@ -255,25 +264,25 @@ class MakeView
     }
 
 
-    protected function writeIndexBlade()
-    {
-        $bladeName = "index.blade";
-
-        foreach ($this->tablesNames as $tName => $cNames) {
-            //bbb(__METHOD__,Helper::makeNameSpace('model').Helper::className($tName), $tName, $cNames);
-            // break;
-            if ($this->notExist($tName, $bladeName)) {
-
-                $output = $this->strings_replace($tName, $cNames, 'index.blade.stub');
-
-                $this->setAlreadyMadeViews($tName, $bladeName);
-
-                file_put_contents(Helper::makeFileDirName('view', $bladeName, $tName), $output);
-            }
-        }
-
-        //dd(__METHOD__, $this->viewsAlreadyMade);
-    }
+//    protected function writeIndexBlade()
+//    {
+//        $bladeName = "index.blade";
+//
+//        foreach ($this->tablesNames as $tName => $cNames) {
+//            //bbb(__METHOD__,Helper::makeNameSpace('model').Helper::className($tName), $tName, $cNames);
+//            // break;
+//            if ($this->notExist($tName, $bladeName)) {
+//
+//                $output = $this->strings_replace($tName, $cNames, 'index.blade.stub');
+//
+//                $this->setAlreadyMadeViews($tName, $bladeName);
+//
+//                file_put_contents(Helper::makeFileDirName('view', $bladeName, $tName), $output);
+//            }
+//        }
+//
+//        //dd(__METHOD__, $this->viewsAlreadyMade);
+//    }
 
     protected function writeCreateBlade()
     {
@@ -339,100 +348,6 @@ class MakeView
             $str_viewsAlreadyMade);
     }
 
-    /**
-     * @param $tableName
-     * @param string $str
-     * @return string
-     */
-    protected function theadIndexRelations($tableName, $str = '')
-    {
-        if (Arr::exists($this->uniqueRelations, $tableName)) {
-
-            foreach ($this->uniqueRelations[$tableName] as $property => $relData) {
-                $str .= "\t\t\t\t\t\t\t\t<th>{{ __('" . $property . "') }}</th>\r\n";
-            }
-        }
-
-        return $str;
-    }
-
-    /**
-     * @param $columns
-     * @param $postfix
-     * @return string
-     */
-    protected function theadIndex($tableName, $columns, $postfix)
-    {
-        $str = "\t\t\t\t\t\t\t\t<th>#</th>\r\n";
-        $ii = 0;
-        foreach ($columns as $column) {
-            // dd(__METHOD__, $column);
-            if ($column['name'] != 'id') {
-                $str .= "\t\t\t\t\t\t\t\t<th>{{ __('" . $column['name'] . "') }}</th>\r\n";
-            }
-            if ($ii++ == 1) {
-                $str .= $this->theadIndexRelations($tableName);
-            }
-
-        }
-        return $str;
-    }
-
-    /**
-     * @param $tableName
-     * @param string $str
-     * @return string
-     */
-    protected function tdIndexRelations($tableName, $str = '')
-    {
-        if (Arr::exists($this->uniqueRelations, $tableName)) {
-
-            foreach ($this->uniqueRelations[$tableName] as $property => $relData) {
-                $str .= "\t\t\t\t\t\t\t\t<td>\r\n";
-                //if($tableName == 'auth_roles')bbb($relData);
-                if ($relData['type'] == 'belongsToMany') {
-                    $str .= "\t\t\t\t\t\t\t\t\t@include('inc.form.relations', ['relations' => \$item->$property]) ";
-                } elseif ($relData['type'] == 'belongsTo') {
-                    $str .= "\t\t\t\t\t\t\t\t\t{{ \$item->group['id'] .'. '. \$item->group['title']}}";
-                }
-
-
-                $str .= "\r\n\t\t\t\t\t\t\t\t</td>\r\n";
-            }
-            //if($tableName == 'auth_roles')dd(__METHOD__, $this->uniqueRelations[$tableName]);
-        }
-
-        return $str;
-    }
-
-    /**
-     * @param $columns
-     * @param $postfix
-     * @return string
-     */
-    protected function tdIndex($tableName, $columns, $postfix)
-    {
-        $str = "\t\t\t<tr @if(!empty(\$item->deleted_at) || !empty(\$item->parent->deleted_at))
-                style=\"color:red;\"
-            @endif>\r\n";
-        $ii = 0;
-        foreach ($columns as $column) {
-            if ($ii++ == 2) {
-                $str .= $this->tdIndexRelations($tableName);
-            }
-            if ($column['name'] == 'id') {
-                $str .= "\t\t\t<td><a href=\"{{route('" . Helper::make_views_routes_name($tableName, 'edit') . "', \$item->id)}}\">
-                                            {{ \$item->id }}
-                </a>
-           </td>\r\n";
-            } else {
-                $str .= "\t\t\t<td>{{ \$item->" . $column['name'] . " }}</td>\r\n";
-            }
-
-        }
-        $str .= "</tr>";
-        return $str;
-    }
 
     /**
      * @return array

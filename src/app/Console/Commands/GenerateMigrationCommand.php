@@ -3,7 +3,7 @@
 namespace AlexClaimer\Generator\App\Console\Commands;
 
 
-use AlexClaimer\Generator\App\Services\Generator\Main;
+use AlexClaimer\Generator\App\Services\Generators\Main;
 use App\Services\Generator\MakeModel;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Database\ModelIdentifier;

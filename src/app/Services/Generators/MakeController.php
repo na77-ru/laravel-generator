@@ -1,7 +1,8 @@
 <?php
 
-namespace AlexClaimer\Generator\App\Services\Generator;
+namespace AlexClaimer\Generator\App\Services\Generators;
 
+use AlexClaimer\Generator\App\Services\Generators\MakeRoutes\Route;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -246,7 +247,7 @@ class MakeController
             Helper::make_views_directory($tName),
             $output);
         $output = str_replace('{{views_routes}}',
-            Helper::make_views_routes_name($tName),
+            Route::make_routes_name($tName),
             $output);
 
         return $output;

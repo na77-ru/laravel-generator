@@ -1,8 +1,8 @@
 <?php
 
-namespace AlexClaimer\Generator\App\Services\Generator\MakeViews;
+namespace AlexClaimer\Generator\App\Services\Generators\MakeViews;
 
-use AlexClaimer\Generator\App\Services\Generator\Helper;
+use AlexClaimer\Generator\App\Services\Generators\Helper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
@@ -56,7 +56,7 @@ class MakeColumnsForViewEdit
     {
         $str = "";
         //  ignored_columns_in_edit_create_views  from config
-        $ignored_columns = config('alex-claimer-generator.config.ignored_columns_in_edit_create_views');
+        $ignored_columns = View::getIgnoredColumns();
 
         foreach ($this->tablesNamesData[$tName] as $colName => $data) {
 

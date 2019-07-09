@@ -1,6 +1,6 @@
 <?php
 
-namespace AlexClaimer\Generator\App\Services\Generator;
+namespace AlexClaimer\Generator\App\Services\Generators;
 
 use Illuminate\Support\Arr;
 
@@ -55,7 +55,7 @@ class Main
 
 
 
-        $this->writeAlreadyMade();//11 uncomment
+        $this->writeAlreadyMade(); //uncomment//11
 
 
         // cd packages/AlexClaimer/Generator

@@ -1,7 +1,7 @@
 <?php
 
 
-namespace AlexClaimer\Generator\App\Services\Generator;
+namespace AlexClaimer\Generator\App\Services\Generators;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;

@@ -1,6 +1,6 @@
 <?php
 
-namespace AlexClaimer\Generator\App\Services\Generator;
+namespace AlexClaimer\Generator\App\Services\Generators;
 
 use Illuminate\Support\Str;
 use  Illuminate\Support\Arr;
@@ -12,11 +12,21 @@ class Helper
      * @param $tab_name
      * @return string
      */
-    public static function className($table_name, $Type = '')
+    public static function className($table_name, $classType = '')
     {
         $ClassName = Str::singular(ucfirst(Str::camel($table_name)));
 
-        return $ClassName . $Type;
+        return $ClassName . $classType;
+    }
+
+    /**
+     * @param $tab_name
+     * @return string
+     */
+    public static function fullNameSpace($table_name, $classType = 'model')
+    {
+
+        return self::makeNameSpace($classType) . '' . self::className($table_name);
     }
 
     /**
@@ -35,6 +45,7 @@ class Helper
 
         return $str;
     }
+
     /**
      * @param $type
      * @return bool|string
@@ -44,17 +55,19 @@ class Helper
         $postfix = config('alex-claimer-generator.config.namespace_postfix');
         if (trim($postfix) !== '') $postfix .= '\\';
 
-        $str =  '\\' . $postfix;
+        $str = '\\' . $postfix;
 
         $str = strtolower($str);
 
-        $str .=  $tName . '.' . $bladeName;
+        $str .= $tName . '.' . $bladeName;
 
         return $str;
-    }    /**
- * @param $type
- * @return bool|string
- */
+    }
+
+    /**
+     * @param $type
+     * @return bool|string
+     */
     public static function makeFullNameSpaceForView($tName)
     {
         return config('alex-claimer-generator.config.view.namespace') . '\\' . self::makeNameSpaceForView($tName);
@@ -88,7 +101,7 @@ class Helper
         }
         if (trim($postfix) !== '') $postfix .= '\\';
         if ($type == 'view') {
-            $postfix = self::make_views_address_prefix().'\\';
+            $postfix = self::make_views_address_prefix() . '\\';
         }
         $dirName = base_path() . "\\" .
             config('alex-claimer-generator.config.' . $type . '.namespace') . '\\' . $postfix . $viewTableName;
@@ -124,12 +137,14 @@ class Helper
         foreach ($arDirName as $key => $dirName) {
             if ($dirName != '') {
                 $newDirName .= $arDirName[$key] . '\\';
-
+                //if (strpos($newDirName, 'Auth33')) dd(__METHOD__, $newDirName);
+                $newDirName = str_replace("/", "\\", $newDirName);
                 if (!is_dir($newDirName)) {
                     mkdir($newDirName);
                 }
             }
         }
+        //dd(__METHOD__, $newDirName);
         return $newDirName;
     }
 
@@ -170,10 +185,10 @@ class Helper
     {
         $postfix = str_replace('\\', '/', self::getPostfix());
         $tName = substr($tName, strpos($tName, '_') + 1);
-        if ($type !== ''){
+        if ($type !== '') {
             $type = '/' . $type;
         }
-        return strtolower($postfix) . "/" . $tName .  $type;
+        return strtolower($postfix) . "/" . $tName . $type;
     }
 
     /**
@@ -210,19 +225,6 @@ class Helper
         return strtolower(self::getPostfix());
     }
 
-    /**
-     * @param $tName
-     * @return string
-     */
-    public static function make_views_address_name($tName, $type = '')
-    {
-        $postfix = str_replace('\\', '.', self::getPostfix());
-        $tName = substr($tName, strpos($tName, '.') + 1);
-        if ($type !== '') {
-            $type = '.' . $type;
-        }
-        return strtolower($postfix) . "_" . $tName . $type;
-    }
 
     /**
      * @param $tName
@@ -231,7 +233,7 @@ class Helper
     public static function make_views_directory($tName, $type = '')
     {
         $postfix = str_replace('\\', '.', self::getPostfix());
-        $tName = substr($tName, strpos($tName, '.') );
+        $tName = substr($tName, strpos($tName, '.'));
         if ($type !== '') {
             $type = '.' . $type;
         }

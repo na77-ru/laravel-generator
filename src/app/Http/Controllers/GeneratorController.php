@@ -3,8 +3,8 @@
 namespace AlexClaimer\Generator\App\Http\Controllers;
 
 
-use AlexClaimer\Generator\App\Services\Generator\Main;
-use AlexClaimer\Generator\App\Services\Generator\MakeSeeds;
+use AlexClaimer\Generator\App\Services\Generators\Main;
+use AlexClaimer\Generator\App\Services\Generators\MakeSeeds;
 use AlexClaimer\Generator\App\Services\Generators\Packages\MakePackages;
 use AlexClaimer\Generator\App\Services\Generators\Migrations\MakeMigration;
 use Illuminate\Http\Request;
