@@ -1,0 +1,24 @@
+
+                        <div class="form-group">
+                            <label for="slug">Идентификатор</label>
+                            <input name="slug" value="{{ old('slug', $item->slug) }}"
+                                   id="slug"
+                                   type="text"
+                                   class="form-control"
+                                   minlength="3"
+                                   >
+                        </div>
+                        @if($item->exists)
+                        <div class="form-group">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="hidden" name="is_slugChange" value="0">
+                                    <input type="checkbox" value="1"
+                                           name="is_slugChange">
+                                    Изменить идентификатор
+                                </label>
+                            </div>
+                        </div>  <br>
+                        @endif
+
+

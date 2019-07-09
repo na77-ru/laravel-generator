@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Arr;
 
 class MakeRepository
 {
@@ -15,6 +16,12 @@ class MakeRepository
     protected $alreadyMade = [];
     protected $realMade = [];
 
+    protected $belongsToKeys = [];
+    protected $belongsToMany = [];
+
+    protected $allRelations = [];
+    protected $tablesNamesData = [];
+
     /**
      * MakeRepository constructor.
      * @param Table $tables
@@ -22,6 +29,13 @@ class MakeRepository
     public function __construct(Table $tables)
     {
         $this->tablesNames = $tables->getTablesNames();
+        $this->belongsToKeys = $tables->getBelongsToKeys();
+        $this->belongsToMany = $tables->getBelongsToManyKeys();
+
+        $this->allRelations = $tables->getAllRelations();
+
+        $this->tablesNamesData = $tables->getTablesNamesData();
+
         $this->writeRepositories();
         $this->writeBaseRepository();
     }
@@ -59,10 +73,17 @@ class MakeRepository
 
                 $str .= $this->writeRepositories_getFieldsSearchable_model($cNames);
 
-                $str .= $this->writeRepositories_getAllWithPaginate($cNames);
+                $str .= $this->writeRepositories_getAllWithPaginate($tName, $cNames);
 
                 $str .= $this->writeRepositories_getForSelect($cNames, $tName);
 
+                $str .= $this->writeRepositories_getEdit($tName);
+
+                $str .= $this->writeRepositories_create($tName);
+
+                $str .= $this->writeRepositories_update($tName);
+
+                $str .= $this->writeRepositories_AttachFunctions($tName);
 
                 $str .= $this->writeRepositoriesEnd();
 
@@ -74,6 +95,105 @@ class MakeRepository
         }
     }
 
+    protected function getAttachFunctionNameParam($property)
+    {
+        return $property . "Attach(\$model, \$input)";
+    }
+
+    /**
+     * @param $tName
+     * @return false|mixed|string
+     */
+    protected function writeRepositories_AttachFunctions($tName)
+    {
+        $output = "";
+        if (Arr::exists($this->allRelations, $tName)) {
+            foreach ($this->allRelations[$tName] as $property => $data) {
+                if ($data['type'] == 'belongsToMany') {
+                    $str = file_get_contents(__DIR__ . "/Stubs/Repositories/attach.stub");
+                    $str = str_replace("{{AttachFunctionName}}", $this->getAttachFunctionNameParam($property), $str);
+                    $str = str_replace("{{property}}", $property, $str);
+                    $output .= $str . "\r\n";
+                }
+            }
+        }
+
+        return $output;
+    }
+
+    public function writeRepositories_create($tName)
+    {
+        // writeBaseRepository  repository  repositories
+        $str = "
+
+
+    /**
+     * Create model record
+     *
+     * @param array \$input
+     *
+     * @return Model
+     */
+        public function create(\$input)
+    {
+        \$model = \$this->model->newInstance(\$input);
+        \$model->save();     
+";
+        if (Arr::exists($this->allRelations, $tName)) {
+            foreach ($this->allRelations[$tName] as $property => $data) {
+
+                if ($data['type'] == 'belongsToMany')
+                    $str .= "\t\t\t\$this->" . $this->getAttachFunctionNameParam($property) . ";\r\n";
+            }
+        }
+
+        $str .= "
+        return \$model;
+    }
+        ";
+        return $str;
+
+    }
+
+    public function writeRepositories_update($tName)
+    {
+        // writeBaseRepository  repository  repositories
+        $str = "
+
+    /**
+     * Update model record for given id
+     *
+     * @param \$input
+     * @param \$id
+     * @return bool
+     */
+    public function update(\$input, \$id)
+    {
+        \$query = \$this->model->newQuery();
+
+        \$model = \$query->findOrFail(\$id);
+
+";
+        if (Arr::exists($this->allRelations, $tName)) {
+            foreach ($this->allRelations[$tName] as $property => $data) {
+
+                if ($data['type'] == 'belongsToMany')
+                $str .= "\t\t\t\$this->" . $this->getAttachFunctionNameParam($property) . ";\r\n";
+            }
+        }
+
+        $str .= "
+
+        \$model->fill(\$input);
+       // dd(__METHOD__, \$model);//11??
+        return \$model->save();
+
+    }
+
+        ";
+        return $str;
+
+    }
     public function writeRepositoriesBegin($tName)
     {
         // writeBaseRepository  repository  repositories
@@ -83,8 +203,9 @@ namespace " .
             Helper::makeNameSpace('repository') . ";
             
 use " . Helper::makeNameSpace('model') . '\\' . $className = Helper::className($tName) . " as Model;
+use Illuminate\Support\Arr;
 
-class " . $className = Helper::className($tName) . "Repository extends BaseRepository
+class " . $className = Helper::className($tName) . "Repository extends " . Helper::BaseClassName() . "Repository" . "
 {
  
         ";
@@ -124,7 +245,81 @@ class " . $className = Helper::className($tName) . "Repository extends BaseRepos
 
     }
 
-    public function writeRepositories_getAllWithPaginate($cNames)
+
+    public function setPropertiesBelongsToInVarWith($tName)
+    {
+        $str = "\r\n\t\tif (empty(\$with)){";
+        if (Arr::exists($this->belongsToKeys, $tName)) {
+            foreach ($this->belongsToKeys[$tName]['belongsTo'] as $arrBelongsTo) {
+                $property = Str::substr($arrBelongsTo['key'], 0, strpos($arrBelongsTo['key'], '_'));
+                $columns = '';
+                $i = 0;
+
+                if (Arr::exists($this->tablesNames, $arrBelongsTo['to_table'])) {
+                    $count = count($this->tablesNames[$arrBelongsTo['to_table']]) - 1;
+                    foreach ($this->tablesNames[$arrBelongsTo['to_table']] as $columnName => $val) {
+
+                        $columns .= $columnName;
+                        if ($i++ == $count) break;
+                        else $columns .= ',';
+                    }
+                }
+
+                $str .= "\r\n//\t\t\t\$with[] = '$property:$columns';";
+                $columns = '';
+                $i = 0;
+
+                if (Arr::exists($this->tablesNames, $arrBelongsTo['to_table'])) {
+                    foreach ($this->tablesNames[$arrBelongsTo['to_table']] as $columnName => $val) {
+
+                        $columns .= $columnName;
+                        if ($i++ == 1) break;
+                        else $columns .= ',';
+
+                    }
+                }
+
+                $str .= "\r\n\t\t\t\$with[] = '$property:$columns';";
+            }
+        }
+
+        return $str;
+    }
+
+    public function setPropertiesBelongsToManyInVarWith($tName)
+    {
+        $str = '';
+        if (Arr::exists($this->belongsToMany, $tName)) {
+            foreach ($this->belongsToMany[$tName] as $property => $arrToMany) {
+                $columns = '';
+                $i = 0;
+                $count = count($this->tablesNames[$arrToMany['to_table']]) - 1;
+                foreach ($this->tablesNames[$arrToMany['to_table']] as $columnName => $val) {
+
+                    $columns .= $columnName;
+                    if ($i++ == $count) break;
+                    else $columns .= ',';
+                }
+
+                $str .= "\r\n//\t\t\t\$with[] = '$property:$columns';";
+                $columns = '';
+                $i = 0;
+                foreach ($this->tablesNames[$arrToMany['to_table']] as $columnName => $val) {
+
+                    $columns .= $columnName;
+                    if ($i++ == 1) break;
+                    else $columns .= ',';
+
+                }
+
+                $str .= "\r\n\t\t\t\$with[] = '$property:$columns';";
+            }
+        }
+        $str .= "\r\n\t\t}\r\n";
+        return $str;
+    }
+
+    public function writeRepositories_getAllWithPaginate($tName, $cNames)
     {
         // writeBaseRepository  repository  repositories
         $str = "
@@ -133,22 +328,25 @@ class " . $className = Helper::className($tName) . "Repository extends BaseRepos
      * @return mixed
      * @throws \Exception
      */
-    public function getAllWithPaginate(\$perPage = null)
+    public function getAllWithPaginate(\$perPage = null, \$with = [])
     {
-        \$perPage = \$perPage ?? config('admin.perPage');
+        \$perPage = \$perPage ?? config('admin.perPage');";
 
-        \$columns = [";
+        $str .= $this->setPropertiesBelongsToInVarWith($tName);
+        $str .= $this->setPropertiesBelongsToManyInVarWith($tName);
+
+        $str .= "\t\t\$columns = [";
         $arr = [];
         foreach ($cNames as $Key => $cName) {
             $arr[] = $Key;
-            $str .= " '" . $cName['name'] . "',";
+            $str .= "'" . $cName['name'] . "', ";
         }
         $str .= "];
 
         \$result = \$this
             ->makeModel()
             ->select(\$columns)
-            //->where('id', '<>', 1)
+            ->with(\$with)
             ->orderBy('id', 'ASC')
             ->withTrashed()";
         //dd(__METHOD__, $cNames, in_array('parent_id', $cNames));
@@ -239,6 +437,7 @@ class " . $className = Helper::className($tName) . "Repository extends BaseRepos
 
             $str .= $this->writeBaseRepository_makeModel();
             $str .= $this->writeBaseRepository_paginate();
+            $str .= $this->writeBaseRepository_getForSelect();
             $str .= $this->writeBaseRepository_allQuery();
 
             $str .= $this->writeBaseRepository_all();
@@ -250,7 +449,7 @@ class " . $className = Helper::className($tName) . "Repository extends BaseRepos
             $str .= $this->writeBaseRepository_delete();
 
             $str .= $this->writeBaseRepository_restore();
-            $str .= $this->writeBaseRepository_getEdit();
+
 
             $str .= $this->writeBaseRepositoryEnd();
 
@@ -273,7 +472,7 @@ use Illuminate\Container\Container as Application;
 use Illuminate\Database\Eloquent\Model;
 
 
-abstract class BaseRepository
+abstract class " . Helper::BaseClassName() . "Repository" . "
 {
     /**
      * @var Model
@@ -461,6 +660,36 @@ abstract class BaseRepository
 
     }
 
+    public function writeBaseRepository_getForSelect()
+    {
+        // writeBaseRepository  repository  repositories
+        $str = "
+
+
+       /**
+     * @param array \$columns
+     * @return mixed
+     * @throws \Exception
+     */
+        public function getForSelect(\$columns = [])
+    {
+        if (empty(\$columns)){
+           \$columns = ['id'];
+        }
+        \$result = \$this
+            ->makeModel()
+            ->selectRaw(implode(',', \$columns))
+            ->get();
+
+        return \$result;
+    }
+        ";
+        return $str;
+
+    }
+
+
+
     public function writeBaseRepository_create()
     {
         // writeBaseRepository  repository  repositories
@@ -642,15 +871,18 @@ abstract class BaseRepository
 
     }
 
-    public function writeBaseRepository_getEdit()
+    public function writeRepositories_getEdit($tName)
     {
         // writeBaseRepository  repository  repositories
         $str = "
 
     public function getEdit(\$id)
-    {
-        \$result = \$this->startCondition()
+    {";
+        $str .= $this->setPropertiesBelongsToInVarWith($tName);
+        $str .= $this->setPropertiesBelongsToManyInVarWith($tName);
+        $str .= "\t\t\$result = \$this->startCondition()
             ->withTrashed()
+            ->with(\$with)
             ->find(\$id);
         return \$result;
     }

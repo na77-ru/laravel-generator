@@ -3,6 +3,7 @@
 
 namespace AlexClaimer\Generator\App\Services\Generator;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -17,6 +18,9 @@ class MakeRequest
     protected $alreadyMade = [];
     protected $realMade = [];
 
+    protected $tablesNamesData = [];
+    protected $allRelations = [];
+
     /**
      * MakeRequest constructor.
      * @param Table $tables
@@ -25,6 +29,10 @@ class MakeRequest
     {
         $this->tablesNames = $tables->getTablesNames();
         $this->belongsToKeys = $tables->getBelongsToKeys();
+
+        $this->tablesNamesData = $tables->getTablesNamesData();
+        $this->allRelations = $tables->getAllRelations();
+
         $this->writeRequests();
         $this->writeBaseRequest();
     }
@@ -65,6 +73,131 @@ class MakeRequest
         return "";
     }
 
+
+    /**
+     * @param $tName
+     * @return false|mixed|string
+     */
+    protected function writeRequestsRules($tName)
+    {
+        $output = file_get_contents(__DIR__ . '/Stubs/Requests/rules.stub');
+        $columns_rules = '';
+        $arrTimeStamps = ['deleted_at', 'created_at', 'updated_at', 'email_verified_at'];
+        if (Arr::exists($this->tablesNamesData, $tName)) {
+            foreach ($this->tablesNamesData[$tName] as $cName => $data) {
+
+                if ($cName === 'id'  || in_array($cName, $arrTimeStamps)) { // || strpos($cName, '_id')
+                    $columns_rules .= '';
+                } elseif ($data['unique'] === 'unique') {
+                    $columns_rules .= $this->uniqueRule($tName, $data);
+                } elseif (strpos(' ' . $data['Type'], 'varchar')) {
+                    $columns_rules .= $this->varCharRule($data);
+                } elseif (strpos(' ' . $data['Type'], 'int')) {
+                    $columns_rules .= $this->intRule($data);
+                } else {
+                    $columns_rules .= $this->otherRule($data);
+                }
+
+            }
+        }
+
+        $output = str_replace(
+            '{{columns_rules}}',
+            $columns_rules,
+            $output);
+
+        return $output;
+    }
+
+    protected function otherRule($data)
+    {
+        $rule = "\t\t\t";
+
+        $rule .= "'" . $data['Field'] . "' => '" .
+            $data['request_required'] .
+            $this->getMax($data) .
+            $this->getMin($data) .
+            "|||',\r\n";
+
+        return $rule;
+    }
+
+    protected function intRule($data)
+    {
+        $rule = "\t\t\t";
+
+        $rule .= "'" . $data['Field'] . "' => '" .
+            $data['request_required'] .
+            $this->getMax($data) .
+            $this->getMin($data) .
+            "',\r\n";
+
+        return $rule;
+    }
+
+    protected function varCharRule($data)
+    {
+        $rule = "\t\t\t";
+        $rule .= "'" . $data['Field'] . "' => '" .
+            $data['request_required'] .
+            $this->getMax($data) .
+            $this->getMin($data) .
+            "',\r\n";
+
+        return $rule;
+    }
+
+    /**
+     * @param $tName
+     * @param $data
+     * @return string
+     */
+    protected function uniqueRule($tName, $data)
+    {
+        $rule = "\t\t\t";
+        $rule .= "'" . $data['Field'] . "' => '" .
+            $data['request_required'] .
+            $this->getMax($data) .
+            $this->getMin($data) .
+            "unique:" .
+            $tName .
+            "," .
+            $data['Field'] .
+            ",' . \$this->request->all()['id'] . ',id',\r\n";
+        return $rule;
+    }
+
+    protected function getMax($data)
+    {
+        if (strpos(' ' . $data['Type'], 'varchar')) {
+            return 'max:191|';
+        } elseif (strpos(' ' . $data['Type'], 'text')) {
+            return 'max:10000|';
+        } elseif (strpos(' ' . $data['Type'], '(11)')) {
+            return 'max:11|';
+        } elseif (strpos(' ' . $data['Type'], '(20)')) {
+            return 'max:20|';
+        } else {
+            return '';
+        }
+    }
+
+    protected function getMin($data)
+    {
+        if ($data['required'] == 'required') {
+            if (strpos(' ' . $data['Type'], 'varchar')) {
+                return 'min:5|';
+            } elseif (strpos(' ' . $data['Type'], 'text')) {
+                return 'min:100|';
+            } else {
+                return '';
+            }
+        } else {
+            return '';
+        }
+    }
+
+
     /**
      * @return string
      */
@@ -90,7 +223,8 @@ class MakeRequest
 
 
                 $str .= $this->writeRequests_authorize();
-                $str .= $this->writeRequests_rules($tName, $cNames);
+                //$str .= $this->writeRequests_rules($tName, $cNames);
+                $str .= $this->writeRequestsRules($tName, $cNames);
                 $str .= $this->writeRequests_messages();
                 $str .= $this->writeRequests_attributes();
 
@@ -108,25 +242,26 @@ class MakeRequest
     /**
      * @return string
      */
-    protected function writeRequests_authorize()
+    protected function writeRequests_messages()
     {
         return "
-     /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
+        
+    public function messages()
     {
-        return true;
+        return [
+            'title.required' => 'Введите загловок статьи',
+            'content_raw.min' => 'Минимальная длина статьи [:min] символов',
+        ];
     }
         ";
     }
 
     /**
+     * @param $tableName
+     * @param $columnNames
      * @return string
      */
-    protected function writeRequests_rules($tableName, $columnNames)
+    protected function writeRequests_rules($tableName, $columnNames)//comment
     {
         $str = "
      /**
@@ -157,36 +292,14 @@ class MakeRequest
                     $str .= "//";
                 }
 
-                $str .= "'" . $cName['name'] . "' => 'required|" . $cName['type'] . "|max:191|min:3',";
+                $str .= "'" . $cName['name'] . "' => 'required|" . $cName['Type'] . "|max:191|min:3',";
             }
         }
-//        $str .= "
-//
-//        ";
-//        $str .= "\r\n";
-
         $str .= "
         ];
     }
         ";
         return $str;
-    }
-
-    /**
-     * @return string
-     */
-    protected function writeRequests_messages()
-    {
-        return "
-        
-    public function messages()
-    {
-        return [
-            'title.required' => 'Введите загловок статьи',
-            'content_raw.min' => 'Минимальная длина статьи [:min] символов',
-        ];
-    }
-        ";
     }
 
     /**
@@ -243,6 +356,24 @@ class MakeRequest
             file_put_contents(Helper::makeFileDirName('request', $className), $str);
         }
         return $str;
+    }
+
+    /**
+     * @return string
+     */
+    protected function writeRequests_authorize()
+    {
+        return "
+     /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize()
+    {
+        return true;
+    }
+        ";
     }
 }
 

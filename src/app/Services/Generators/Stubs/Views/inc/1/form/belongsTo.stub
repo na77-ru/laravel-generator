@@ -1,0 +1,19 @@
+
+         <div class="form-group">
+             <label for="{{Property}}">{{__('admin/form.{{modelBelongsTo}}')}}</label>
+             <select name="{{Property}}_id"
+                     id="{{Property}}"
+                     class="form-control"
+                     placeholder="Выберите {{modelBelongsTo}}"
+                     >
+{{modelBelongsToComments}}
+{{option_for_null_value}}
+                 @foreach(${{modelBelongsTo}}List as ${{modelBelongsTo}}Option)
+
+                     <option value="{{  ${{modelBelongsTo}}Option->id }}"
+                             @if(${{modelBelongsTo}}Option->id == old('{{Property}}', $item->{{Property}}_id)) selected @endif>
+                         {{ old('{{old_column}}', ${{modelBelongsTo}}Option->{{column}}) }}
+                     </option>
+                 @endforeach
+             </select>
+         </div>

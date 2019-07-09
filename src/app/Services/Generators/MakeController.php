@@ -1,4 +1,5 @@
 <?php
+
 namespace AlexClaimer\Generator\App\Services\Generator;
 
 use Illuminate\Support\Facades\DB;
@@ -14,6 +15,10 @@ class MakeController
     protected $alreadyMade = [];
     protected $realMade = [];
     protected $tables;
+    protected $belongsToKeys = [];
+    protected $belongsToMany = [];
+    protected $allRelations = [];
+    protected $uniqueRelations = [];
 
     /**
      * MakeController constructor.
@@ -23,8 +28,14 @@ class MakeController
     {
         $this->tables = $tables;
         $this->tablesNames = $tables->getTablesNames();
+
+        $this->belongsToKeys = $tables->getBelongsToKeys();
+        $this->belongsToMany = $tables->getBelongsToManyKeys();
+        $this->allRelations = $tables->getAllRelations();
+        $this->uniqueRelations = $tables->getUniqueRelations();
         $this->writeControllers();
         $this->writeBaseController();
+
     }
 
     /**
@@ -41,6 +52,98 @@ class MakeController
     public function getAlreadyMade(): array
     {
         return $this->alreadyMade;
+    }
+
+    public function getColumnsForManyListForCreate($tName)
+    {
+        foreach ($this->tablesNames[$tName] as $columnName => $val) {
+            if ($columnName === 'name') return "['id', 'name']";
+        }
+        foreach ($this->tablesNames[$tName] as $columnName => $val) {
+            if ($columnName === 'title') return "['id', 'title']";
+        }
+        foreach ($this->tablesNames[$tName] as $columnName => $val) {
+            if ($columnName === 'slug') return "['id', 'title']";
+        }
+        return ['id'];
+    }
+
+    /**
+     * @param $table
+     * @return string
+     */
+    public function writeBelongsToManyListForCreate($tName)
+    {
+        if (!Arr::exists($this->uniqueRelations, $tName)) return '';
+        //dd(__METHOD__, $tName, $this->tablesNames[$tName]);
+//        $columns = $this->getColumnsForManyListForCreate($tName);
+        $str = "";
+        foreach ($this->uniqueRelations[$tName] as $property => $arrBelongs) {
+//           if($property == 'group' && $tName == 'auth_roles')
+//               dd(__METHOD__, $property, $tName, $columns, $arrBelongs['to_table']);
+            $columns = $this->getColumnsForManyListForCreate($arrBelongs['to_table']);
+            $str .= "\t\t\$" . $arrBelongs['to_table'] .
+                "List = \$this->" .
+                lcfirst(Helper::className($arrBelongs['to_table'], 'Repository')) .
+                "->getForSelect(" . $columns . ");\r\n";
+            //dd(__METHOD__, $str);
+        }
+
+        return $str;
+    }
+
+    /**
+     * @param $table
+     * @return string
+     */
+    public function writeBelongsToManyCompact($tName)
+    {
+        if (!Arr::exists($this->uniqueRelations, $tName)) return '';
+        $str = "compact('item', ";
+        $count = count($this->uniqueRelations[$tName]);
+        $i = 0;
+        foreach ($this->uniqueRelations[$tName] as $property => $arrBelongs) {
+            $str .= "'" . $arrBelongs['to_table'] . "List'";
+            if ($i++ !== $count) {
+                $str .= ",";
+            }
+        }
+        $str .= ")\r\n\t\t";
+        return $str;
+    }
+
+    /**
+     * @param $table
+     * @return string
+     */
+    public function writeBelongsToManyUse($tName, $str)
+    {
+        if (!Arr::exists($this->uniqueRelations, $tName)) return '';
+        foreach ($this->uniqueRelations[$tName] as $property => $arrBelongs) {
+            $str .= "use " . Helper::makeNameSpace('repository') . "\\" . Helper::className($arrBelongs['to_table'], 'Repository') . ";\r\n";
+
+        }
+        return $str;
+    }
+
+    private function writeRepositoryVars($tName)
+    {
+        if (!Arr::exists($this->uniqueRelations, $tName)) return '';
+        $str = "\tprivate \$" . lcfirst(Helper::className($tName, 'Repository')) . ";\r\n";
+        foreach ($this->uniqueRelations[$tName] as $property => $arrBelongs) {
+            $str .= "\tprivate \$" . lcfirst(Helper::className($arrBelongs['to_table'], 'Repository')) . ";\r\n";
+        }
+        return $str;
+    }
+
+    private function writeRepositoryVarsInConstructor($tName)
+    {
+        if (!Arr::exists($this->uniqueRelations, $tName)) return '';
+        $str = "\t\t\$this->" . lcfirst(Helper::className($tName, 'Repository')) . " = app(" . Helper::className($tName, 'Repository') . "::class);\r\n";
+        foreach ($this->uniqueRelations[$tName] as $property => $arrBelongs) {
+            $str .= "\t\t\$this->" . lcfirst(Helper::className($arrBelongs['to_table'], 'Repository')) . " = app(" . Helper::className($arrBelongs['to_table'], 'Repository') . "::class);\r\n";
+        }
+        return $str;
     }
 
     /**
@@ -93,8 +196,19 @@ class MakeController
         $str_use .= "use " . Helper::makeNameSpace('model') . '\\' . $className = Helper::className($tName) . " as Model;\r\n";
         $str_use .= "use " . $NameSpaceRequest . "\\" . $classNameRequest . ";\r\n";
         $str_use .= "use " . $NameSpaceRepository . "\\" . $classNameRepository . ";\r\n";
-
+        $str_use = $this->writeBelongsToManyUse($tName, $str_use);
         $output = str_replace('{{use}}', $str_use, $output);
+
+        $output = str_replace(
+            '{{ $lists of belongsToMany for create, edit from Repositories }}',
+            $this->writeBelongsToManyListForCreate($tName),
+            $output
+        );
+        $output = str_replace(
+            '{{ compact(...) }}',
+            $this->writeBelongsToManyCompact($tName),
+            $output
+        );
 
 
         $output = str_replace('{{BaseControllerClassName}}',
@@ -106,9 +220,17 @@ class MakeController
         $output = str_replace('{{RepositoryClassName}}',
             Helper::className($tName) . "Repository",
             $output);
-        $output = str_replace('{{repositoryVar}}',
-            lcfirst(Helper::className($tName) . "Repository"),
+        $output = str_replace('{{thisRepoVar}}',
+            lcfirst(Helper::className($tName, 'Repository')),
             $output);
+        $output = str_replace('{{repositoryVars}}',
+            $this->writeRepositoryVars($tName),
+            $output);
+        $output = str_replace('{{writeRepositoryVarsInConstructor}}',
+            $this->writeRepositoryVarsInConstructor($tName),
+            $output);
+
+
         $output = str_replace('{{ModelClass}}',
             Helper::className($tName),
             $output);

@@ -1,0 +1,11 @@
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input name="name" value="{{ old('name', $item->name) }}"
+                                   id="name"
+                                   type="text"
+                                   class="form-control"
+                                   minlength="3"
+                                   required>
+                        </div>
+
+

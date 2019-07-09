@@ -1,0 +1,9 @@
+                        <div class="form-group">
+                            <label for="exсerpt">Выдержка</label>
+                            <input name="excerpt" value="{{ old('excerpt', $item->excerpt) }}"
+                                   id="exсerpt"
+                                   type="text"
+                                   class="form-control"
+                                   minlength="3"
+                                   >
+                        </div>

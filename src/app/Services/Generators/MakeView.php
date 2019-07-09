@@ -3,6 +3,7 @@
 
 namespace AlexClaimer\Generator\App\Services\Generator;
 
+use AlexClaimer\Generator\App\Services\Generator\MakeViews\MakeColumnsForViewEdit;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -17,6 +18,10 @@ class MakeView
     protected $viewsAlreadyMade = [];
     protected $realMade = [];
     protected $tables;
+    protected $belongsToMany = [];
+
+
+    protected $uniqueRelations = [];
 
     /**
      * MakeView constructor.
@@ -26,6 +31,10 @@ class MakeView
     {
         $this->tables = $tables;
         $this->tablesNames = $tables->getTablesNames();
+        $this->belongsToMany = $tables->getBelongsToManyKeys();
+
+        $this->uniqueRelations = $tables->getUniqueRelations();
+
         $this->writeViews();
     }
 
@@ -34,36 +43,21 @@ class MakeView
         $this->writeIndexBlade();
         $this->writeEditBlade();
         $this->writeCreateBlade();
-        $this->writeInc_MainBlade();
+
+        foreach ($this->tablesNames as $tName => $cNames) {
+            $bladeName = "inc/columns_for_edit.blade";
+            if ($this->notExist($tName, $bladeName)) {
+                new MakeColumnsForViewEdit($this->tables, $tName, $cNames, $bladeName);
+                $this->setAlreadyMadeViews($tName, $bladeName);
+            }
+        }
         $this->writeInc_AddBlade();
 
         $this->writeLayout();
         $this->writeInc();
 
-        $this->writeAlreadyMade();
+        // $this->writeAlreadyMade(); //uncomment
         //dd(__METHOD__);
-    }
-
-    protected function writeInc_MainBlade()
-    {
-        $bladeName = "inc/edit_main_col.blade";
-
-        foreach ($this->tablesNames as $tName => $cNames) {
-            // bbb(__METHOD__, Helper::makeNameSpace('model') . Helper::className($tName), $tName, $cNames);
-            // break;
-            if ($this->notExist($tName, $bladeName)) {
-
-                $output = $this->strings_replace($tName, $cNames, 'inc/edit_main_col.blade.stub');
-
-                $output = $this->strings_replace_inc_main($tName, $cNames, $output);
-
-                $this->setAlreadyMadeViews($tName, $bladeName);
-
-                file_put_contents(Helper::makeFileDirName('view', $bladeName, $tName), $output);
-            }
-        }
-
-        // dd(__METHOD__, $this->viewsAlreadyMade);
     }
 
 
@@ -76,7 +70,7 @@ class MakeView
             // break;
             if ($this->notExist($tName, $bladeName)) {
 
-                $output = $this->strings_replace($tName, $cNames, 'inc/edit_add_col.blade.stub');
+                $output = $this->strings_replace($tName, $cNames, 'inc/1/edit_add_col.blade.stub');
 
                 $this->setAlreadyMadeViews($tName, $bladeName);
 
@@ -221,11 +215,11 @@ class MakeView
         return (empty($this->viewsAlreadyMade)
             || !Arr::exists($this->viewsAlreadyMade, $tName)
             || (
-            !in_array(Helper::makeNameSpaceForView($tName, $bladeName), $this->viewsAlreadyMade[$tName])
-            &&
-            !in_array($bladeName, $this->viewsAlreadyMade[$tName])
+                !in_array(Helper::makeNameSpaceForView($tName, $bladeName), $this->viewsAlreadyMade[$tName])
+                &&
+                !in_array($bladeName, $this->viewsAlreadyMade[$tName])
             )
-            );
+        );
     }
 
 
@@ -236,8 +230,14 @@ class MakeView
 
         if (empty($postfix)) {
             $output = str_replace('{{postfix}}', '', $output);
+            $output = str_replace('{{postfix.app}}', 'app', $output);
         } else {
+            if ($pos = strpos($postfix, '\\'))
+                $prefix = substr($postfix, 0, $pos);
+            else $prefix = $postfix;
+            //dd(__METHOD__, lcfirst($prefix));
             $output = str_replace('{{postfix}}', Helper::make_views_routes_prefix(), $output);
+            $output = str_replace('{{postfix.app}}', lcfirst($prefix) . '.app', $output);
         }
 
         $output = str_replace('{{route_name_without_action_and_\')}} }}', '{{route(\'' . Helper::make_views_routes_name($tName) . '', $output);
@@ -340,18 +340,68 @@ class MakeView
     }
 
     /**
+     * @param $tableName
+     * @param string $str
+     * @return string
+     */
+    protected function theadIndexRelations($tableName, $str = '')
+    {
+        if (Arr::exists($this->uniqueRelations, $tableName)) {
+
+            foreach ($this->uniqueRelations[$tableName] as $property => $relData) {
+                $str .= "\t\t\t\t\t\t\t\t<th>{{ __('" . $property . "') }}</th>\r\n";
+            }
+        }
+
+        return $str;
+    }
+
+    /**
      * @param $columns
      * @param $postfix
      * @return string
      */
     protected function theadIndex($tableName, $columns, $postfix)
     {
-        $str = "<th>#</th>\r\n";
+        $str = "\t\t\t\t\t\t\t\t<th>#</th>\r\n";
+        $ii = 0;
         foreach ($columns as $column) {
             // dd(__METHOD__, $column);
-            if ($column['name'] != 'id')
-                $str .= "<th>\t\t\t{{ __('" . $column['name'] . "') }}</th>\r\n";
+            if ($column['name'] != 'id') {
+                $str .= "\t\t\t\t\t\t\t\t<th>{{ __('" . $column['name'] . "') }}</th>\r\n";
+            }
+            if ($ii++ == 1) {
+                $str .= $this->theadIndexRelations($tableName);
+            }
+
         }
+        return $str;
+    }
+
+    /**
+     * @param $tableName
+     * @param string $str
+     * @return string
+     */
+    protected function tdIndexRelations($tableName, $str = '')
+    {
+        if (Arr::exists($this->uniqueRelations, $tableName)) {
+
+            foreach ($this->uniqueRelations[$tableName] as $property => $relData) {
+                $str .= "\t\t\t\t\t\t\t\t<td>\r\n";
+                //if($tableName == 'auth_roles')bbb($relData);
+                if ($relData['type'] == 'belongsToMany') {
+                    $str .= "\t\t\t\t\t\t\t\t\t@include('inc.form.relations', ['relations' => \$item->$property]) ";
+                } elseif ($relData['type'] == 'belongsTo') {
+                    $str .= "\t\t\t\t\t\t\t\t\t{{ \$item->group['id'] .'. '. \$item->group['title']}}";
+                }
+
+
+                $str .= "\r\n\t\t\t\t\t\t\t\t</td>\r\n";
+            }
+            //if($tableName == 'auth_roles')dd(__METHOD__, $this->uniqueRelations[$tableName]);
+        }
+
         return $str;
     }
 
@@ -365,8 +415,11 @@ class MakeView
         $str = "\t\t\t<tr @if(!empty(\$item->deleted_at) || !empty(\$item->parent->deleted_at))
                 style=\"color:red;\"
             @endif>\r\n";
+        $ii = 0;
         foreach ($columns as $column) {
-            // dd(__METHOD__, $column);
+            if ($ii++ == 2) {
+                $str .= $this->tdIndexRelations($tableName);
+            }
             if ($column['name'] == 'id') {
                 $str .= "\t\t\t<td><a href=\"{{route('" . Helper::make_views_routes_name($tableName, 'edit') . "', \$item->id)}}\">
                                             {{ \$item->id }}
@@ -410,7 +463,7 @@ class MakeView
         if (Arr::exists($cNames, 'is_published')) {
             //bbb(__METHOD__, $tName, $cNames);
             $is_publishedHead = file_get_contents(__DIR__ .
-                '/Stubs/Views/inc/edit_columns/is_publishedHead.stub');
+                '/Stubs/Views/inc/1/edit_columns/is_publishedHead.stub');
             $output = str_replace('{{is_publishedHead}}', $is_publishedHead, $output);
         } else {
             $output = str_replace('{{is_publishedHead}}', '', $output);
@@ -435,11 +488,11 @@ class MakeView
 
         if (Arr::exists($cNames, 'title')) {
             $title = file_get_contents(__DIR__ .
-                '/Stubs/Views/inc/edit_columns/title.stub');
+                '/Stubs/Views/inc/1/edit_columns/title.stub');
             $output = str_replace('{{title}}', $title, $output);
         } elseif (Arr::exists($cNames, 'name')) {
             $name = file_get_contents(__DIR__ .
-                '/Stubs/Views/inc/edit_columns/name.stub');
+                '/Stubs/Views/inc/1/edit_columns/name.stub');
             $output = str_replace('{{title}}', $name, $output);
         } else {
             $output = str_replace('{{title}}', '', $output);
@@ -447,22 +500,24 @@ class MakeView
         if (Arr::exists($cNames, 'content_row')) {
             //bbb(__METHOD__, $tName, $cNames);
             $content_row = file_get_contents(__DIR__ .
-                '/Stubs/Views/inc/edit_columns/content_row.stub');
+                '/Stubs/Views/inc/1/edit_columns/content_row.stub');
             $output = str_replace('{{content_row}}', $content_row, $output);
         } else {
             $output = str_replace('{{content_row}}', '', $output);
         }
         if (Arr::exists($belongsTo = $this->tables->getBelongsToKeys(), $tName)) {
             $arrBelongsTo = $this->tables->getBelongsToKeys();
-            $belongsToComment = '';
-            foreach ($arrBelongsTo[$tName]['belongsTo'] as $arKeyToTable) {
-                // bbb(__METHOD__, $tName, $arKeyToTable);
-                $var = Str::singular($arKeyToTable['to_table']);
-                $belongsTo = file_get_contents(__DIR__ .
-                    '/Stubs/Views/inc/edit_columns/belongsTo.stub');
-                $belongsTo = str_replace('{{modelBelongsTo}}', $var, $belongsTo);
-                $belongsTo = str_replace('{{BelongsToKey}}', $arKeyToTable['key'], $belongsTo);
 
+            foreach ($arrBelongsTo[$tName]['belongsTo'] as $arKeyToTable) {
+                // if($tName == 'auth_roles')bbb(__METHOD__, $tName, $arKeyToTable);//11111111111111
+                $var = ($arKeyToTable['to_table']);
+                $belongsTo = file_get_contents(__DIR__ .
+                    '/Stubs/Views/inc/1/edit_columns/belongsTo.stub');
+                $belongsTo = str_replace('{{modelBelongsTo}}', $var, $belongsTo);
+                $belongsTo = str_replace('{{BelongsToKey}}',
+                    (substr($arKeyToTable['key'], 0, strpos($arKeyToTable['key'], '_'))),
+                    $belongsTo);
+                // if($tName == 'auth_roles')dd('-------------------------------',__METHOD__, $tName, $arrBelongsTo[$tName]['belongsTo'] , $arrBelongsTo );
                 $output = str_replace('{{belongsTo}}', $belongsTo, $output);
             }
         } else {
@@ -473,7 +528,7 @@ class MakeView
         if (Arr::exists($cNames, 'slug')) {
             //bbb(__METHOD__, $tName, $cNames);
             $slug = file_get_contents(__DIR__ .
-                '/Stubs/Views/inc/edit_columns/slug.stub');
+                '/Stubs/Views/inc/1/edit_columns/slug.stub');
             $output = str_replace('{{slug}}', $slug, $output);
         } else {
             $output = str_replace('{{slug}}', '', $output);
@@ -481,7 +536,7 @@ class MakeView
         if (Arr::exists($cNames, 'is_slugChange') || true) {//11?? || true
             //bbb(__METHOD__, $tName, $cNames);
             $is_slugChange = file_get_contents(__DIR__ .
-                '/Stubs/Views/inc/edit_columns/is_slugChange.stub');
+                '/Stubs/Views/inc/1/edit_columns/is_slugChange.stub');
             $output = str_replace('{{is_slugChange}}', $is_slugChange, $output);
         } else {
             $output = str_replace('{{is_slugChange}}', '', $output);
@@ -491,7 +546,7 @@ class MakeView
         if (Arr::exists($cNames, 'excerpt')) {
             //bbb(__METHOD__, $tName, $cNames);
             $excerpt = file_get_contents(__DIR__ .
-                '/Stubs/Views/inc/edit_columns/excerpt.stub');
+                '/Stubs/Views/inc/1/edit_columns/excerpt.stub');
             $output = str_replace('{{excerpt}}', $excerpt, $output);
         } else {
             $output = str_replace('{{excerpt}}', '', $output);
@@ -500,7 +555,7 @@ class MakeView
         if (Arr::exists($cNames, 'is_published')) {
             //bbb(__METHOD__, $tName, $cNames);
             $is_published = file_get_contents(__DIR__ .
-                '/Stubs/Views/inc/edit_columns/is_published.stub');
+                '/Stubs/Views/inc/1/edit_columns/is_published.stub');
             $output = str_replace('{{is_published}}', $is_published, $output);
         } else {
             $output = str_replace('{{is_published}}', '', $output);

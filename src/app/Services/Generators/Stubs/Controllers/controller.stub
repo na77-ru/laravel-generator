@@ -6,19 +6,19 @@
 
 /**
  * Class {{ControllerClassName}}
- * @property {{RepositoryClassName}} ${{repositoryVar}}
+ * @property {{RepositoryClassName}} ${{thisRepoVar}}
  */
 class {{ControllerClassName}} extends {{BaseControllerClassName}}
 {
 
-    private ${{repositoryVar}}; // there may be zero or more declarations
+{{repositoryVars}}
 
 
     public function __construct()
     {
         parent::__construct();
 
-        $this->{{repositoryVar}} = app({{RepositoryClassName}}::class);
+{{writeRepositoryVarsInConstructor}}
     }
 
     /**
@@ -27,7 +27,7 @@ class {{ControllerClassName}} extends {{BaseControllerClassName}}
      */
     public function index()
     {
-        $paginator = $this->{{repositoryVar}}->getAllWithPaginate(config('admin.perPage'));
+        $paginator = $this->{{thisRepoVar}}->getAllWithPaginate(config('admin.perPage'));
 
         return view('{{views_directory}}.index', compact('paginator'));
     }
@@ -38,13 +38,12 @@ class {{ControllerClassName}} extends {{BaseControllerClassName}}
      */
     public function create()
     {
-        $item = $this->{{repositoryVar}}->makeModel();
+        $item = $this->{{thisRepoVar}}->makeModel();
 
-        //$categoryList = $this->{{repositoryVar}}->getFor{{ModelClass}}Select();
+{{ $lists of belongsToMany for create, edit from Repositories }}
 
         return view('{{views_directory}}.create',
-            //compact('item', 'categoryList'));
-            compact('item'));
+            {{ compact(...) }});
     }
 
     /**
@@ -54,7 +53,7 @@ class {{ControllerClassName}} extends {{BaseControllerClassName}}
     public function store({{ModelClassStoreRequest}} $request)
     {
         $data = $request->input();
-        $item = $this->{{repositoryVar}}->create($data);
+        $item = $this->{{thisRepoVar}}->create($data);
 
         if ($item) {
             return redirect()
@@ -88,12 +87,10 @@ class {{ControllerClassName}} extends {{BaseControllerClassName}}
      */
     public function edit($id)
     {
-        $item = $this->{{repositoryVar}}->getEdit($id);
-        //$categoryList = $this->{{repositoryVar}}->getFor{{ModelClass}}Select();
-        //dd(__METHOD__, $categoryList);
+        $item = $this->{{thisRepoVar}}->getEdit($id);
+{{ $lists of belongsToMany for create, edit from Repositories }}
         return view('{{views_directory}}.edit',
-            //compact('item', 'categoryList'));
-            compact('item'));
+            {{ compact(...) }});
     }
 
     /**
@@ -106,7 +103,7 @@ class {{ControllerClassName}} extends {{BaseControllerClassName}}
         /**@var {{ModelNameSpace}}\{{ModelClass}} $data */
         $data = $request->input();
 
-        $item = $this->{{repositoryVar}}->find($id);
+        $item = $this->{{thisRepoVar}}->find($id);
 
         if (empty($item)) {
             return back()
@@ -114,7 +111,7 @@ class {{ControllerClassName}} extends {{BaseControllerClassName}}
                 ->withInput();
         }
 
-        if ($this->{{repositoryVar}}->update($data, $id)) {
+        if ($this->{{thisRepoVar}}->update($data, $id)) {
             return redirect()
                 ->route("{{views_routes}}.index")
                 ->with([
@@ -136,7 +133,7 @@ class {{ControllerClassName}} extends {{BaseControllerClassName}}
      */
     public function destroy($id)
     {
-        $result = $this->{{repositoryVar}}->delete($id);
+        $result = $this->{{thisRepoVar}}->delete($id);
         if ($result) {
             return redirect()
                 ->route("{{views_routes}}.index")
@@ -153,7 +150,7 @@ class {{ControllerClassName}} extends {{BaseControllerClassName}}
 
     public function restore($id = null)
     {
-        $result = $this->{{repositoryVar}}->restore($id);
+        $result = $this->{{thisRepoVar}}->restore($id);
 
         if ($result) {
             return redirect()

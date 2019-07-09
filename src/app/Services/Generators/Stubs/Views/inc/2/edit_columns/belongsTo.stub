@@ -10,8 +10,8 @@
                  @foreach(${{modelBelongsTo}}List as ${{modelBelongsTo}}Option)
 
                      <option value="{{  ${{modelBelongsTo}}Option->id }}"
-                             @if(${{modelBelongsTo}}Option->id == old('{{BelongsToKey}}', $item->{{BelongsToKey}})) selected @endif>
-                         {{ old('id_title', ${{modelBelongsTo}}Option->id_title) }}
+                             @if(${{modelBelongsTo}}Option->id == old('{{BelongsToKey}}', $item->{{BelongsToKey}}->id)) selected @endif>
+                         {{ old('title', ${{modelBelongsTo}}Option->title) }}
                      </option>
                  @endforeach
              </select>

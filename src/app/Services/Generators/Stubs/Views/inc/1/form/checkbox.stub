@@ -1,0 +1,17 @@
+
+       
+                        @if($item->exists)
+                        <div class="form-group">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="hidden" name="{{name}}" value="0">
+                                    <input type="checkbox" value="1"
+                                           name="{{name}}"
+                                           required>
+                                    {{Name}}
+                                </label>
+                            </div>
+                        </div>  <br>
+                        @endif
+
+

@@ -1,4 +1,4 @@
-@extends('{{postfix}}.app')
+@extends('{{postfix.app}}')
 
 @section('content')
 @php /**@var {{ModelNameSpace}} $item */ @endphp
@@ -12,7 +12,7 @@
                 </div>
             </div>
         </div>
-        <br>
+
         <form method="POST" action="{{route_name_without_action_and_')}} }}.update', $item->id) }}">
             @method('PATCH')
             {{--    @method('PUT')--}}
@@ -24,14 +24,27 @@
 
             <div class="row justify-content-center">
                 <div class="col-md-8">
-                    @include('{{postfix}}.{{table_name}}.inc.edit_main_col')
+                    @include('{{postfix}}.{{table_name}}.inc.columns_for_edit')
+
+                    <div class="row justify-content-center">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-body">
+
+                                    <button type="submit" class="btn btn-success">{{__('Save')}}</button>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
                 <div class="col-md-4">
                     @include('{{postfix}}.{{table_name}}.inc.edit_add_col')
                 </div>
             </div>
         </form>
-        <br>
+
         @if($item->exists)
             <div class="row justify-content-center">
                 @if(!$item->deleted_at)

@@ -1,0 +1,12 @@
+
+    /**
+     * @param $model
+     * @param $input
+     */
+    protected function {{AttachFunctionName}}:void
+    {
+        ${{property}} = Arr::where($input['{{property}}'], function ($value) {
+            return $value > 0;
+        });
+        $model->{{property}}()->sync(${{property}});
+    }

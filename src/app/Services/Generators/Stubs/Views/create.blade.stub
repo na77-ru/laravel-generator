@@ -1,4 +1,4 @@
-@extends('{{postfix}}.app')
+@extends('{{postfix.app}}')
 {{-- !!!! to look package Former !!!!! --}}
 @section('content')
     <div class="container">
@@ -22,7 +22,7 @@
 
             <div class="row justify-content-center">
                 <div class="col-md-8">
-                    @include('{{postfix}}.{{table_name}}.inc.edit_main_col')
+                    @include('{{postfix}}.{{table_name}}.inc.columns_for_edit')
                 </div>
                 <div class="col-md-4">
                     @include('{{postfix}}.{{table_name}}.inc.edit_add_col')

@@ -1,4 +1,4 @@
-@extends('{{postfix}}.app')
+@extends('{{postfix.app}}')
 
 @section('content')
     <div class="container-fluid">
@@ -49,8 +49,6 @@
                             <thead>
                             <tr>
 {{<thead><td>}}
-
-
                             </tr>
                             </thead>
                             <tbody>
@@ -58,9 +56,6 @@
                                 @php /**@var {{ModelNameSpace}} $item */ @endphp
 
 {{<tr><td>}}
-{{--                                    <td>--}}
-{{--                                        @include('inc.form.relations', ['relations' => $item->roles])--}}
-{{--                                    </td>--}}
                             @endforeach
                             </tbody>
                         </table>

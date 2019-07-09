@@ -13,10 +13,12 @@ class MakeModel
 {
 
     protected $tablesNames = [];
-    protected $belongsToKeys = [];
 
     protected $alreadyMade = [];
     protected $realMade = [];
+
+    protected $belongsToKeys = [];
+    protected $belongsToMany = [];
 
     /**
      * MakeModel constructor.
@@ -26,6 +28,8 @@ class MakeModel
     {
         $this->tablesNames = $tables->getTablesNames();
         $this->belongsToKeys = $tables->getBelongsToKeys();
+
+        $this->belongsToMany = $tables->getBelongsToManyKeys();
         $this->writeModels();
         $this->writeBaseModel();
     }
@@ -84,33 +88,49 @@ class MakeModel
      * @param $table
      * @return string
      */
-    public function writeBelongsToMany($table)
+    public function writeBelongsToManyUse($tName, $str)
     {
-        $str = "";
+        if (!Arr::exists($this->belongsToMany, $tName))return '';
+        foreach ($this->belongsToMany[$tName] as $property => $arrBelongs) {
+            $str .= "use " . Helper::makeNameSpace('model') . "\\" . Helper::className($arrBelongs['to_table']) . ";\r\n";
+
+        }
+        return $str;
+    }
+
+    /**
+     * @param $table
+     * @return string
+     */
+    public function writeBelongsToManyFunc($tName, $str)
+    {
+        if (!Arr::exists($this->belongsToMany, $tName))return '';
+
         $strComment = "
     /**
      * @return \Illuminate\Database\Eloquent\Relations\belongsToMany
      **/\r\n";
 
 
-        $str .= $strComment;
-        $str .= "//    public function " . "users" . "()\r\n";
-        $str .= "//    {\r\n";
+        foreach ($this->belongsToMany[$tName] as $property => $arr) {
 
-        $str .= "//        return \$this->belongsToMany(";
-        $str .= "\r\n//User::class, ";
-        $str .= "\r\n//'auth_link_user_roles'";
-        $str .= "\r\n//'role_id'";
-        $str .= "\r\n//'id'";
-        $str .= "\r\n//'id'";
-        $str .= "\r\n//');\r\n";
+            $str .= $strComment;
+            $str .= "    public function " . $property . "()\r\n";
+            $str .= "    {\r\n";
 
-        $str .= "//    }\r\n";
+            $str .= "\t\treturn \$this->belongsToMany(";
+            $str .= "\r\n\t\t\t".$arr['related_class']."::class, ";
+            $str .= "\r\n\t\t\t'".$arr['pivot_table']."',";
+            $str .= "\r\n\t\t\t'".$arr['foreignPivotKey']."',";
+            $str .= "\r\n\t\t\t'".$arr['relatedPivotKey']."',";
+            $str .= "\r\n\t\t\t'id',";
+            $str .= "\r\n\t\t\t'id'";
+            $str .= "\r\n\t\t);\r\n";
+
+            $str .= "    }\r\n";
+        }
 
         return $str;
-
-
-        return "";
     }
 
     /**
@@ -130,6 +150,10 @@ class MakeModel
                 $this->realMade[] = $this->alreadyMade[] = $fullClassName;
                 $str = "<?php\r\nnamespace " . $nameSpace .
                     ";\r\n\r\n";
+
+//                if (Arr::exists($this->belongsToMany, $tName)) {
+//                    $str .= $this->writeBelongsToManyUse($tName, $str);
+//                }
 
                 $str .= "/**\r\n";
                 $str .= " * This is the model class for table \"{{%$tName}}\".\r\n *\r\n";
@@ -171,8 +195,8 @@ class MakeModel
 
                 $str .= $this->writeBelongsTo($tName);
 
-                $str .= $this->writeBelongsToMany($tName);
-
+                $str = $this->writeBelongsToManyFunc($tName, $str);
+                //dd(__METHOD__, $tName, $str);
                 $str .= "   /**
      * @return array
      */

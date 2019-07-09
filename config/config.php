@@ -39,10 +39,6 @@ return [
     'request' => [
         'namespace' => '\app\Http\Requests',
     ],
-    'generate_views' => true,
-    'view' => [
-        'namespace' => 'resources\views',
-    ],
 
     'generate_routes' => true,
 
@@ -51,4 +47,29 @@ return [
     ],
     'generate_providers' => true,
 
+    'generate_views' => true,
+    'view' => [
+        'namespace' => 'resources\views',
+    ],
+    'ignored_columns_in_edit_create_views' => [
+        'email_verification_token',
+        'remember_token',
+        'token',
+        'signup_ip_address',
+        'signup_confirmation_ip_address',
+        'signup_sm_ip_address',
+        'admin_ip_address',
+        'updated_ip_address',
+        'deleted_ip_address',
+        'users',
+        'users',
+        'users',
+        'users',
+        'users',
+        'users',
+        'users',
+        'users',
+        'users',
+        'users',
+    ],
 ];
