@@ -372,7 +372,7 @@ class " . $className = Helper::className($tName) . "Repository extends " . Helpe
 
         if (in_array('parent_id', $arr)) {
             $str .= "\r\n            ->where('can_be_parent', '=', '1')
-//            ->with('parent:id,title,') //11?? ошибка
+//            ->with(['parent:id,title,']) 
             ->with(['parent' => function (\$query) {
                 \$query->select(['id', 'title']);
             }])";
@@ -773,12 +773,8 @@ abstract class " . Helper::BaseClassName() . "Repository" . "
 
         \$model = \$query->findOrFail(\$id);
 
-//        dd(__METHOD__,
-//            \$model->updated_at,
-//            \$input);//11??
-
         \$model->fill(\$input);
-       // dd(__METHOD__, \$model);//11??
+
         return \$model->save();
 
     }

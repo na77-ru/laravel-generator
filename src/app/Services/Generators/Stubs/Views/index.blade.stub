@@ -12,7 +12,8 @@
             </div>
         </div>
         <br>
-        @include('inc.msg')
+                @include('inc.msg')
+                @include('inc.errors')
 
         <div class="row justify-content-center">
             <div class="col-md-12">

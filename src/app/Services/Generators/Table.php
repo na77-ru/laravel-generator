@@ -376,7 +376,7 @@ class Table
 
         $only_this_table = config('alex-claimer-generator.config.only_this_table');
 
-        $not_with_link_tables = config('alex-claimer-generator.config.not_with_link_tables');
+        $without_link_tables = config('alex-claimer-generator.config.without_link_tables');
 
         if ($only_this_table) {
             $tables = $only_this_table;
@@ -391,7 +391,7 @@ class Table
                 if (
                     !in_array($t_name, $this->ignoredTables) &&
                     !in_array(substr($t_name, strpos($t_name, '_') + 1), $this->ignoredTables) &&
-                    !($not_with_link_tables && strpos($t_name, '_link_'))
+                    !($without_link_tables && strpos($t_name, '_link_'))
                 ) {
 //                    if (strpos($t_name, 'reset'))
 //                    dd(__METHOD__, substr($t_name, strpos($t_name, '_')+1));

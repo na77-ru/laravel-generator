@@ -1,14 +1,11 @@
+        $methods = ['index', 'edit', 'update', 'create', 'store', 'destroy'];
 
-// >> {{ModelClassName}}
-    $methods = ['index', 'edit', 'update', 'create', 'store', 'destroy'];
+        Route::resource('/{{make_views_routes_url}}', '{{ControllerClassName}}')
+            ->only($methods)
+            ->names('{{make_views_routes_name}}');
 
-    Route::resource('/{{make_views_routes_url}}', '{{ControllerClassName}}')
-        ->only($methods)
-        ->names('{{make_views_routes_name}}');
+        Route::patch('/{{make_views_routes_url}}/restore/all', '{{ControllerClassName}}@restore')
+            ->name('{{make_views_routes_name}}.restore_all');
 
-    Route::patch('/{{make_views_routes_url}}/restore/all', '{{ControllerClassName}}@restore')
-        ->name('{{make_views_routes_name}}.restore_all');
-
-    Route::patch('/{{make_views_routes_url}}/restore/{id}', '{{ControllerClassName}}@restore')
-        ->name('{{make_views_routes_name}}.restore');
-// << {{ModelClassName}} END
+        Route::patch('/{{make_views_routes_url}}/restore/{id}', '{{ControllerClassName}}@restore')
+            ->name('{{make_views_routes_name}}.restore');
