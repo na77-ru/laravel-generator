@@ -26,9 +26,9 @@ class MakeModel
      */
     public function __construct(Table $tables)
     {
+       // dd(__METHOD__);
         $this->tablesNames = $tables->getTablesNames();
         $this->belongsToKeys = $tables->getBelongsToKeys();
-
         $this->belongsToMany = $tables->getBelongsToManyKeys();
         $this->writeModels();
         $this->writeBaseModel();
@@ -141,7 +141,9 @@ class MakeModel
         $str = "";
 
         $arrAlreadyMade = config('alex-claimer-generator.already_made.models');
+        //dd(__METHOD__, $this->tablesNames,$arrAlreadyMade);
         foreach ($this->tablesNames as $tName => $cNames) {
+
             $className = Helper::className($tName);
             $nameSpace = Helper::makeNameSpace('model');
             $fullClassName = $nameSpace . "\\" . $className;
