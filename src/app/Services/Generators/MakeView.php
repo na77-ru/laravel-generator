@@ -44,9 +44,12 @@ class MakeView
 
     protected function writeViews()
     {
+
         //$this->writeIndexBlade();
         $this->writeEditBlade();
         $this->writeCreateBlade();
+
+        $this->copyRoles();
 
         foreach ($this->tablesNames as $tName => $cNames) {
             $bladeName = "inc/columns_for_edit.blade";
@@ -65,10 +68,34 @@ class MakeView
         $this->writeLayout();
         $this->writeInc();
 
+
         $this->writeAlreadyMade(); //uncomment//11
         //dd(__METHOD__);
     }
 
+    /**
+     * @return bool
+     */
+    protected function copyRoles()
+    {
+        $success = false;
+        if ($this->notExist('Copy-Views', 'Roles')) {
+
+            $target = Helper::makeFileDirName('view', 'index', 'auth_roles');
+            $target = substr($target, 0, strpos($target, '\\\\'));
+
+            // dd(__METHOD__, $target);
+
+            $success = \File::copyDirectory(__DIR__ . '/Stubs/Views/auth_roles', $target);
+
+            if ($success) {
+                $this->setAlreadyMadeViews('Copy-Views', 'Roles');
+            }
+
+
+        }
+        return $success;
+    }
 
     protected function writeInc_AddBlade()
     {
@@ -93,22 +120,163 @@ class MakeView
     protected function writeLayout()
     {
         $success = false;
-        $postfix = lcfirst(config('alex-claimer-generator.config.namespace_postfix'));
-        $postfix = substr($postfix, 0, strpos($postfix, '\\')) . '/';
-        View::getPostfixPrefix($postfix, $prefix);
-        if($postfix !== ""){
-            $postfix .= "/";
-        }
-        $inViewDir = $postfix . 'app.blade.php';
-       // dd(__METHOD__, $inViewDir);
-        if ($this->notExist('app', $inViewDir)) {
-            $success = \File::copy(
-                __DIR__ . ('/../../../../resources/views/layouts/app.blade.php'),
-                base_path('/resources/views/' . $inViewDir)
-            );
-            $this->setAlreadyMadeApp('app', $inViewDir);
+
+        $pathFileNameForApp = $this->getPathFileNameForApp('/');
+
+        if ($this->notExist('resources/views', $pathFileNameForApp)) {
+
+            $output = file_get_contents(__DIR__ . '/Stubs/Views/app/app.stub');
+
+            $js = "{{ mix('" . View::getFullPathNameASSETsInBlade('js') . "') }}";
+            $css = "{{ mix('" . View::getFullPathNameASSETsInBlade('css') . "') }}";
+
+            $output = str_replace('{{ app.js for change }}', $js, $output);
+            $output = str_replace('{{ app.css for change }}', $css, $output);
+            $output = str_replace('{{---}}', '<!--   Styles   -->', $output);
+
+            $success = file_put_contents(base_path('/resources/views/' . $pathFileNameForApp), $output);
+
+            $this->setAlreadyMadeApp('resources/views', $pathFileNameForApp);
         }
 
+        $success1 = $this->writeJS();
+        $success2 = $this->writeCSS();
+        $success3 = $this->writeMix();
+
+
+        return $success && $success1 && $success2 && $success3;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function writeJS()
+    {
+        $success1 = false;
+        $success2 = false;
+        $success3 = false;
+
+        $jsFullPathName = View::getFullPathNameASSETsInBlade('js');
+
+        if ($this->notExist('resources/assets/', $jsFullPathName)) {
+
+
+            Helper::makeFileDirName('', View::getFullPathNameASSETsResource('js'));
+            $success1 = \File::copy(
+                __DIR__ . ('/../../../../resources/views/assets/resource/js.js'),
+                base_path() . '/' . View::getFullPathNameASSETsResource('js')
+            );
+
+            $this->setAlreadyMadeApp('resources/assets/', View::getFullPathNameASSETsInBlade('js'));
+
+        }
+
+
+        $jsFullPathName = View::getFullPathNameASSETsInBlade('bootstrap');
+
+        if ($this->notExist('resources/assets/', $jsFullPathName)) {
+
+            Helper::makeFileDirName('', View::getFullPathNameASSETsPublic('js'));
+            $success2 = \File::copy(
+                __DIR__ . ('/../../../../resources/views/assets/resource/bootstrap.js'),
+                base_path() . '/' . View::getFullPathNameASSETsPublic('bootstrap')
+            );
+            $this->setAlreadyMadeApp('resources/assets/', View::getFullPathNameASSETsInBlade('bootstrap'));
+        }
+
+
+        $jsFullPathName = View::getFullPathNameASSETsInBlade('js');
+
+        if ($this->notExist('public/', $jsFullPathName)) {
+
+            Helper::makeFileDirName('', View::getFullPathNameASSETsPublic('js'));
+            $success3 = \File::copy(
+                __DIR__ . ('/../../../../resources/views/assets/public/js.js'),
+                base_path() . '/' . View::getFullPathNameASSETsPublic('js')
+            );
+            $this->setAlreadyMadeApp('public/', View::getFullPathNameASSETsInBlade('js'));
+
+        }
+        return $success1 && $success2 && $success3;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function writeCSS()
+    {
+        $success1 = false;
+        $success2 = false;
+        $success3 = false;
+
+        $jsFullPathName = View::getFullPathNameASSETsInBlade('scss');
+
+        if ($this->notExist('resources/assets/', $jsFullPathName)) {
+            Helper::makeFileDirName('', View::getFullPathNameASSETsResource('scss'));
+            $success1 = \File::copy(
+                __DIR__ . ('/../../../../resources/views/assets/resource/scss.scss'),
+                base_path('/' . View::getFullPathNameASSETsResource('scss'))
+            );
+            $this->setAlreadyMadeApp('resources/assets/', $jsFullPathName);
+        }
+
+
+        $jsFullPathName = View::getFullPathNameASSETsInBlade('css');
+
+        if ($this->notExist('public/', $jsFullPathName)) {
+
+            Helper::makeFileDirName('', View::getFullPathNameASSETsPublic('css'));
+            $success2 = \File::copy(
+                __DIR__ . ('/../../../../resources/views/assets/public/css.css'),
+                base_path('/' . View::getFullPathNameASSETsPublic('css'))
+            );
+            $this->setAlreadyMadeApp('public/', $jsFullPathName);
+        }
+
+
+        $jsFullPathName = View::getFullPathNameASSETsInBlade('variables');
+
+        if ($this->notExist('resources/assets/', $jsFullPathName)) {
+
+            $success3 = \File::copy(
+                __DIR__ . ('/../../../../resources/views/assets/resource/_variables.scss'),
+                base_path('/' . View::getFullPathNameASSETsResource('variables'))
+            );
+            $this->setAlreadyMadeApp('resources/assets/', $jsFullPathName);
+        }
+        return $success1 && $success2 && $success3;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function writeMix()
+    {
+        $success = false;
+
+        if ($this->notExist('/', 'webpack.mix.stub')) {
+
+            $output = file_get_contents(__DIR__ . ('/../../../../resources/views/assets/resource/webpack.mix.stub'));
+
+
+            $jsResource = View::getFullPathNameASSETsResource('js');
+            $jsPublic = View::getFullPathNameASSETsPublic('js');
+
+            $scssResource = View::getFullPathNameASSETsResource('scss');
+            $cssPublic = View::getFullPathNameASSETsPublic('css');
+
+
+            $output = str_replace('{{resources_js}}', $jsResource, $output);
+            $output = str_replace('{{public_js}}', $jsPublic, $output);
+
+            $output = str_replace('{{resources_scss}}', $scssResource, $output);
+            $output = str_replace('{{public_css}}', $cssPublic, $output);
+            $output = str_replace('\\', '/', $output);
+
+            $success = file_put_contents(base_path() . '/webpack.mix.stub', $output);
+
+            $this->setAlreadyMadeApp('/', 'webpack.mix.stub');
+        }
         return $success;
     }
 
@@ -124,15 +292,15 @@ class MakeView
         }
         $success = false;
         $inViewDir = 'inc/form/relations.blade.php';
-        if ($this->notExist('app', $inViewDir)) {
+        if ($this->notExist('resources/views/', $inViewDir)) {
             $success = \File::copy(
                 __DIR__ . '/Stubs/Views/app/' . $inViewDir,
                 base_path('/resources/views/' . $inViewDir)
             );
-            $this->setAlreadyMadeApp('app', $inViewDir);
+            $this->setAlreadyMadeApp('resources/views/', $inViewDir);
         }
         $inViewDir = 'inc/form/select_relations.blade.php';
-        if ($this->notExist('app', $inViewDir)) {
+        if ($this->notExist('resources/views/', $inViewDir)) {
             $postfix = lcfirst(config('alex-claimer-generator.config.namespace_postfix'));
 
             $postfix = substr($postfix, 0, strpos($postfix, '\\')) . '/';
@@ -142,10 +310,10 @@ class MakeView
                 __DIR__ . '/Stubs/Views/app/' . $inViewDir,
                 base_path('/resources/views/' . $inViewDir)
             );
-            $this->setAlreadyMadeApp('app', $inViewDir);
+            $this->setAlreadyMadeApp('resources/views/', $inViewDir);
         }
         $inViewDir = 'inc/msg.blade.php';
-        if ($this->notExist('app', $inViewDir)) {
+        if ($this->notExist('resources/views/', $inViewDir)) {
             $postfix = lcfirst(config('alex-claimer-generator.config.namespace_postfix'));
 
             $postfix = substr($postfix, 0, strpos($postfix, '\\')) . '/';
@@ -155,10 +323,10 @@ class MakeView
                 __DIR__ . '/Stubs/Views/app/' . $inViewDir,
                 base_path('/resources/views/' . $inViewDir)
             );
-            $this->setAlreadyMadeApp('app', $inViewDir);
+            $this->setAlreadyMadeApp('resources/views/', $inViewDir);
         }
         $inViewDir = 'inc/errors.blade.php';
-        if ($this->notExist('app', $inViewDir)) {
+        if ($this->notExist('resources/views/', $inViewDir)) {
             $postfix = lcfirst(config('alex-claimer-generator.config.namespace_postfix'));
 
             $postfix = substr($postfix, 0, strpos($postfix, '\\')) . '/';
@@ -168,7 +336,7 @@ class MakeView
                 __DIR__ . '/Stubs/Views/app/' . $inViewDir,
                 base_path('/resources/views/' . $inViewDir)
             );
-            $this->setAlreadyMadeApp('app', $inViewDir);
+            $this->setAlreadyMadeApp('resources/views/', $inViewDir);
         }
 
     }
@@ -176,7 +344,7 @@ class MakeView
     protected function writeMenu()
     {
         $success = false;
-        if ($this->notExist('app', 'app.blade')) {
+        if ($this->notExist('resources/views/', 'app.blade')) {
             $postfix = lcfirst(config('alex-claimer-generator.config.namespace_postfix')) . '/';
 
             $success = \File::copy(
@@ -184,7 +352,7 @@ class MakeView
                 __DIR__ . ('/../../../../resources/views/layouts/app.blade.php'),
                 base_path('/resources/views/' . $postfix . 'app.blade.php')
             );
-            $this->setAlreadyMadeApp('app', $postfix . 'app.blade');
+            $this->setAlreadyMadeApp('resources/views/', $postfix . 'app.blade');
         }
         //dd(__METHOD__, $success);
         return $success;
@@ -195,7 +363,7 @@ class MakeView
         $postfix = lcfirst(config('alex-claimer-generator.config.namespace_postfix'));
         // dd(__METHOD__, $postfix);
         if ($this->notExist($tName, $bladeName)) {
-            $this->viewsAlreadyMade[$tName][] = $this->alreadyMade[$tName][] = Helper::makeNameSpaceForView($tName, $bladeName);
+            $this->viewsAlreadyMade[$tName][] = $this->alreadyMade[$tName][] = View::makeNameSpaceForView($tName, $bladeName);
         }
     }
 
@@ -213,28 +381,50 @@ class MakeView
         if (empty($this->viewsAlreadyMade)) {
             $this->viewsAlreadyMade = config('alex-claimer-generator.already_made_views.views');
         }
-//        if ($tName == 'app'){
+//        if ($tName == 'resources/views/'){
 //            dd(__METHOD__,
 //                empty($this->viewsAlreadyMade),
 //                $this->viewsAlreadyMade,
-//                Helper::makeNameSpaceForView($tName, $bladeName),
+//                View::makeNameSpaceForView($tName, $bladeName),
 //                !Arr::exists($this->viewsAlreadyMade, $tName),
-//                Helper::makeNameSpaceForView($tName, $bladeName),
+//                View::makeNameSpaceForView($tName, $bladeName),
 //                $this->viewsAlreadyMade[$tName],
-//                !in_array(Helper::makeNameSpaceForView($tName, $bladeName), $this->viewsAlreadyMade[$tName])
+//                !in_array(View::makeNameSpaceForView($tName, $bladeName), $this->viewsAlreadyMade[$tName])
 //            );
 //        }
 
         return (empty($this->viewsAlreadyMade)
             || !Arr::exists($this->viewsAlreadyMade, $tName)
             || (
-                !in_array(Helper::makeNameSpaceForView($tName, $bladeName), $this->viewsAlreadyMade[$tName])
+                !in_array(View::makeNameSpaceForView($tName, $bladeName), $this->viewsAlreadyMade[$tName])
                 &&
                 !in_array($bladeName, $this->viewsAlreadyMade[$tName])
             )
         );
     }
 
+    protected function getPathFileNameForApp($type = '.')
+    {
+        // $type = '.' or '/'
+        $postfix = lcfirst(config('alex-claimer-generator.config.namespace_postfix'));
+
+        if (empty($postfix)) {
+            return 'app';
+        } else {
+            if ($pos = strpos($postfix, '\\'))
+                $prefix = substr($postfix, 0, $pos);
+            else $prefix = $postfix;
+        }
+        if ($type == '.') {
+
+            return str_replace('/', '.', str_replace('\\', '/', lcfirst($prefix)) . '.app');
+
+        } elseif ($type == '/') {
+
+            return str_replace('\\', '/', lcfirst($prefix) . '/app.blade.php');
+        }
+
+    }
 
     protected function strings_replace($tName, $cNames, $stub)
     {
@@ -243,15 +433,11 @@ class MakeView
 
         if (empty($postfix)) {
             $output = str_replace('{{postfix}}', '', $output);
-            $output = str_replace('{{postfix.app}}', 'app', $output);
         } else {
-            if ($pos = strpos($postfix, '\\'))
-                $prefix = substr($postfix, 0, $pos);
-            else $prefix = $postfix;
-            //dd(__METHOD__, lcfirst($prefix));
             $output = str_replace('{{postfix}}', Route::make_routes_prefix(), $output);
-            $output = str_replace('{{postfix.app}}', lcfirst($prefix) . '.app', $output);
         }
+
+        $output = str_replace('{{dir.app}}', $this->getPathFileNameForApp(), $output);
 
         $output = str_replace('{{route_name_without_action_and_\')}} }}', '{{route(\'' . Route::make_routes_name($tName) . '', $output);
         $output = str_replace('{{postfix/}}', $postfix . '/', $output);

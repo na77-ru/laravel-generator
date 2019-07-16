@@ -21,6 +21,10 @@ class Main
     {
         $tableObj = new Table();
 
+        if (config('alex-claimer-generator.config.generate_middleware')) {
+            $this->setAlreadyMade(new MakeMiddleWare($tableObj), 'middleware');
+        }else{$this->getAlreadyMadeFromConfig('middleware');}
+
         if (config('alex-claimer-generator.config.generate_models')) {
             $this->setAlreadyMade(new MakeModel($tableObj), 'models');
         }else{$this->getAlreadyMadeFromConfig('models');}

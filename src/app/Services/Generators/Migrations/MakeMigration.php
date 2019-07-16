@@ -194,7 +194,7 @@ class MakeMigration
 
     protected function getPivotTableName($param)
     {
-        return $param['prefix'] . 'link_' . Str::singular($param['short_name_1']) . '_' . $param['short_name_2'];
+        return $param['prefix'] . 'pivot_' . Str::singular($param['short_name_1']) . '_' . $param['short_name_2'];
     }
 
     /**

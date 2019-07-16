@@ -64,7 +64,7 @@ class MakeController
             if ($columnName === 'title') return "['id', 'title']";
         }
         foreach ($this->tablesNames[$tName] as $columnName => $val) {
-            if ($columnName === 'slug') return "['id', 'title']";
+            if ($columnName === 'slug') return "['id', 'slug']";
         }
         return ['id'];
     }
@@ -76,19 +76,21 @@ class MakeController
     public function writeBelongsToManyListForCreate($tName)
     {
         if (!Arr::exists($this->uniqueRelations, $tName)) return '';
-        //dd(__METHOD__, $tName, $this->tablesNames[$tName]);
-//        $columns = $this->getColumnsForManyListForCreate($tName);
+
         $str = "";
         foreach ($this->uniqueRelations[$tName] as $property => $arrBelongs) {
-//           if($property == 'group' && $tName == 'auth_roles')
-//               dd(__METHOD__, $property, $tName, $columns, $arrBelongs['to_table']);
+
             $columns = $this->getColumnsForManyListForCreate($arrBelongs['to_table']);
+
+            //if ($tName == 'auth_roles') bbb($columns, $property);///comment
+
             $str .= "\t\t\$" . $arrBelongs['to_table'] .
                 "List = \$this->" .
                 lcfirst(Helper::className($arrBelongs['to_table'], 'Repository')) .
                 "->getForSelect(" . $columns . ");\r\n";
-            //dd(__METHOD__, $str);
         }
+
+        //if ($tName == 'auth_roles') dd(__METHOD__, $tName);///comment
 
         return $str;
     }
@@ -119,9 +121,17 @@ class MakeController
      */
     public function writeBelongsToManyUse($tName, $str)
     {
+        $str .= "use " . Helper::makeNameSpace('repository') . "\\" .
+            Helper::className($tName, 'Repository') . ";\r\n";
+
+
         if (!Arr::exists($this->uniqueRelations, $tName)) return '';
         foreach ($this->uniqueRelations[$tName] as $property => $arrBelongs) {
-            $str .= "use " . Helper::makeNameSpace('repository') . "\\" . Helper::className($arrBelongs['to_table'], 'Repository') . ";\r\n";
+            if ($tName !== $arrBelongs['to_table']) {
+                $str .= "use " . Helper::makeNameSpace('repository') . "\\" .
+                    Helper::className($arrBelongs['to_table'], 'Repository') . ";\r\n";
+            }
+
 
         }
         return $str;
@@ -132,7 +142,9 @@ class MakeController
         if (!Arr::exists($this->uniqueRelations, $tName)) return '';
         $str = "\tprivate \$" . lcfirst(Helper::className($tName, 'Repository')) . ";\r\n";
         foreach ($this->uniqueRelations[$tName] as $property => $arrBelongs) {
-            $str .= "\tprivate \$" . lcfirst(Helper::className($arrBelongs['to_table'], 'Repository')) . ";\r\n";
+            if ($tName !== $arrBelongs['to_table']) {
+                $str .= "\tprivate \$" . lcfirst(Helper::className($arrBelongs['to_table'], 'Repository')) . ";\r\n";
+            }
         }
         return $str;
     }
@@ -142,7 +154,9 @@ class MakeController
         if (!Arr::exists($this->uniqueRelations, $tName)) return '';
         $str = "\t\t\$this->" . lcfirst(Helper::className($tName, 'Repository')) . " = app(" . Helper::className($tName, 'Repository') . "::class);\r\n";
         foreach ($this->uniqueRelations[$tName] as $property => $arrBelongs) {
-            $str .= "\t\t\$this->" . lcfirst(Helper::className($arrBelongs['to_table'], 'Repository')) . " = app(" . Helper::className($arrBelongs['to_table'], 'Repository') . "::class);\r\n";
+            if ($tName !== $arrBelongs['to_table']) {
+                $str .= "\t\t\$this->" . lcfirst(Helper::className($arrBelongs['to_table'], 'Repository')) . " = app(" . Helper::className($arrBelongs['to_table'], 'Repository') . "::class);\r\n";
+            }
         }
         return $str;
     }
@@ -189,16 +203,20 @@ class MakeController
 
         $str_use = '';
         $classNameRequest = Helper::className($tName, "StoreRequest");
-        $classNameRepository = Helper::className($tName, "Repository");
-
         $NameSpaceRequest = Helper::makeNameSpace('request');
-        $NameSpaceRepository = Helper::makeNameSpace('repository');
 
-        $str_use .= "use " . Helper::makeNameSpace('model') . '\\' . $className = Helper::className($tName) . " as Model;\r\n";
+        //??$str_use .= "use " . Helper::makeNameSpace('model') . '\\' . $className = Helper::className($tName) . " as Model;\r\n";
         $str_use .= "use " . $NameSpaceRequest . "\\" . $classNameRequest . ";\r\n";
-        $str_use .= "use " . $NameSpaceRepository . "\\" . $classNameRepository . ";\r\n";
+
         $str_use = $this->writeBelongsToManyUse($tName, $str_use);
         $output = str_replace('{{use}}', $str_use, $output);
+
+        $output = str_replace('{{repositoryVars}}',
+            $this->writeRepositoryVars($tName),
+            $output);
+        $output = str_replace('{{writeRepositoryVarsInConstructor}}',
+            $this->writeRepositoryVarsInConstructor($tName),
+            $output);
 
         $output = str_replace(
             '{{ $lists of belongsToMany for create, edit from Repositories }}',
@@ -223,12 +241,6 @@ class MakeController
             $output);
         $output = str_replace('{{thisRepoVar}}',
             lcfirst(Helper::className($tName, 'Repository')),
-            $output);
-        $output = str_replace('{{repositoryVars}}',
-            $this->writeRepositoryVars($tName),
-            $output);
-        $output = str_replace('{{writeRepositoryVarsInConstructor}}',
-            $this->writeRepositoryVarsInConstructor($tName),
             $output);
 
 

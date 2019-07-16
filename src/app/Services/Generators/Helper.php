@@ -46,23 +46,6 @@ class Helper
         return $str;
     }
 
-    /**
-     * @param $type
-     * @return bool|string
-     */
-    public static function makeNameSpaceForView($tName, $bladeName)
-    {
-        $postfix = config('alex-claimer-generator.config.namespace_postfix');
-        if (trim($postfix) !== '') $postfix .= '\\';
-
-        $str = '\\' . $postfix;
-
-        $str = strtolower($str);
-
-        $str .= $tName . '.' . $bladeName;
-
-        return $str;
-    }
 
     /**
      * @param $type
@@ -95,7 +78,7 @@ class Helper
     {
 
         $postfix = config('alex-claimer-generator.config.namespace_postfix');
-        if ($type === 'package') $postfix = '';
+        if ($type === 'package' || $type == '') $postfix = '';
         if ($viewTableName !== '') {
             $postfix = lcfirst($postfix);
         }
@@ -114,23 +97,25 @@ class Helper
         return $dirName . "\\" . $ClassName . '.php';
     }
 
-    protected static function filterDirNameClassName(&$dirName, &$ClassName)
+    public static function filterDirNameClassName(&$dirName, &$ClassName)
     {
 
-        while ($pos = strpos($ClassName, '/')) {
-
-            $dirName = $dirName . "\\" . substr($ClassName, 0, $pos);
-            $ClassName = substr($ClassName, $pos + 1);
-
-            //dd(__METHOD__, $dirName, $ClassName);
+        if (strpos(' '.$ClassName, '\\')) {
+            $ClassName = str_replace('\\', '/', $ClassName);
         }
+        while ($pos = strpos(' '.$ClassName, '/')) {
+
+            $dirName = $dirName . "\\" . substr($ClassName, 0, $pos-1);
+            $ClassName = substr($ClassName, $pos);
+        }
+
     }
 
     /**
      * @param $dirName
      * @return string
      */
-    protected static function checkAndMakeDir($dirNameBegin)
+    public static function checkAndMakeDir($dirNameBegin)
     {
         $arDirName = explode('\\', $dirNameBegin);
         $newDirName = '';

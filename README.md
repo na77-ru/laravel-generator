@@ -26,17 +26,17 @@ or
 **posts_comments** - create migrations for 'posts' and 'comments' tables;
 
 **posts__comments** - create migrations for 'posts' , 'comments' and
-pivot 'link_post_comments' tables;
+pivot 'pivot_post_comments' tables;
 
 
-**posts___comments** - create migration only for pivot 'link_post_comments' table;
+**posts___comments** - create migration only for pivot 'pivot_post_comments' table;
 
 
 
 **posts_prefix_test** - create migration for 'test_posts' table;
 
 **posts__comments_prefix_test** - create migrations for 'test_posts' , 'test_comments' and
-                              pivot 'test_link_post_comments' tables;
+                              pivot 'test_pivot_post_comments' tables;
                                                             
 pivot with columns:
   

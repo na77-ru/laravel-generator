@@ -9,8 +9,11 @@ use Illuminate\Support\Str;
 
 class Table
 {
+    protected $ignoredTables = [];
+
     protected $tablesNames = [];
     protected $tablesNamesData = [];
+
 //"table_name" => array:5 [▼
 //  "id" => array:8 [▼
 //      "Field" => "id"
@@ -23,37 +26,16 @@ class Table
 //      "request_required" => "required|" or ""
 //      "unique" => "unique" or ""
 
-    /**
-     * @return array
-     */
-    public function getTablesNamesData(): array
-    {
-        return $this->tablesNamesData;
-    }
+
     protected $allTablesNames = [];
     protected $belongsToKeys = [];
-    protected $ignoredTables = [];
+
     protected $belongsToMany = [];
+    protected $hasMany = [];
+
+
     protected $allRelations = [];
-
-    /**
-     * @return array|void
-     */
-    public function getAllRelations()
-    {
-        return $this->allRelations;
-    }
-
-    /**
-     * @return array|void
-     */
-    public function getUniqueRelations()
-    {
-        return $this->uniqueRelations;
-    }
-
     protected $uniqueRelations = [];
-
 
     public function __construct()
     {
@@ -67,10 +49,25 @@ class Table
         $this->belongsToKeys = $this->findBelongsToNames($tables, $allTables);
         $this->setBelongsToMany();
 
+        $this->setHasMany();
+
         $this->setAllRelations();
 
+//        dd(__METHOD__,
+//            'ignoredTables', $this->ignoredTables,
+//            'tablesNames', $this->tablesNames,
+//            'tablesNamesData', $this->tablesNamesData,
+//            'allTablesNames', $this->allTablesNames,
+//            'belongsToKeys', $this->belongsToKeys,
+//            'belongsToMany', $this->belongsToMany,
+//            'hasMany', $this->hasMany,
+//            'allRelations', $this->allRelations,
+//            'uniqueRelations', $this->uniqueRelations,
+//            'END END END END END END END END END END END '
+//        );
 
     }
+
 
     public function getPropertyNameFromRelTab($toTableName)
     {
@@ -142,48 +139,97 @@ class Table
         // dd(__METHOD__, $allRelations['auth_roles'], $this->allRelations['auth_roles'], $allRelations);
     }
 
+    protected function setHasMany()
+    {
+        $relativeTables = [];
+        foreach ($this->allTablesNames as $tName => $arrColumns) {
+
+            foreach ($arrColumns as $columnName => $arrColumnData) {
+                //dd(__METHOD__, $tName, $arrFields, strpos(' ' . $columnName, '_id'));
+                if (strpos($columnName, '_id')) {
+
+                    if ($pos = strpos($this->findTableNameByPivotColumn($columnName), '_'))
+                        $hasManyProperty = substr($this->findTableNameByPivotColumn($columnName), $pos + 1);
+                    else {
+                        $hasManyProperty = $this->findTableNameByPivotColumn($columnName);
+                    }
+
+                    if ($relativeTableName = $this->findTableNameByPivotColumn($columnName)) {
+                        if ($this->haveToMake($relativeTableName)) {
+                            $relativeTables[$relativeTableName] [$hasManyProperty] ['pivot_table'] = $tName;
+                            $relativeTables[$relativeTableName] [$hasManyProperty] ['to_table'] = $relativeTableName;
+                            $relativeTables[$relativeTableName] [$hasManyProperty] ['related_class'] = Helper::className($relativeTableName);
+                            $relativeTables[$relativeTableName] [$hasManyProperty] ['relatedPivotKey'] = $columnName;
+                            $relativeTables[$relativeTableName] [$hasManyProperty]['foreignPivotKey'] = $arrColumnData['name'];
+
+                        }
+
+                    }
+
+                }
+            }
+
+        }
+        $this->hasMany = $relativeTables;
+        return $relativeTables;
+    }
+
     protected function setBelongsToMany()
     {
-        $linkTables = [];
-        foreach ($this->allTablesNames as $tName => $arrFields) {
-            if (strpos(' ' . $tName, 'link_')) {
 
-                foreach ($arrFields as $columnName => $arrColumnData) {
-                    //dd(__METHOD__, $tName, $arrFields, strpos(' ' . $columnName, '_id'));
-                    if (strpos(' ' . $columnName, '_id')) {
-                        foreach ($this->allTablesNames[$tName] as $column => $arrData) {
-                            if (strpos(' ' . $column, '_id') && $column != $columnName) {
-                                if ($pos = strpos($this->findTableNameByPivotColumn($column), '_'))
-                                    $belongsToManyProperty = substr($this->findTableNameByPivotColumn($column), $pos + 1);
-                                else {
-                                    $belongsToManyProperty = $this->findTableNameByPivotColumn($column);
+        $pivotTables = [];
+        foreach ($this->allTablesNames as $pivotName => $pivotColumns) {
+            if (strpos(' ' . $pivotName, 'pivot_') || strpos(' ' . $pivotName, 'link_')) {
+
+                foreach ($pivotColumns as $relPivotColumnName => $relPivotColumnData) {
+                    //dd(__METHOD__, $pivotName, $pivotColumns, strpos(' ' . $relPivotColumnName, '_id'));
+                    if (strpos(' ' . $relPivotColumnName, '_id')) {
+                        foreach ($this->allTablesNames[$pivotName] as $foreignPivotColumnName => $arrData) {
+                            if (strpos(' ' . $foreignPivotColumnName, '_id')) {
+
+                                $relativeTableName = $this->findTableNameByPivotColumn($relPivotColumnName);
+                                $foreignTableName = $this->findTableNameByPivotColumn($foreignPivotColumnName);
+
+                                if (strpos(' ' . $foreignPivotColumnName, '_id') && $foreignPivotColumnName != $relPivotColumnName) {
+                                    if ($pos = strpos($foreignTableName, '_'))
+                                        $belongsToManyProperty = substr($foreignTableName, $pos + 1);
+                                    else {
+                                        $belongsToManyProperty = $foreignTableName;
+                                    }
+                                    if ($this->haveToMake($relativeTableName)) {
+                                        $pivotTables[$relativeTableName] [$belongsToManyProperty] ['pivot_table'] = $pivotName;
+                                        $pivotTables[$relativeTableName] [$belongsToManyProperty] ['to_table'] = $foreignTableName;
+                                        $pivotTables[$relativeTableName] [$belongsToManyProperty] ['related_class'] = Helper::className($foreignTableName);
+                                        $pivotTables[$relativeTableName] [$belongsToManyProperty] ['relatedPivotKey'] = $foreignPivotColumnName;
+                                        $pivotTables[$relativeTableName] [$belongsToManyProperty]['foreignPivotKey'] = $relPivotColumnData['name'];
+                                    }
+
                                 }
-                                $linkTables[$this->findTableNameByPivotColumn($columnName)] [$belongsToManyProperty] ['pivot_table'] = $tName;
-                                $linkTables[$this->findTableNameByPivotColumn($columnName)] [$belongsToManyProperty] ['to_table'] = $this->findTableNameByPivotColumn($column);
-                                $linkTables[$this->findTableNameByPivotColumn($columnName)] [$belongsToManyProperty] ['related_class'] = Helper::className($this->findTableNameByPivotColumn($column));
-                                $linkTables[$this->findTableNameByPivotColumn($columnName)] [$belongsToManyProperty] ['relatedPivotKey'] = $column;
-                                $linkTables[$this->findTableNameByPivotColumn($columnName)] [$belongsToManyProperty]['foreignPivotKey'] = $arrColumnData['name'];
+
                             }
                         }
+
                     }
                 }
             }
         }
-        $this->belongsToMany = $linkTables;
+        $this->belongsToMany = $pivotTables;
         //dd(__METHOD__, $this->belongsToMany);
-        return $linkTables;
+        return $pivotTables;
     }
 
-    public function getBelongsToManyKeys()
-    {
-        return $this->belongsToMany;
-    }
 
-    protected function findTableNameByPivotColumn($columnName)
+    protected function findTableNameByPivotColumn($columnName, $tableName = false)
     {
+        if ($columnName == 'parent_id') return $tableName;
+
         $partTableName = substr($columnName, 0, strpos($columnName, '_id'));
-        foreach ($this->tablesNames as $tName => $arrFields) {
-            if (strpos(' ' . $tName, $partTableName)) {
+        if ($partTableName == 'author') {
+            $partTableName = 'user';
+        }
+        foreach ($this->allTablesNames as $tName => $arrFields) {
+
+            if (strpos(' ' . $tName, $partTableName) && !strpos(' ' . $tName, 'link_') && !strpos(' ' . $tName, 'pivot_')) {
                 return $tName;
             }
         }
@@ -225,13 +271,15 @@ class Table
 
                 if (mb_strrpos($column, '_id')) {
 
-                    if (isset($foreignKeys[$table]['belongsTo']))
-                        $count = count($foreignKeys[$table]['belongsTo']);
-                    else $count = 0;
+//                    if (isset($foreignKeys[$table]['belongsTo']))
+//                        $count = count($foreignKeys[$table]['belongsTo']);
+//                    else $count = 0;
 
-                    $foreignKeys[$table]['belongsTo'][$count]['key'] = $column;
-                    $foreignKeys[$table]['belongsTo'][$count]['to_table'] =
-                        $this->getTableNameFromKeyBelongsTo($tables, $allTables, $table, $column);
+                    $toTable = $this->getTableNameFromKeyBelongsTo($tables, $allTables, $table, $column);
+//                    $foreignKeys[$table]['belongsTo'][$count]['key'] = $column;
+//                    $foreignKeys[$table]['belongsTo'][$count]['to_table'] = $toTable;
+                    $foreignKeys[$table]['belongsTo'][$toTable]['key'] = $column;
+                    $foreignKeys[$table]['belongsTo'][$toTable]['to_table'] = $toTable;
                 }
             }
         }
@@ -254,7 +302,9 @@ class Table
             return $tab;
         }
         foreach ($allTables as $table) {
-
+            if ($key === 'author') {
+                $key = 'user';
+            }
             if (Str::plural($key) == $table) {
 
                 return $table;
@@ -331,8 +381,8 @@ class Table
             $names[$table] = DB::getSchemaBuilder()->getColumnListing($table);
 
         }
-        foreach ($fullNames as $tName => $columns){
-            foreach ($columns as $cName => $data){
+        foreach ($fullNames as $tName => $columns) {
+            foreach ($columns as $cName => $data) {
                 $fullNames[$tName][$cName]['required'] = $this->getRequiredForColumn($cName, $data);
                 $fullNames[$tName][$cName]['request_required'] = $this->getRequiredForColumnRequired($cName, $data);
                 $fullNames[$tName][$cName]['unique'] = $this->getUniqueForColumn($cName, $data);
@@ -360,6 +410,51 @@ class Table
 
     }
 
+
+    /**
+     * @param $tableName
+     * @return bool
+     */
+    protected function haveToMake($tableName)
+    {
+        $only_this_table = config('alex-claimer-generator.config.only_this_table');
+        if (!empty($only_this_table) && is_array($only_this_table) && in_array($tableName, $only_this_table)) {
+            //bbb(__METHOD__,$tableName, empty($only_this_table) , 'only_this_table true');
+            return true;
+        } elseif (!empty($only_this_table)) {
+            //bbb(__METHOD__,$tableName,empty($only_this_table) , 'only_this_table false');
+            return false;
+        }
+
+        if (is_array($this->ignoredTables) && in_array($tableName, $this->ignoredTables)) {
+            //bbb(__METHOD__,$tableName, 'ignoredTables false 111');
+            return false;
+        }
+        if (in_array(substr($tableName, strpos($tableName, '_') + 1), $this->ignoredTables)) {
+            //bbb(__METHOD__,$tableName, 'ignoredTables false 222');
+            return false;
+        }//??
+        $without_pivot_tables = config('alex-claimer-generator.config.without_pivot_tables');
+
+        if (($without_pivot_tables && strpos(' ' . $tableName, 'pivot_'))) {
+            //bbb(__METHOD__,$tableName, 'without_pivot_tables false');
+            return false;
+        }
+
+        $only_table_with_prefix = config('alex-claimer-generator.config.only_table_with_prefix');
+
+        $table_prefix = config('alex-claimer-generator.config.table_prefix');
+
+
+        if ($only_table_with_prefix && strpos(' ' . $tableName, $table_prefix) !== 1) {
+            //bbb(__METHOD__,$tableName, 'only_table_with_prefix false');
+            return false;
+        }
+
+        //bbb(__METHOD__,$tableName, 'end  true');
+        return true;
+    }
+
     /**
      * @return array
      */
@@ -368,6 +463,7 @@ class Table
         $arTablesNames = [];
 
         $tables = DB::select('SHOW TABLES');
+
         $db_name_key = 'Tables_in_' . config('database.connections.mysql.database');
 
         $only_table_with_prefix = config('alex-claimer-generator.config.only_table_with_prefix');
@@ -376,7 +472,7 @@ class Table
 
         $only_this_table = config('alex-claimer-generator.config.only_this_table');
 
-        $without_link_tables = config('alex-claimer-generator.config.without_link_tables');
+        $without_pivot_tables = config('alex-claimer-generator.config.without_pivot_tables');
 
         if ($only_this_table) {
             $tables = $only_this_table;
@@ -391,7 +487,7 @@ class Table
                 if (
                     !in_array($t_name, $this->ignoredTables) &&
                     !in_array(substr($t_name, strpos($t_name, '_') + 1), $this->ignoredTables) &&
-                    !($without_link_tables && strpos($t_name, '_link_'))
+                    !($without_pivot_tables && strpos($t_name, '_pivot_'))
                 ) {
 //                    if (strpos($t_name, 'reset'))
 //                    dd(__METHOD__, substr($t_name, strpos($t_name, '_')+1));
@@ -421,4 +517,35 @@ class Table
         return $arTablesNames;
     }
 
+    /**
+     * @return array
+     */
+    public function getTablesNamesData(): array
+    {
+        return $this->tablesNamesData;
+    }
+
+    /**
+     * @return array|void
+     */
+    public function getAllRelations()
+    {
+        return $this->allRelations;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBelongsToManyKeys()
+    {
+        return $this->belongsToMany;
+    }
+
+    /**
+     * @return array|void
+     */
+    public function getUniqueRelations()
+    {
+        return $this->uniqueRelations;
+    }
 }

@@ -8,6 +8,40 @@ use AlexClaimer\Generator\App\Services\Generators\Helper;
 
 class View
 {
+
+    public static function getFullPathNameASSETsResource($type = 'scss')
+    {
+        return "resources/assets/" . self::getFullPathNameASSETsInBlade($type);
+    }
+
+    public static function getFullPathNameASSETsPublic($type = 'css')
+    {
+        return "public/" . self::getFullPathNameASSETsInBlade($type);
+    }
+
+    public static function getFullPathNameASSETsInBlade($type = 'css')
+    {
+
+        self::getPostfixPrefix($postfix, $prefix);
+
+        if ($prefix !== "") {
+            $fileName = $prefix;
+            $prefix .= "/";
+        } else {
+            $fileName = 'app';
+        }
+        if ($type == 'variables'){
+            $fileName = '_variables';
+            $type = 'scss';
+        }
+        if ($type == 'bootstrap'){
+            $fileName = 'bootstrap';
+            $type = 'js';
+        }
+
+        return $prefix . $type . "/" . $fileName . "." . $type;
+    }
+
     public static function getPostfixPrefix(&$postfix, &$prefix)
     {
         $postfix = lcfirst(config('alex-claimer-generator.config.namespace_postfix'));
@@ -46,6 +80,24 @@ class View
     }
 
     /**
+     * @param $type
+     * @return bool|string
+     */
+    public static function makeNameSpaceForView($tName, $bladeName)
+    {
+        $postfix = config('alex-claimer-generator.config.namespace_postfix');
+        if (trim($postfix) !== '') $postfix .= '\\';
+
+        $str = '\\' . $postfix;
+
+        $str = strtolower($str);
+
+        $str .= $tName . '.' . $bladeName;
+
+        return $str;
+    }
+
+    /**
      * @param $tName
      * @return string
      */
@@ -58,7 +110,8 @@ class View
         }
         return strtolower($postfix) . "." . $tName . $type;
     }
-    public static  function getColumnName($arrColumns)
+
+    public static function getColumnName($arrColumns)
     {
         if (Arr::exists($arrColumns, 'name')) {
             $name = 'name';
@@ -75,9 +128,11 @@ class View
         }
         return $name;
     }
-    public static  function  getIgnoredColumns($typeBlade = 'edit'){
+
+    public static function getIgnoredColumns($typeBlade = 'edit')
+    {
         $ignored_columns = config('alex-claimer-generator.config.ignored_columns_in_edit_create_views');
-        if ($typeBlade == 'index'){
+        if ($typeBlade == 'index') {
             $ignored_columns[] = 'password';
         }
         return $ignored_columns;

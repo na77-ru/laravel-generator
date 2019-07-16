@@ -1,0 +1,76 @@
+<?php
+
+namespace {{ namespace }};
+
+use Closure;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
+
+class {{ className }}
+{
+    /**
+     * Handle an incoming request.
+     *
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @param \Closure $next
+     *
+     * @return mixed
+     */
+    public function handle($request, Closure $next)
+    {
+        $errorMessage = "Нет доступа";
+        $path = $request->path();
+        $prefix = 'admin/auth/';
+        if (!strpos(' ' . $path, $prefix)) {
+            return $next($request);
+        }
+        $permission = "";
+        $permissions = ['action', 'group', 'limitation', 'permission_role_action', 'permission',
+            'profile', 'role', 'social_login', 'theme', 'user',];
+
+        foreach ($permissions as $p) {
+            if (strpos($path, $p)) {
+                $permission = $p;
+                break;
+            }
+        }
+        $action = "";
+        $actions = ['show', 'create', 'update', 'delete',];
+        foreach ($actions as $a) {
+            if (strpos($path, $a)) {
+                $action = $a;
+                break;
+            }
+        }
+        if (strpos($path, 'edit')) {
+            $action = 'update';
+        } elseif ($action == '') {
+            $action = 'show';
+        }
+        if ($result = Auth::user()->hasAccess([$permission => $action])) {
+
+            app()->data->set(['limitation' => $result->limitation->name]);
+
+            return $next($request);
+
+        } else {
+
+            if ($request->session() !== null &&
+                $request->session()->get('errors') !== null &&
+                $request->session()->get('errors')->get('messages') !== null &&
+                Arr::exists($request->session()->get('errors')->get('messages'), 0) &&
+                $request->session()->get('errors')->get('messages')[0] === $errorMessage
+            ) {
+
+                return redirect()->route('admin');
+
+            }
+
+            return redirect()->back()->withErrors(['messages' => $errorMessage]);
+
+        }
+
+    }
+}

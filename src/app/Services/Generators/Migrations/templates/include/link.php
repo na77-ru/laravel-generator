@@ -7,7 +7,7 @@ class <?= $className ?> extends Migration
         $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB';
         <?php 
               $t_in =  $t_2.'_in_'.$t_1;
-              require 'templates/link.php';
+              require 'templates/pivot.php';
         ?> 
 
    }

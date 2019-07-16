@@ -33,12 +33,34 @@ class Route
         self::$output_web = $output_web;
     }
 
+    public static function shorterName($tName)
+    {
+        $max = 22;
+        if (strlen($tName) < $max) {
+            return $tName;
+        }
+
+        $arrTableName = explode('_', $tName);
+        foreach ($arrTableName as &$str) {
+            $str = substr($str, 0, strlen($str) - 1);
+        }
+        $tName = implode($arrTableName);
+
+        if (strlen($tName) < $max) {
+            return $tName;
+        } else {
+            self::shorterName($tName);
+        }
+    }
+
     /**
      * @param $tName
      * @return string
      */
     public static function make_routes_url($tName, $type = '')
     {
+        $tName = self::shorterName($tName);
+
         $postfix = str_replace('\\', '/', Helper::getPostfix());
         $tName = substr($tName, strpos($tName, '_') + 1);
         if ($type !== '') {
@@ -53,6 +75,8 @@ class Route
      */
     public static function make_routes_name($tName, $type = '')
     {
+        $tName = self::shorterName($tName);
+
         $postfix = str_replace('\\', '_', Helper::getPostfix());
         $tName = substr($tName, strpos($tName, '_') + 1);
         if ($type !== '') {

@@ -1,0 +1,10 @@
+const mix = require('laravel-mix');
+
+
+
+
+mix.js('{{resources_js}}', '{{public_js}}')
+    .sass('{{resources_scss}}', '{{public_css}}')
+    .version();
+
+

@@ -23,7 +23,7 @@ class <?= str_replace("_", "", Illuminate\Support\Str::camel($className)) ?> ext
         $t_2 = $t_1;
         $t_1 = $t_11;
       $t_in = $t_2 . "___" .  $t_1;
-      require 'templates/link.php';
+      require 'templates/pivot.php';
 ?>
 
       

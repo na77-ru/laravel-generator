@@ -43,7 +43,7 @@ if (strpos($className, '___')) {
         $t_2 .= '_'.$arr[$i];
     }
     $t_1 = $ar[1];
-    require $sLaravelAddPath . 'include/link.php';
+    require $sLaravelAddPath . 'include/pivot.php';
 }elseif (strpos($className, '__')) {
     $ar = explode('__', $className);
     $arr = explode('_', $ar[0]);

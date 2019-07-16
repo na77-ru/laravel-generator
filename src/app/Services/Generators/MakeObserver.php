@@ -183,10 +183,12 @@ class MakeObserver
      * @param \$model
      * @return bool
      */
-      protected function creating(\$model)
+      protected function creating(\$model, \$bSlug = false)
       {
         \$this->setPublishedAt(\$model);
-        \$this->setSlug(\$model);
+        if (\$bSlug){
+            \$this->setSlug(\$model);
+        }
 
         \$model->created_at = Carbon::now();
         \$model->updated_at = Carbon::now();
@@ -208,11 +210,13 @@ class MakeObserver
      * @param \$model
      * @return bool
      */
-    protected function updating(\$model)
+    protected function updating(\$model, \$bSlug = false)
     {        
         \$this->setPublishedAt(\$model);
         \$this->setUpdatedAt(\$model);
-        \$this->setSlug(\$model);
+        if (\$bSlug){
+            \$this->setSlug(\$model);
+        }
 
         return true;
     }            

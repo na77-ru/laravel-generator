@@ -13,12 +13,12 @@ return [
     'only_this_table' => [
 
     ],
-    'only_table_with_prefix' => false,
-    'table_prefix' => 'test', // 'test',
+    'only_table_with_prefix' => true,
+    'table_prefix' => 'auth', // 'test',
 
-    'without_link_tables' => true,
+    'without_pivot_tables' => true,
 
-    'namespace_postfix' => '', // 'Test',
+    'namespace_postfix' => 'Admin\Auth', // 'Test',
     'generate_models' => true,
     'model' => [
         'namespace' => '\app\Models',// '\app\Models',
@@ -42,10 +42,18 @@ return [
 
     'generate_routes' => true,
 
+    'generate_providers' => true,
     'provider' => [
         'namespace' => '\app\Providers',
     ],
-    'generate_providers' => true,
+
+    'generate_middleware' => true,
+
+    'middleware' => [
+        'namespace' => '\app\Http\Middleware',
+    ],
+
+
 
     'generate_views' => true,
     'view' => [

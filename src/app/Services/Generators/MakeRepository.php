@@ -179,7 +179,7 @@ class MakeRepository
             foreach ($this->allRelations[$tName] as $property => $data) {
 
                 if ($data['type'] == 'belongsToMany')
-                $str .= "\t\t\t\$this->" . $this->getAttachFunctionNameParam($property) . ";\r\n";
+                    $str .= "\t\t\t\$this->" . $this->getAttachFunctionNameParam($property) . ";\r\n";
             }
         }
 
@@ -195,6 +195,7 @@ class MakeRepository
         return $str;
 
     }
+
     public function writeRepositoriesBegin($tName)
     {
         // writeBaseRepository  repository  repositories
@@ -250,11 +251,18 @@ class " . $className = Helper::className($tName) . "Repository extends " . Helpe
     public function setPropertiesBelongsToInVarWith($tName)
     {
         $str = "\r\n\t\tif (empty(\$with)){";
+
+        if (!is_array($this->belongsToKeys) || !is_string($tName))//11 //comment
+            dd(__METHOD__,'111', $this->belongsToKeys, $tName);//11 //comment
+
         if (Arr::exists($this->belongsToKeys, $tName)) {
             foreach ($this->belongsToKeys[$tName]['belongsTo'] as $arrBelongsTo) {
                 $property = Str::substr($arrBelongsTo['key'], 0, strpos($arrBelongsTo['key'], '_'));
                 $columns = '';
                 $i = 0;
+
+                if (!is_array($this->tablesNames) || !is_string($arrBelongsTo['to_table']))//11 //comment
+                    dd(__METHOD__, '222', $this->tablesNames, $arrBelongsTo['to_table']);//11 //comment
 
                 if (Arr::exists($this->tablesNames, $arrBelongsTo['to_table'])) {
                     $count = count($this->tablesNames[$arrBelongsTo['to_table']]) - 1;
@@ -278,6 +286,7 @@ class " . $className = Helper::className($tName) . "Repository extends " . Helpe
 
     public function setPropertiesBelongsToManyInVarWith($tName)
     {
+        if (!is_array($this->belongsToMany) || !is_string($tName)) dd(__METHOD__, $this->belongsToKeys, $tName);//11 //comment
         $str = '';
         if (Arr::exists($this->belongsToMany, $tName)) {
             foreach ($this->belongsToMany[$tName] as $property => $arrToMany) {
@@ -669,7 +678,6 @@ abstract class " . Helper::BaseClassName() . "Repository" . "
         return $str;
 
     }
-
 
 
     public function writeBaseRepository_create()

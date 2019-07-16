@@ -102,11 +102,11 @@ class MakeModel
      * @param $table
      * @return string
      */
-    public function writeBelongsToManyFunc($tName, $str)
+    public function writeBelongsToManyFunc($tName)
     {
         if (!Arr::exists($this->belongsToMany, $tName))return '';
 
-        $strComment = "
+        $str = "
     /**
      * @return \Illuminate\Database\Eloquent\Relations\belongsToMany
      **/\r\n";
@@ -114,7 +114,6 @@ class MakeModel
 
         foreach ($this->belongsToMany[$tName] as $property => $arr) {
 
-            $str .= $strComment;
             $str .= "    public function " . $property . "()\r\n";
             $str .= "    {\r\n";
 
@@ -197,8 +196,15 @@ class MakeModel
 
                 $str .= $this->writeBelongsTo($tName);
 
-                $str = $this->writeBelongsToManyFunc($tName, $str);
-                //dd(__METHOD__, $tName, $str);
+                $str .= $this->writeBelongsToManyFunc($tName);
+                if(strpos($tName, 'roles')){
+                    $str .= file_get_contents(__DIR__ .
+                        '/Stubs/Models/rolesHasAccess.stub');
+                }
+                if(strpos($tName, 'users')){
+                    $str .= file_get_contents(__DIR__ .
+                        '/Stubs/Models/usersHasAccess.stub');
+                }
                 $str .= "   /**
      * @return array
      */
@@ -209,7 +215,7 @@ class MakeModel
 
 
                 $str .= "\r\n}";
-                // dd(__METHOD__, Helper::makeFileDirName('model', $className));
+                // dd(__METHOD__, Helper::makeFileDirName('model
                 file_put_contents(Helper::makeFileDirName('model', $className), $str);
 
             }

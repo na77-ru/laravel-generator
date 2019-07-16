@@ -1,0 +1,22 @@
+    /**
+     * @param array $permissions
+     * @return bool
+     */
+    public function hasAccess(array $permissions)
+    {
+        // check if the permission is available in any role
+        foreach ($this->roles as $role) {
+            if ($result = $role->hasAccess($permissions)) {
+                return $result;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks if the user belongs to role.
+     */
+    public function inRole(string $roleName)
+    {
+        return $this->roles()->where('name', $roleName)->count() == 1;
+    }

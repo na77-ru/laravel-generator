@@ -1,0 +1,32 @@
+    /**
+     * @param array $permissions
+     * @return bool
+     */
+    public function hasAccess(array $permissions)
+    {
+        foreach ($permissions as $permission => $action) {
+
+            if ($result = $this->hasPermission($permission, $action))
+                return $result;
+
+        }
+        return false;
+    }
+
+    /**
+     * @param string $permission
+     * @param string $action
+     * @return mixed
+     */
+    private function hasPermission(string $permission, string $action)
+    {
+        $action = AuthAction::where('name', $action)->first(['id', 'name']);
+        $permission = AuthPermission::where('name', $permission)->first(['id', 'name']);
+
+        return AuthLinkPermissionRoleAction
+            ::where('action_id', $action['id'])
+            ->where('permission_id', $permission['id'])
+            ->where('role_id', $this->id)
+            ->with('limitation:id,name')
+            ->first('limitation_id');
+    }

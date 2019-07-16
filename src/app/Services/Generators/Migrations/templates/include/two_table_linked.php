@@ -16,7 +16,7 @@ class <?= $className ?> extends Migration
         $t_2 = $t_1;
         $t_1 = $t_11;
       $t_in = $t_2 . "_in_" .  $t_1;
-      require 'templates/link.php';
+      require 'templates/pivot.php';
 ?>
 
       
